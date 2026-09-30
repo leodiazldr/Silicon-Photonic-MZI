@@ -1,0 +1,120 @@
+# Broadband check: rebuild the geometry at the optimal L_MMI from step10 and
+# sample the S-matrix across the C-band to confirm the 50:50 split holds.
+
+# before running check the working directory: File -> Change working directory
+
+############# Sweep #################
+switchtolayout;
+
+L_current = L_opt;
+
+x_mmi_end_opt   = x_mmi_start + L_current;
+x_taper_end_opt = x_mmi_end_opt + L_taper_out;
+x_out_port_opt  = x_taper_end_opt + L_out_wg;
+
+setnamed("MMI::mmi_body", "x max", x_mmi_end_opt);
+setnamed("mesh_mmi", "x max", x_mmi_end_opt);
+
+V_out_taper_top = [ x_mmi_end_opt,   dy - wg_width_out_initial / 2;
+                    x_taper_end_opt,  dy - wg_width           / 2;
+                    x_taper_end_opt,  dy + wg_width           / 2;
+                    x_mmi_end_opt,    dy + wg_width_out_initial / 2 ];
+setnamed("MMI::output_taper_top", "vertices", V_out_taper_top);
+setnamed("mesh_output_taper_top", "x min", x_mmi_end_opt);
+setnamed("mesh_output_taper_top", "x max", x_taper_end_opt);
+
+V_out_taper_bottom = [ x_mmi_end_opt,   -dy - wg_width_out_initial / 2;
+                       x_taper_end_opt,  -dy - wg_width           / 2;
+                       x_taper_end_opt,  -dy + wg_width           / 2;
+                       x_mmi_end_opt,    -dy + wg_width_out_initial / 2 ];
+setnamed("MMI::output_taper_bottom", "vertices", V_out_taper_bottom);
+setnamed("mesh_output_taper_bottom", "x min", x_mmi_end_opt);
+setnamed("mesh_output_taper_bottom", "x max", x_taper_end_opt);
+
+setnamed("MMI::output_wg_top", "x min", x_taper_end_opt);
+setnamed("MMI::output_wg_top", "x max", x_out_port_opt);
+setnamed("mesh_output_wg_top", "x min", x_taper_end_opt);
+setnamed("mesh_output_wg_top", "x max", x_out_port_opt);
+
+setnamed("MMI::output_wg_bottom", "x min", x_taper_end_opt);
+setnamed("MMI::output_wg_bottom", "x max", x_out_port_opt);
+setnamed("mesh_output_wg_bottom", "x min", x_taper_end_opt);
+setnamed("mesh_output_wg_bottom", "x max", x_out_port_opt);
+
+setnamed("MMI::box", "x max", x_out_port_opt + 1*um);
+setnamed("MMI::cladding", "x max", x_out_port_opt + 1*um);
+
+# update the cell spans to the new geometry
+span_1 = x_taper_start - x_in_port;
+span_2 = x_mmi_start - x_taper_start;
+span_3 = x_mmi_end_opt - x_mmi_start;
+span_4 = x_taper_end_opt - x_mmi_end_opt;
+span_5 = x_out_port_opt - x_taper_end_opt;
+
+setnamed("EME", "group spans", [span_1; span_2; span_3; span_4; span_5]);
+
+?"";
+?"Running wavelength sweep (" + num2str((lambda0 - wavelength_span/2)/nm, "%.0f") + "-" + num2str((lambda0 + wavelength_span/2)/nm, "%.0f") + " nm) at optimal L_MMI...";
+run;
+##########################################
+
+# wavelength sweep
+N_lam = 101;
+setemeanalysis("wavelength sweep", true);
+setemeanalysis("start wavelength",lambda0 - wavelength_span/2);
+setemeanalysis("stop wavelength", lambda0 + wavelength_span/2);
+setemeanalysis("number of wavelength points",N_lam);
+emesweep("wavelength sweep");
+##########################################
+
+S = getemesweep("S_wavelength_sweep");
+lam       = S.wavelength;
+T2_vs_lam = abs(S.s12)^2;
+T3_vs_lam = abs(S.s13)^2;
+
+# transmittance sums to insertion loss, and the ratio gives the splitting imbalance
+IL_vs_lam  = matrix(N_lam, 1);
+Imb_vs_lam = matrix(N_lam, 1);
+
+for (i = 1:N_lam) {
+    T_top_i = T2_vs_lam(i);
+    T_bot_i = T3_vs_lam(i);
+
+    T_sum = T_top_i + T_bot_i;
+    if (T_sum < 1e-30) { T_sum = 1e-30; }
+    IL_vs_lam(i) = -10 * log10(T_sum);
+
+    if (T_top_i < 1e-30) { T_top_i = 1e-30; }
+    if (T_bot_i < 1e-30) { T_bot_i = 1e-30; }
+    Imb_vs_lam(i) = abs(10 * log10(T_top_i / T_bot_i));
+}
+
+############# Results #################
+?"";
+?"==============================================";
+?"  MMI Wavelength Sweep (C-band)";
+?"==============================================";
+?"  wavelengths : " + num2str(N_lam) + " points, " + num2str(lam(1)/nm, "%.0f") + " to " + num2str(lam(N_lam)/nm, "%.0f") + " nm";
+?"";
+?"  lambda (nm)   T_top     T_bot     IL (dB)   Imb (dB)";
+
+# report at 10 nm intervals across the band
+lam_check = [1520, 1530, 1540, 1550, 1560, 1570, 1580] * nm;
+N_check   = 7;
+
+for (j = 1:N_check) {
+    # nearest sampled wavelength to the requested check point
+    idx = 1;
+    for (i = 1:N_lam) {
+        if (abs(lam(i) - lam_check(j)) < abs(lam(idx) - lam_check(j))) { idx = i; }
+    }
+    ?"  " + num2str(lam(idx)/nm, "%6.1f") + "     " + num2str(T2_vs_lam(idx), "%.4f") + "    " + num2str(T3_vs_lam(idx), "%.4f") + "    " + num2str(IL_vs_lam(idx), "%6.3f") + "    " + num2str(Imb_vs_lam(idx), "%6.3f");
+}
+?"==============================================";
+?"";
+##########################################
+
+############# Save #################
+matlabsave("wavelength_sweep.mat", lam, T2_vs_lam, T3_vs_lam, IL_vs_lam, Imb_vs_lam);
+?"Wavelength sweep saved to wavelength_sweep.mat";
+##########################################

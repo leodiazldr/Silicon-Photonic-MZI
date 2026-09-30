@@ -1,0 +1,108 @@
+# FDE mode check and length refinement.
+# Computes the eigenmodes of the MMI cross-section: verifies the mode count is >= 3
+# (the minimum for a 1x2 MMI) and derives L_pi from the simulated beta_0 - beta_1,
+# replacing the slab estimate from step02. Requires step03_geometry to have run.
+
+# before running check the working directory: File -> Change working directory
+
+addfde;
+set("solver type", "2D x normal");             # cross-section in yz plane
+set("x", (x_mmi_start + x_mmi_end) / 2);       # at center of MMI body
+set("y", 0);
+set("y span", W_MMI + 2*um);
+set("z", wg_thickness/2);
+set("z span", clad_height);
+set("y min bc", 'Metal');
+set("y max bc", 'Metal');
+set("z min bc", 'Metal');
+set("z max bc", 'Metal');
+set("wavelength", lambda0);
+set("number of trial modes", 20);
+
+addmesh;
+set("x", (x_mmi_start+x_mmi_end)/2);
+set("x span", 0);
+set("y", 0);
+set("y span", W_MMI+0.5*um);
+set("z", wg_thickness/2);
+set("z max", wg_thickness+0.5*um);
+set("dy", 0.05*um);
+set("dz", 0.05*um);
+
+N_modes_found = findmodes;
+
+?"";
+?"==============================================";
+?"  FDE Mode Check — MMI Cross-Section";
+?"==============================================";
+?"  Number of guided TE modes: " + num2str(N_modes_found);
+?"  (minimum 3 required for 1x2 MMI)";
+?"";
+?"  Mode    n_eff        TE fraction";
+?"  --------------------------------";
+
+for (m = 1 : min([N_modes_found, 10])) {
+    n_eff_m     = getresult("FDE::data::mode" + num2str(m), "neff");
+    TE_frac_m   = getresult("FDE::data::mode" + num2str(m), "TE polarization fraction");
+    ?"  " + num2str(m-1) + "       " +
+        num2str(n_eff_m, "%.5f") + "     " +
+        num2str(TE_frac_m, "%.2f");
+}
+
+############# Refine L_MMI from the simulated beat length #################
+if (N_modes_found >= 2) {
+    n_eff_0  = getresult("FDE::data::mode1", "neff");
+    n_eff_1  = getresult("FDE::data::mode2", "neff");
+    beta_0   = 2 * pi * n_eff_0 / lambda0;
+    beta_1   = 2 * pi * n_eff_1 / lambda0;
+    L_pi_fde = pi / abs(beta_0 - beta_1);
+    L_MMI = 3 * L_pi_fde / 8;
+
+    ?"";
+    ?"  Simulated L_pi (FDE)  : " + num2str(L_pi_fde / um, "%.2f") + " um";
+    ?"  Analytical L_pi       : " + num2str(L_pi     / um, "%.2f") + " um";
+    ?"  Ratio (FDE/theory)    : " + num2str(L_pi_fde / L_pi, "%.3f");
+    ?"";
+    ?"  -> Updated L_MMI est. : " + num2str(L_MMI / um, "%.2f") + " um";
+    ?"==============================================";
+
+    # rebuild the coordinates from the refined L_MMI, then push them into the objects
+    switchtolayout;
+
+    x_mmi_end      = x_mmi_start   + L_MMI;
+    x_taper_end    = x_mmi_end     + L_taper_out;
+
+    x_out_port     = x_taper_end   + L_out_wg;
+
+    setnamed("MMI::mmi_body", "x max", x_mmi_end);
+
+    V_out_taper_top = [ x_mmi_end,   dy - wg_width_out_initial / 2;
+                        x_taper_end,  dy - wg_width           / 2;
+                        x_taper_end,  dy + wg_width           / 2;
+                        x_mmi_end,    dy + wg_width_out_initial / 2 ];
+    setnamed("MMI::output_taper_top", "vertices", V_out_taper_top);
+
+    V_out_taper_bottom = [ x_mmi_end,   -dy - wg_width_out_initial / 2;
+                           x_taper_end,  -dy - wg_width           / 2;
+                           x_taper_end,  -dy + wg_width           / 2;
+                           x_mmi_end,    -dy + wg_width_out_initial / 2 ];
+    setnamed("MMI::output_taper_bottom", "vertices", V_out_taper_bottom);
+
+    setnamed("MMI::output_wg_top", "x min", x_taper_end);
+    setnamed("MMI::output_wg_top", "x max", x_out_port);
+
+    setnamed("MMI::output_wg_bottom", "x min", x_taper_end);
+    setnamed("MMI::output_wg_bottom", "x max", x_out_port);
+
+    setnamed("MMI::box", "x max", x_out_port + 1*um);
+    setnamed("MMI::cladding", "x max", x_out_port + 1*um);
+
+} else {
+    ?"";
+    ?"  WARNING: fewer than 2 modes found — L_MMI left at the analytical value";
+    ?"  from step02. Increase W_MMI and rerun.";
+}
+
+select("mesh");
+delete;
+##########################################

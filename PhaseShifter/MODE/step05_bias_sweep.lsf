@@ -1,0 +1,77 @@
+# Bias sweep: solve the optical mode once per bias point.
+#
+# The CHARGE carrier map is a single dataset with the bias voltage as a parameter,
+# so selecting a bias point means setting the parameter index on the grid
+# attribute rather than loading a new file.
+#
+# Lumerical script matrices are real, so the complex neff is split into neff_real
+# and neff_imag here and recombined in neff_vs_bias.py.
+#
+# Output: neff_vs_bias.mat
+#   V, neff_real, neff_imag, alpha, alpha_dB_cm, V_pi_L
+
+# before running check the working directory: File -> Change working directory
+
+?"";
+?"Sweeping bias: " + num2str(V_bias_start) + " to " + num2str(V_bias_stop) +
+    " V, " + num2str(V_bias_points) + " points...";
+
+############# Sweep #################
+V = linspace(V_bias_start, V_bias_stop, V_bias_points);
+neff_real = zeros(V_bias_points);
+neff_imag = zeros(V_bias_points);
+
+for (i = 1:V_bias_points) {
+    switchtolayout;
+
+    # the bias index follows the pattern "<swept quantity>_index"; it can be read
+    # off the grid attribute's property table in the GUI, and nothing else depends
+    # on the name
+    setnamed("np", "V_anode_index", i);
+
+    findmodes;
+    neff_i = getdata("FDE::data::mode1", "neff");
+
+    neff_real(i) = real(neff_i);
+    neff_imag(i) = imag(neff_i);
+
+    # mode-continuity guard: a jump here means the solver returned a different mode
+    if (i > 1) {
+        if (abs(neff_real(i) - neff_real(i-1)) > 0.05) {
+            ?"  WARNING: neff jumped by " + num2str(abs(neff_real(i) - neff_real(i-1)), "%.3f") +
+                " at bias index " + num2str(i) + " (V = " + num2str(V(i)) + ").";
+            ?"           Possible mode hopping - check the field map at this point.";
+        }
+    }
+
+    ?"  " + num2str(i) + "/" + num2str(V_bias_points) +
+        "  V = " + num2str(V(i), "%.2f") + " V" +
+        "  neff = " + num2str(neff_real(i), "%.6f") +
+        "  k = " + num2str(neff_imag(i), "%.3e");
+}
+##########################################
+
+############# Derived quantities #################
+alpha = 4*pi*neff_imag / wavelength0;   # 1/m
+alpha_dB_cm = alpha * 4.3429e-2;        # 1/m -> dB/cm
+
+# V_pi*L = lambda / (2*|dneff/dV|), by finite difference between adjacent points
+V_pi_L = zeros(V_bias_points - 1);
+for (i = 1:V_bias_points - 1) {
+    dneff_dV = (neff_real(i+1) - neff_real(i)) / (V(i+1) - V(i));
+    V_pi_L(i) = wavelength0 / (2 * abs(dneff_dV)) * 100;    # m*V -> cm*V
+}
+
+?"";
+?"Done.";
+?"  dneff over the range : " + num2str(neff_real(V_bias_points) - neff_real(1), "%.6f");
+?"  loss at " + num2str(V_bias_stop,  "%5.1f") + " V : " + num2str(alpha_dB_cm(V_bias_points), "%.2f") + " dB/cm";
+?"  loss at " + num2str(V_bias_start, "%5.1f") + " V : " + num2str(alpha_dB_cm(1), "%.2f") + " dB/cm";
+?"  V_pi*L, best point   : " + num2str(min(V_pi_L), "%.3f") + " V cm";
+?"  V_pi*L, mean         : " + num2str(mean(V_pi_L), "%.3f") + " V cm";
+##########################################
+
+matlabsave(result_file, V, neff_real, neff_imag, alpha, alpha_dB_cm, V_pi_L);
+?"";
+?"  Saved: " + result_file;
+?"  Next : neff_vs_bias.py -> neff(V), loss(V), V_pi*L(V)";

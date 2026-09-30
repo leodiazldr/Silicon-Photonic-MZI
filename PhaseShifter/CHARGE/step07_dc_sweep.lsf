@@ -1,0 +1,30 @@
+# DC bias sweep (reverse bias): the anode is swept while the cathode stays
+# grounded, and the carrier maps for the whole range are produced in one run.
+#
+# Output: charge_sweep.mat -- n, p and the mesh at every bias point. Consumed by
+# depletion_vs_bias.ipynb (W_dep) and by ../MODE/.
+
+# before running check the working directory: File -> Change working directory
+
+?"";
+?"Sweeping reverse bias (" + num2str(V_reverse_stop) + " to " + num2str(V_reverse_start) + " V)...";
+
+############# Sweep #################
+switchtolayout;
+
+# anode: swept over a range
+setnamed("CHARGE::boundary conditions::anode", "sweep type", "range");
+setnamed("CHARGE::boundary conditions::anode", "range start", V_reverse_start);  # V
+setnamed("CHARGE::boundary conditions::anode", "range stop",  V_reverse_stop);   # V
+setnamed("CHARGE::boundary conditions::anode", "range num points", V_num_points);
+# cathode: single bias point, grounded
+setnamed("CHARGE::boundary conditions::cathode", "sweep type", "single");
+setnamed("CHARGE::boundary conditions::cathode", "voltage", V_cathode);
+
+run;
+##########################################
+
+charge = getresult("CHARGE::charge", "charge");
+matlabsave("charge_sweep.mat", charge);
+
+?"  Sweep complete. Files saved: charge_sweep.mat";

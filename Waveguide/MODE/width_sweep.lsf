@@ -1,0 +1,119 @@
+# Waveguide width sweep: sweeps wg_width and records, per mode found, neff, ng,
+# the TE polarization fraction and the confinement factor. The thickness is fixed
+# at 220 nm. Post-processed by width_sweep.py.
+
+# before running check the working directory: File -> Change working directory
+
+switchtolayout;
+deleteall;
+
+addpath("../../shared");
+materials;  # shared dispersive / constant-index models
+
+clear;
+
+# units
+um = 1e-6;
+nm = 1e-9;
+
+# Waveguide
+wg_material = 'Si (Silicon) - Dispersive & Lossless';
+wg_width = 0.5*um;      # waveguide width
+wg_thickness = 220*nm;  # waveguide thickness (SOI device layer)
+
+box_material = 'SiO2 (Glass) - Const';
+clad_material = 'SiO2 (Glass) - Const';
+
+# FDE simulation
+fde_x_span = 10*um;     # FDE simulation window, x
+fde_y_span = 10*um;     # FDE simulation window, y
+fde_bc = 'Metal';       # boundary conditions: 'Metal' or 'PML'
+
+wavelength0 = 1.55*um;  # operating wavelength
+n_modes = 10;           # number of trial modes to solve for
+
+############# Structure #################
+addrect;
+set('name','waveguide');
+set('material',wg_material);
+set('x',0); set('x span',wg_width);
+set('y min',0); set('y max',wg_thickness);
+
+addrect;
+set('name','box');
+set('material',box_material);
+set('x',0); set('x span',fde_x_span*2);
+set('y min',-fde_y_span); set('y max',0);
+
+addrect;
+set('name','cladding');
+set('material',clad_material);
+set('x',0); set('x span',fde_x_span*2);
+set('y min',0); set('y max',fde_y_span);
+set('alpha',0.2);
+set('override mesh order from material database',true);
+set('mesh order',3);
+##########################################
+
+############# Simulation #################
+addfde;
+set('x',0); set('x span',fde_x_span);
+set('y',wg_thickness/2); set('y span',fde_y_span);
+set('x max bc',fde_bc); set('x min bc',fde_bc);
+set('y max bc',fde_bc); set('y min bc',fde_bc);
+
+addmesh;
+set('based on a structure',true);
+set('structure','waveguide');
+set('dx',wg_width/20);
+set('dy',wg_thickness/20);
+##########################################
+
+setanalysis('wavelength',wavelength0);
+setanalysis('number of trial modes',n_modes);
+
+############### Sweep ####################
+wg_width_sweep_start = 100*nm;
+wg_width_sweep_stop = 2000*nm;
+wg_width_sweep_step = 50*nm;
+
+?N = (wg_width_sweep_stop-wg_width_sweep_start)/wg_width_sweep_step+1;
+wg_width_sweep = linspace(wg_width_sweep_start,wg_width_sweep_stop,N);
+
+neff = zeros(N,n_modes);
+ng = zeros(N,n_modes);
+te_fraction = zeros(N,n_modes);
+
+for (gg=1:N){
+    switchtolayout;
+    wg_width = wg_width_sweep(gg);
+
+    select('waveguide');
+    set('x span',wg_width);
+
+    select('mesh');
+    set('dx',wg_width/50);
+
+    n = findmodes; # n is the number of modes actually found
+
+    for (wp=1:n){
+        m = 'mode' + num2str(wp);
+        neff(gg,wp) = getdata(m,"neff");
+        ng(gg,wp) = getdata(m,"ng");
+        te_fraction(gg,wp) = getdata(m,"TE polarization fraction");
+     }
+}
+
+matlabsave("wg_width_sweep.mat"); # saves the whole script workspace
+
+# quick look (the paper figure is produced by width_sweep.py):
+for(gg=1:n_modes){
+    plot(wg_width_sweep/nm,abs(neff(:,gg)),"width (nm)", "neff");holdon;
+}
+setplot("y min", 1.44); setplot("y max", 3);
+holdoff;
+
+for(gg=1:n_modes){
+    plot(wg_width_sweep/nm,te_fraction(:,gg),"width (nm)", "TE fraction");holdon;
+}
+holdoff;

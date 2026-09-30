@@ -1,0 +1,126 @@
+# EME solver setup: divides the structure into cell groups along the propagation
+# direction, expanding the field in the local eigenmodes of each cell.
+#
+# The five cell groups map one-to-one onto the geometry built in step03:
+#   1. input waveguide      (constant)
+#   2. input taper          (varying, interpolated)
+#   3. MMI body             (constant)
+#   4. output tapers        (varying, interpolated)
+#   5. output waveguides    (constant)
+
+# before running check the working directory: File -> Change working directory
+
+############# Simulation #################
+addeme;
+set("solver type", "3D: X prop");
+
+set("x min", x_in_port);
+set("y", 0);
+set("y span", W_MMI + 2*um);
+set("z", wg_thickness/2);
+set("z span", clad_height);
+
+set("wavelength", lambda0);
+
+set("energy conservation", "make passive");
+
+# vertical symmetry
+set("z min bc", "Symmetric");
+
+# cell definition
+set("allow custom eigensolver settings", true);
+set("number of cell groups", 5);
+
+# cell spans
+span_1 = x_taper_start - x_in_port;
+span_2 = x_mmi_start - x_taper_start;
+span_3 = x_mmi_end - x_mmi_start;
+span_4 = x_taper_end - x_mmi_end;
+span_5 = x_out_port - x_taper_end;
+
+# group properties, applied globally via arrays
+set("group spans", [span_1; span_2; span_3; span_4; span_5]);
+set("cells", [1; 21; 1; 21; 1]);
+set("subcell method", [0; 1; 0; 1; 0]); # 0 = none, 1 = CVCS
+set("modes", [10; 20; 50; 20; 10]);
+
+set("display cells", true);
+
+# mesh settings
+addmesh;
+set("name", "mesh_input_wg");
+set("x min", x_in_port);
+set("x max", x_taper_start);
+set("y", 0);
+set("y span", wg_width+0.5*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness+0.5*um);
+set("dy", 0.05*um);
+set("dz", 0.05*um);
+
+addmesh;
+set("name", "mesh_input_taper");
+set("x min", x_taper_start);
+set("x max", x_mmi_start);
+set("y", 0);
+set("y span", wg_width_out_initial+0.5*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness+0.5*um);
+set("dy", 0.05*um);
+set("dz", 0.05*um);
+
+addmesh;
+set("name", "mesh_mmi");
+set("x min", x_mmi_start);
+set("x max", x_mmi_end);
+set("y", 0);
+set("y span", W_MMI+0.5*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness+0.5*um);
+set("dy", 0.05*um);
+set("dz", 0.05*um);
+
+addmesh;
+set("name", "mesh_output_taper_top");
+set("x min", x_mmi_end);
+set("x max", x_taper_end);
+set("y", dy);
+set("y span", wg_width_out_initial+0.5*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness+0.5*um);
+set("dy", 0.05*um);
+set("dz", 0.05*um);
+
+addmesh;
+set("name", "mesh_output_taper_bottom");
+set("x min", x_mmi_end);
+set("x max", x_taper_end);
+set("y", -dy);
+set("y span", wg_width_out_initial+0.5*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness+0.5*um);
+set("dy", 0.05*um);
+set("dz", 0.05*um);
+
+addmesh;
+set("name", "mesh_output_wg_top");
+set("x min", x_taper_end);
+set("x max", x_out_port);
+set("y", dy);
+set("y span", wg_width+0.5*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness+0.5*um);
+set("dy", 0.05*um);
+set("dz", 0.05*um);
+
+addmesh;
+set("name", "mesh_output_wg_bottom");
+set("x min", x_taper_end);
+set("x max", x_out_port);
+set("y", -dy);
+set("y span", wg_width+0.5*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness+0.5*um);
+set("dy", 0.05*um);
+set("dz", 0.05*um);
+##########################################

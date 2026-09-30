@@ -1,0 +1,128 @@
+# Bend radius sweep: mode mismatch at the straight-to-bend junction.
+# FDE solves the straight guide and the bent guide at each radius; the overlap
+# between the two gives the mode-mismatch loss.
+#
+# Post-processed by bend_loss_analysis.py.
+
+# before running check the working directory: File -> Change working directory
+
+switchtolayout;
+deleteall;
+cleardcard;
+
+materials;
+
+clear;
+closeall;
+
+# units
+um = 1e-6;
+nm = 1e-9;
+
+# Waveguide
+wg_material = 'Si (Silicon) - Dispersive & Lossless';
+# Si3N4 (Silicon Nitride) - Dispersive & Lossless'
+wg_width = 0.5*um;     # 1*um (Si)
+wg_thickness = 220*nm; # 400*nm (Si)
+
+box_material = 'SiO2 (Glass) - Const';
+clad_material = 'SiO2 (Glass) - Const';
+
+# FDE simulation
+fde_x_span = 4*um;
+fde_y_span = 4*um;
+fde_bc = 'PML';
+
+# wavelength
+wavelength0 = 1550*nm;
+
+############# Structure #################
+addrect;
+set('name','waveguide');
+set('material',wg_material);
+set('x',0); set('x span',wg_width);
+set('y min',0); set('y max',wg_thickness);
+
+addrect;
+set('name','box');
+set('material',box_material);
+set('x',0); set('x span',fde_x_span*2);
+set('y min',-fde_y_span); set('y max',0);
+
+addrect;
+set('name','cladding');
+set('material',clad_material);
+set('x',0); set('x span',fde_x_span*2);
+set('y min',0); set('y max',fde_y_span);
+set('alpha',0.2);
+set('override mesh order from material database',true);
+set('mesh order',3);
+##########################################
+
+############# Simulation #################
+addfde;
+set('x',0); set('x span',fde_x_span);
+set('y',wg_thickness/2); set('y span',fde_y_span);
+set('x max bc',fde_bc); set('x min bc',fde_bc);
+set('y max bc',fde_bc); set('y min bc',fde_bc);
+
+addmesh;
+set('based on a structure',true);
+set('structure','waveguide');
+set('dx',wg_width/10);
+set('dy',wg_thickness/10);
+##########################################
+
+setanalysis('wavelength',wavelength0);
+setanalysis('number of trial modes',1);
+setanalysis('bent waveguide',false);
+
+n = findmodes;
+
+neff = real(getdata('FDE::data::mode1','neff'));
+
+############### Sweep ####################
+Rc_sweep_start = 4*um;
+Rc_sweep_stop = 20*um;
+Rc_sweep_step = 1*um;
+
+?N = (Rc_sweep_stop-Rc_sweep_start)/Rc_sweep_step+1;
+Rc_sweep = linspace(Rc_sweep_start,Rc_sweep_stop,N);
+
+neff_vec = zeros(N+1);
+dneff_vec = zeros(N);
+powercoupling = zeros(N);
+
+neff_vec(1) = neff;
+
+copydcard('mode1','radius0');
+
+switchtolayout;
+setanalysis('bent waveguide',true);
+for (gg=1:N){
+    switchtolayout;
+    setanalysis('bend radius',Rc_sweep(gg));
+    n = findmodes;
+    neff = real(getdata('FDE::data::mode1','neff'));
+    neff_vec(gg+1) = neff;
+    dneff_vec(gg) = abs(neff_vec(1)-neff);
+
+    copydcard('mode1','radius'+num2str(Rc_sweep(gg)/um));
+
+    # mode overlap between the straight and the bent guide
+    out = overlap('::radius0', '::radius'+num2str(Rc_sweep(gg)/um));
+    powercoupling(gg) = out(2);
+}
+
+LossMM = -10*log10(powercoupling^2);
+PropagationLoss = 2*100; # 2 dB/cm
+LossP = PropagationLoss*2*pi*Rc_sweep/4;
+
+plot(Rc_sweep/um,dneff_vec,"Radius of curvature (nm)", "dneff");
+
+plot(Rc_sweep/um,LossMM,"Radius of curvature (nm)", "Loss (dB)");
+
+plot(Rc_sweep/um, LossMM, LossP, LossMM+LossP, "Radius [um]", "Loss [dB]" ,"Bend Loss", "loglog, plot points");
+    legend("Mode Mismatch Loss","2 dB/cm propagation loss","Total Loss");
+
+matlabsave('neff_Rc_sweep_Si.mat');

@@ -1,0 +1,96 @@
+# Waveguide wavelength (frequency) sweep: records neff, the group velocity and the
+# group index across the C-band, and produces both a .mat of the raw results and a
+# data card that INTERCONNECT reads as the system-level waveguide model.
+#
+# Post-processed by frequency_sweep.py.
+
+# before running check the working directory: File -> Change working directory
+
+switchtolayout;
+deleteall;
+
+addpath("../../shared");
+materials;  # shared dispersive / constant-index models
+
+clear;
+
+# units
+um = 1e-6;
+nm = 1e-9;
+
+# Waveguide
+wg_material = 'Si (Silicon) - Dispersive & Lossless';
+wg_width = 0.5*um;      # waveguide width
+wg_thickness = 220*nm;  # waveguide thickness (SOI device layer)
+
+box_material = 'SiO2 (Glass) - Const';
+clad_material = 'SiO2 (Glass) - Const';
+
+# FDE simulation
+fde_x_span = 20*um;     # FDE simulation window, x
+fde_y_span = 20*um;     # FDE simulation window, y
+fde_bc = 'Metal';       # boundary conditions: 'Metal' or 'PML'
+
+############# Structure #################
+addrect;
+set('name','waveguide');
+set('material',wg_material);
+set('x',0); set('x span',wg_width);
+set('y min',0); set('y max',wg_thickness);
+
+addrect;
+set('name','box');
+set('material',box_material);
+set('x',0); set('x span',fde_x_span*2);
+set('y min',-fde_y_span); set('y max',0);
+
+addrect;
+set('name','cladding');
+set('material',clad_material);
+set('x',0); set('x span',fde_x_span*2);
+set('y min',0); set('y max',fde_y_span);
+set('alpha',0.2);
+set('override mesh order from material database',true);
+set('mesh order',3);
+##########################################
+
+############# Simulation #################
+addfde;
+set('x',0); set('x span',fde_x_span);
+set('y',wg_thickness/2); set('y span',fde_y_span);
+set('x max bc',fde_bc); set('x min bc',fde_bc);
+set('y max bc',fde_bc); set('y min bc',fde_bc);
+
+addmesh;
+set('based on a structure',true);
+set('structure','waveguide');
+set('dx',wg_width/50);
+set('dy',wg_thickness/50);
+##########################################
+
+wavelength0 = 1.5*um; # wavelength start
+
+setanalysis('wavelength',wavelength0);
+setanalysis('number of trial modes',1);
+
+findmodes;
+selectmode(1);
+setanalysis("track selected mode",1);
+setanalysis("stop wavelength",1.6*um);
+setanalysis("number of points",100);
+setanalysis("detailed dispersion calculation",1); # 1 = true (more accurate), 0 = false
+frequencysweep; # run the sweep
+neff = getdata("frequencysweep","neff"); # effective index vs wavelength
+f = getdata("frequencysweep","f");       # frequency
+lambda = c/f;                            # wavelength
+
+vg = getdata("frequencysweep","vg");     # group velocity
+f_vg = getdata("frequencysweep","f_vg"); # shorter vector: it is a derivative
+lambda_vg = c/f_vg;
+ng = c/vg;  # group index
+
+# data card for INTERCONNECT
+dataname = copydcard("frequencysweep");
+savedcard("waveguide_si_500x220.ldf", dataname);
+
+matlabsave("frequency_sweep_si.mat");

@@ -1,0 +1,48 @@
+# Small-signal AC bias sweep: re-applies the bias range from step07 and runs the
+# AC analysis on top of it, producing the admittance at every bias point and
+# frequency. Requires step08_ac_setup to have run first.
+#
+# Output: ac_sweep.mat, saved unprocessed -- the split into C and R is done in
+# capacitance_vs_bias.py so the extraction can be re-tuned without re-running the
+# solver.
+#
+# "ac_anode" fields: f, dI, dV_anode, V_anode.
+# From these: Y = dI/dV_anode, C = Im(Y)/(2 pi f), R = 1/Re(Y).
+
+# before running check the working directory: File -> Change working directory
+
+?"";
+?"Running small-signal AC sweep (" + num2str(V_reverse_stop) + " to " + num2str(V_reverse_start) + " V)...";
+
+############# Sweep #################
+# anode: swept over a range, same grid as step07
+setnamed("CHARGE::boundary conditions::anode", "sweep type", "range");
+setnamed("CHARGE::boundary conditions::anode", "range start", V_reverse_start);  # V
+setnamed("CHARGE::boundary conditions::anode", "range stop",  V_reverse_stop);   # V
+setnamed("CHARGE::boundary conditions::anode", "range num points", V_num_points);
+setnamed("CHARGE::boundary conditions::anode", "apply ac small signal", "all");
+
+# cathode: single bias point, grounded
+setnamed("CHARGE::boundary conditions::cathode", "sweep type", "single");
+setnamed("CHARGE::boundary conditions::cathode", "voltage", V_cathode);
+
+run;
+##########################################
+
+############# Save #################
+# List the results the solver produced first: if the AC step silently did nothing,
+# this listing is where it shows up.
+?"";
+?"Results present on CHARGE:";
+?getresult("CHARGE");
+?"";
+
+ac = getresult("CHARGE", "ac_anode");
+?"ac_anode fields:";
+?ac;
+?"";
+
+matlabsave("ac_sweep.mat", ac);
+?"  AC sweep complete. File saved: ac_sweep.mat";
+?"  Next: capacitance_vs_bias.py -> C(V), R(V), f_3dB(V)";
+##########################################

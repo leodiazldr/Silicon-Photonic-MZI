@@ -1,0 +1,33 @@
+# =============================================================================
+# Line endings
+# =============================================================================
+# Git normalises text files to LF in the repository while leaving them as CRLF
+# in the working tree on Windows, so the repo stays consistent no matter which
+# platform a contributor edits from.
+# =============================================================================
+* text=auto
+
+*.lsf    text
+*.md     text
+*.txt    text
+*.py     text
+*.json   text
+*.ipynb  text
+*.ps1    text
+
+# =============================================================================
+# Binary assets — never diff, never normalise
+# =============================================================================
+*.mat    binary
+*.png    binary
+*.mlx    binary
+*.ldf    binary
+*.lms    binary
+*.ldev   binary
+*.m1v    binary
+*.mp4    binary
+
+# =============================================================================
+# Generated files — excluded from language statistics on GitHub
+# =============================================================================
+shared/materials/* linguist-vendored

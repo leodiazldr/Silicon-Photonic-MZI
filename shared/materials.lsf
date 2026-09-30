@@ -1,0 +1,67 @@
+# materials.lsf - creates a dispersive material model in Lumerical.
+matname = "Si (Silicon) - Dispersive & Lossless";
+if(!materialexists(matname)){
+newmaterial = addmaterial("Lorentz");
+setmaterial(newmaterial,"name",matname);
+setmaterial(matname,"Permittivity",7.98737492);
+setmaterial(matname,"Lorentz Linewidth",1e8);
+setmaterial(matname,"Lorentz Resonance",3.93282466e+15);
+setmaterial(matname,"Lorentz Permittivity",3.68799143);
+setmaterial(matname,"color",[0.85, 0, 0, 1]); # red
+}
+
+matname = "SiO2 (Glass) - Dispersive & Lossless";
+if(!materialexists(matname)){
+newmaterial = addmaterial("Lorentz");
+setmaterial(newmaterial,"name",matname);
+setmaterial(matname,"Permittivity",2.119881);
+setmaterial(matname,"Lorentz Linewidth",1e10);
+setmaterial(matname,"Lorentz Resonance",3.309238e+13);
+setmaterial(matname,"Lorentz Permittivity", 49.43721);
+setmaterial(matname,"color",[0.5, 0.5, 0.5, 1]); # grey
+}
+
+matname = "SiO2 (Glass) - Const";
+if(!materialexists(matname)){
+newmaterial = addmaterial("Dielectric");
+setmaterial(newmaterial,"name",matname);
+setmaterial(matname,"Permittivity",1.444^2);
+setmaterial(matname,"color",[0.5, 0.5, 0.5, 1]); # grey
+}
+
+matname = "Air (1)";
+if(!materialexists(matname)){
+if (1) { newmaterial = addmaterial("Dielectric"); }
+setmaterial(newmaterial,"name",matname);
+setmaterial(matname,"Refractive Index",1);
+setmaterial(matname,"color",[0.85, 0.85, 0, 1]);
+}
+
+M = readdata("materials/si3n4_luke.txt");
+f = c/(M(:,1)*1e-6);
+eps = M(:,2)^2;
+
+matname = "Si3N4 (Silicon Nitride) - Luke";
+if(!materialexists(matname)){
+newmaterial = addmaterial("Sampled data");
+setmaterial(newmaterial,"name",matname);
+setmaterial(matname,"sampled data",[f,eps]);
+setmaterial(matname,"color",[170/255, 1, 0, 1]); # green
+}
+
+matname = "Si3N4 (Silicon Nitride) - Dispersive & Lossless";
+if(!materialexists(matname)){
+newmaterial = addmaterial("Sellmeier");
+setmaterial(newmaterial,"name",matname);
+setmaterial(matname,"B1",3.03844310);
+setmaterial(matname,"C1",0.01776047); 
+setmaterial(matname,"B2",40314.3064);
+setmaterial(matname,"C2",1644699.9994); 
+setmaterial(matname,"B3",-0.06354214);
+setmaterial(matname,"C3",-6.96744303); 
+setmaterial(matname,"color",[170/255, 1, 0, 1]); # green
+}
+clear;
+
+
+

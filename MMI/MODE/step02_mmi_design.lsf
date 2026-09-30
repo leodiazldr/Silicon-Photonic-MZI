@@ -1,0 +1,53 @@
+# Analytical MMI design, from self-imaging theory:
+#   W_e   = W_MMI + Goos-Haenchen shift          (effective width)
+#   L_pi  = 4 n_r W_e^2 / (3 lambda0)            (beat length of modes 0 and 1)
+#   L_MMI = 3 L_pi / 8                           (first two-fold image, 1x2)
+#   d_y   = W_e / 4                              (output port offset)
+#
+# A starting point only: the slab formula uses the bulk silicon index and so
+# ignores vertical confinement. step04 replaces L_pi with the FDE-derived value.
+
+# before running check the working directory: File -> Change working directory
+
+# effective width: W_e = W_MMI + (lambda0/pi)*(n_c/n_r)^(2*sigma)/sqrt(n_r^2-n_c^2)
+sigma_TE = 0;                                # 0 for TE, 1 for TM
+W_MMI    = 4.0 * um;                         # initial guess - sweep 4-6 um later
+
+W_e = W_MMI + (lambda0 / pi) * (n_c / n_r)^(2 * sigma_TE) / sqrt(n_r^2 - n_c^2);
+
+# beat length
+L_pi = 4 * n_r * W_e^2 / (3 * lambda0);
+
+# MMI length: general interference, 1x2, first two-fold image
+L_MMI = 3 * L_pi / 8;
+
+# output ports
+#dy  = W_e / 4;
+#dy = 1.209 * um;    # obtained from step_12 for W_MMI = 5 um
+dy = 1.019 * um;    # obtained from step_12 for W_MMI = 4 um
+
+# taper and lead lengths
+L_taper_in   = 8.0 * um;                     # input taper length
+L_taper_out  = 5.0 * um;                     # output taper length
+wg_width_out_initial = 1.0 * um;             # input taper end width
+
+L_in_wg   = 10.0 * um;                       # lead length, input side
+L_out_wg  = 10.0 * um;                       # lead length, output side
+
+############# Design summary #################
+?"==============================================";
+?"  MMI 1x2 — Analytical Design Parameters";
+?"==============================================";
+?"  Platform: 220 nm SOI, 1550 nm, TE";
+?"";
+?"  MMI width  (physical)  : " + num2str(W_MMI / um, "%.2f") + " um";
+?"  MMI width  (effective) : " + num2str(W_e   / um, "%.2f") + " um";
+?"  Beat length  L_pi      : " + num2str(L_pi  / um, "%.2f") + " um";
+?"  MMI length   L_MMI     : " + num2str(L_MMI / um, "%.2f") + " um";
+?"  Output offset  d_y     : " + num2str(dy    / um, "%.3f") + " um";
+?"  Output separation      : " + num2str(2*dy  / um, "%.3f") + " um";
+?"";
+?"  Input taper length     : " + num2str(L_taper_in  / um, "%.1f") + " um";
+?"  Output taper length    : " + num2str(L_taper_out / um, "%.1f") + " um";
+?"==============================================";
+##########################################

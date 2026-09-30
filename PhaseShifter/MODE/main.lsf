@@ -1,0 +1,35 @@
+# PN junction carrier-depletion phase shifter - MODE (electro-optic).
+# Effective index and loss versus bias, and the V_pi*L figure of merit.
+#
+# PREREQUISITE: run ../CHARGE/main.lsf first, so ../CHARGE/charge_sweep.mat exists.
+# Post-processing: neff_vs_bias.py
+
+# before running check the working directory: File -> Change working directory
+
+############# Phase A: import the carrier maps #################
+step01_setup;                  # units, geometry, FDE window, bias grid
+step02_materials;              # charge dataset -> grid attribute -> perturbed Si
+step03_geometry;               # BOX, slab, ridge, cladding, contacts
+##########################################
+
+############# Phase B: optical solver #################
+step04_fde_setup;              # FDE region, mesh, modal settings, reference solve
+##########################################
+
+############# Phase C: run #################
+step05_bias_sweep;             # solve the mode per bias point, save neff_vs_bias.mat
+##########################################
+
+# Closing summary
+?"";
+?"==============================================";
+?"  PN Junction — Task 3.2 Complete";
+?"==============================================";
+?"  Structural model : optical cross-section, same geometry as CHARGE";
+?"  Carrier model    : imported np density, Soref and Bennett";
+?"  Wavelength       : " + num2str(wavelength0/um*1e3) + " nm";
+?"  Bias swept       : " + num2str(V_bias_start) + " to " + num2str(V_bias_stop) +
+    " V, " + num2str(V_bias_points) + " points";
+?"";
+?"  Output: neff_vs_bias.mat";
+?"  Next  : neff_vs_bias.py -> neff(V), loss(V), V_pi*L(V)";

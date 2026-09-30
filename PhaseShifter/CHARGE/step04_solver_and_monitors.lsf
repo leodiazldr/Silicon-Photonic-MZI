@@ -1,0 +1,55 @@
+# CHARGE solver and monitors.
+#
+# Runs BEFORE step05_contacts: a contact attaches to the solver's boundary
+# conditions, so the solver has to exist first.
+#
+# "2D Z-Normal" solves in the x-y cross-section with z as a uniform thickness.
+
+# before running check the working directory: File -> Change working directory
+
+############# Solver #################
+# simulation region
+select("simulation region");
+set("dimension", "2D Z-Normal");
+set("x min", -lateral_half);
+set("x max",  lateral_half);
+set("y", wg_thickness/2);
+set("y span", 2*lateral_half);
+set("z", 0);
+
+# drift-diffusion solver
+addchargesolver;
+set("name", "CHARGE");
+set("solver mode", "steady state");
+
+set("simulation temperature", 300);               # K
+##########################################
+
+############# Monitors #################
+# carrier densities and space charge
+addchargemonitor;
+set("name","charge");
+set("monitor type",7);  # 2D z-normal
+set("x min", -lateral_half);
+set("x max",  lateral_half);
+set("y", wg_thickness/2);
+set("y span", 2*lateral_half);
+set("z", 0);
+set("save data",1);
+filename = "charge_data.mat";
+set("filename",filename);
+
+# electrostatic potential, for V_bi and the field across the depletion region
+addefieldmonitor;
+set("name","E_field");
+set("monitor type",7);
+set("x min", -lateral_half);
+set("x max",  lateral_half);
+set("y", wg_thickness/2);
+set("y span", 2*lateral_half);
+set("z", 0);
+set("record electrostatic potential",1);
+set("save data",1);
+filename = "electric_field.mat";
+set("filename",filename);
+##########################################

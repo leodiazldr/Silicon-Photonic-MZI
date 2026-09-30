@@ -1,0 +1,65 @@
+# Doping regions: four constant doping regions across the cross-section.
+#
+# The moderately doped p/n regions sit in the ridge and overlap the optical mode -
+# that is where depletion happens. The heavily doped p+/n+ regions sit out on the
+# slab, away from the mode, to give a low-resistance path to the metal contacts.
+#
+# "concentration" / "peak concentration" are in m^-3.
+
+# before running check the working directory: File -> Change working directory
+
+############# Doping #################
+# p+ contact region (left)
+adddiffusion;
+set("name", "p_plus");
+set("x min", -contact_outer);
+set("x max", -contact_inner);
+set("y min", 0);
+set("y max", slab_height);
+set("z", 0);
+set("z span", dev_length);
+set("dopant type", "p");
+set("concentration", N_contact);
+set("source face", "upper y");
+
+# p region (acceptor, in the ridge)
+addimplant;
+set("name", "p_region");
+V=[-contact_inner,-dev_length/2;x_junction,-dev_length/2;x_junction,dev_length/2;-contact_inner,dev_length/2]; # (um)
+set("vertices",V);
+set("x", 0);
+set("y", wg_thickness);
+set("z", 0);
+set("dopant type", "p");
+set("peak concentration", N_A);
+set("distribution function", "pearson4");
+set("range", wg_thickness/2);
+set("surface normal","y");
+
+# n region (donor, in the ridge)
+addimplant;
+set("name", "n_region");
+V=[contact_inner,-dev_length/2;x_junction,-dev_length/2;x_junction,dev_length/2;contact_inner,dev_length/2]; # (um)
+set("vertices",V);
+set("x", 0);
+set("y", wg_thickness);
+set("z", 0);
+set("dopant type", "n");
+set("peak concentration", N_D);
+set("distribution function", "pearson4");
+set("range", wg_thickness/2);
+set("surface normal","y");
+
+# n+ contact region (right)
+adddiffusion;
+set("name", "n_plus");
+set("x min", contact_inner);
+set("x max", contact_outer);
+set("y min", 0);
+set("y max", slab_height);
+set("z", 0);
+set("z span", dev_length);
+set("dopant type", "n");
+set("concentration", N_contact);
+set("source face", "upper y");
+##########################################

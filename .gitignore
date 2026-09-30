@@ -1,0 +1,41 @@
+# =============================================================================
+# Lumerical project, log and movie files
+# =============================================================================
+# Simulation projects are large, binary and machine-specific — the MMI one is
+# over 100 MB, above GitHub's per-file limit. They regenerate every time a
+# simulation is saved, so there is nothing to gain by tracking them.
+# =============================================================================
+*.lms
+*.ldev
+*.log
+*.m1v
+*.mp4
+
+# =============================================================================
+# Python environments and bytecode
+# =============================================================================
+# The local virtual environment and its caches. `Lib/` is listed separately
+# because an in-place `pip install` can leave a stray site-packages directory
+# in the repository root, outside `.venv/`.
+# =============================================================================
+.venv/
+Lib/
+__pycache__/
+*.py[cod]
+
+# =============================================================================
+# Editors
+# =============================================================================
+# VSCode settings are machine-specific. The Obsidian folder holds the vault's
+# editor and plugin state, which is not part of the design notes themselves.
+# =============================================================================
+.vscode/
+MZI/.obsidian/
+
+# =============================================================================
+# Deliberately NOT ignored
+# =============================================================================
+# Simulated data (*.mat), result figures (*.png) and the INTERCONNECT data card
+# (*.ldf) are tracked on purpose, so that every result in the READMEs can be
+# inspected without a Lumerical licence. Do not add them here.
+# =============================================================================

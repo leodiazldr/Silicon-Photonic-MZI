@@ -1,0 +1,36 @@
+# Analyze the step09 sweep: report transmission, IL and splitting balance at the
+# lowest-loss length.
+#
+# This is a single-wavelength pick, and the sweep's minimum is broad and not smooth at
+# the 0.1 dB level, so the lowest point sits inside the solver's own scatter. Confirm the
+# choice over the band before treating it as final.
+
+# before running check the working directory: File -> Change working directory
+
+############# Results #################
+min_IL       = min(IL_vs_L);
+idx_opt       = find(IL_vs_L, min_IL);
+L_opt_IL     = L_sweep_vec(idx_opt);
+
+L_opt        = L_opt_IL;
+T_top_opt    = T_top_vs_L(idx_opt);
+T_bot_opt    = T_bot_vs_L(idx_opt);
+
+# imbalance at the optimum (dB); 0 = perfect 50:50
+Imb_opt = abs(10 * log10(T_top_opt / T_bot_opt));
+
+?"";
+?"==============================================";
+?"  MMI Length Sweep Results";
+?"==============================================";
+?"  Analytical L_MMI      : " + num2str(L_MMI/um,    "%.2f") + " um";
+?"  Best L (min IL)        : " + num2str(L_opt_IL/um,  "%.2f") + " um";
+?"";
+?"  At min-loss length:";
+?"    T_top  = " + num2str(T_top_opt, "%.4f") + "  (" + num2str(10*log10(T_top_opt), "%.2f") + " dB)";
+?"    T_bot  = " + num2str(T_bot_opt, "%.4f") + "  (" + num2str(10*log10(T_bot_opt), "%.2f") + " dB)";
+?"    IL     = " + num2str(min_IL,    "%.3f") + " dB";
+?"    Imb    = " + num2str(Imb_opt,   "%.3f") + " dB";
+?"==============================================";
+?"";
+##########################################

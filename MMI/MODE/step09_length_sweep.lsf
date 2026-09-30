@@ -1,0 +1,46 @@
+# MMI length sweep: +/-20% of the current L_MMI, run as an EME propagation sweep
+# so the mode decomposition is reused instead of rebuilding the geometry.
+
+# before running check the working directory: File -> Change working directory
+
+?"";
+?"Sweeping MMI length (this is fast — EME reuses the mode decomposition)...";
+
+############# Sweep #################
+N_sweep     = 31;
+L_sweep_min = L_MMI * 0.80;
+L_sweep_max = L_MMI * 1.20;
+
+setemeanalysis("propagation sweep", true);
+setemeanalysis("parameter", "group span 3");   # group 3 = MMI body
+setemeanalysis("start", L_sweep_min);
+setemeanalysis("stop", L_sweep_max);
+setemeanalysis("number of points", N_sweep);
+
+emesweep;
+
+S_sweep = getemesweep("S");
+
+L_sweep_vec = S_sweep.group_span_3;
+T_top_vs_L  = abs(S_sweep.s12)^2;
+T_bot_vs_L  = abs(S_sweep.s13)^2;
+
+IL_vs_L     = matrix(N_sweep, 1);
+
+for (i = 1:N_sweep) {
+    T_top   = T_top_vs_L(i);
+    T_bot   = T_bot_vs_L(i);
+    L_test  = L_sweep_vec(i);
+
+    T_sum = T_top + T_bot;
+    if (T_sum < 1e-30) { T_sum = 1e-30; }
+    IL_vs_L(i) = -10 * log10(T_sum);
+}
+
+plot(L_sweep_vec, IL_vs_L);
+##########################################
+
+############# Save #################
+matlabsave("length_sweep.mat", L_sweep_vec, T_top_vs_L, T_bot_vs_L, IL_vs_L);
+?"Length sweep saved to length_sweep.mat";
+##########################################

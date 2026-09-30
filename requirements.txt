@@ -1,0 +1,7 @@
+# Python dependencies for the post-processing scripts and notebooks
+# (Waveguide, Bends, MMI, PhaseShifter).
+# Install with:  pip install -r requirements.txt
+
+numpy>=1.24
+h5py>=3.8          # reads Lumerical's MATLAB v7.3 (HDF5) .mat exports
+matplotlib>=3.7

@@ -1,0 +1,50 @@
+# PN junction carrier-depletion phase shifter — CHARGE (drift-diffusion).
+# Doping profile, DC bias sweep and junction capacitance.
+#
+# Post-processing: depletion_vs_bias.ipynb  (W_dep(V), from the DC sweep)
+#                  capacitance_vs_bias.py  (C(V), from the AC sweep)
+
+# before running check the working directory: File -> Change working directory
+
+############# Phase A: build the device #################
+step01_setup;                  # units, geometry, doping levels, bias sweep settings
+step02_materials;              # electrical models: semiconductor / insulator / conductor
+step03_geometry;               # BOX, silicon slab and ridge, metal contacts, cladding
+##########################################
+
+############# Phase B: configure the solver #################
+# order matters: the contacts attach to the solver's boundary conditions
+step04_solver_and_monitors;    # 2D drift-diffusion solver + carrier and field monitors
+step05_contacts;               # ohmic anode and cathode
+step06_doping;                 # p / n / p+ / n+ regions and the junction position
+##########################################
+
+############# Phase C: run #################
+step07_dc_sweep;               # sweep the anode, save charge_sweep.mat
+##########################################
+
+############# Phase D: junction capacitance #################
+# Runs on top of the DC sweep: the AC analysis linearises the bias points step07
+# just solved.
+step08_ac_setup;               # switch to small-signal AC, set the frequency sweep
+step09_ac_sweep;               # sweep the bias again, save ac_sweep.mat
+##########################################
+
+# Closing summary
+?"";
+?"==============================================";
+?"  PN Junction — Task 3.1 Complete";
+?"==============================================";
+?"  Structure     : lateral PN junction, 220 nm SOI rib";
+?"  N_A / N_D     : " + num2str(N_A*1e-6, "%.0e") + " / " + num2str(N_D*1e-6, "%.0e") + " cm^-3";
+?"  N+ / P+       : " + num2str(N_contact*1e-6, "%.0e") + " cm^-3";
+?"  Junction offset: " + num2str(junction_offset/nm, "%.0f") + " nm";
+?"  Bias swept    : " + num2str(V_reverse_stop) + " to " + num2str(V_reverse_start) + " V, " + num2str(V_num_points) + " points";
+?"";
+?"  Output: charge_sweep.mat  (DC carrier maps)";
+?"          ac_sweep.mat     (small-signal admittance)";
+?"  Next  : depletion_vs_bias.ipynb -> W_dep(V)";
+?"          capacitance_vs_bias.py -> C(V), R(V), f_3dB(V)";
+
+# The electro-optic half of the model lives in ../MODE/: run the DC sweep here
+# first, then that folder's main.lsf.

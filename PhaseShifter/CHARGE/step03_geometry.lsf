@@ -1,0 +1,81 @@
+# Geometry: the cross-section in the x-y plane -- rib waveguide on a slab, BOX
+# below, SiO2 cladding above, metal contacts on the slab either side.
+#
+# Lower mesh order wins where objects overlap, so the ridge (1) and metal (1) take
+# precedence over the slab (3) and cladding (5).
+
+# before running check the working directory: File -> Change working directory
+
+############# Structure #################
+# buried oxide
+addrect;
+set("name", "box");
+set("material", "SiO2 (Glass)");
+set("x min", -contact_outer);
+set("x max",  contact_outer);
+set("y min", -box_depth);
+set("y max", 0);
+set("z", 0);
+set("z span", dev_length);
+
+# silicon slab
+addrect;
+set("name", "slab");
+set("material", "Si (Silicon)");
+set("x min", -contact_outer);
+set("x max",  contact_outer);
+set("y min", 0);
+set("y max", slab_height);
+set("z", 0);
+set("z span", dev_length);
+set("mesh order", 3);
+
+# silicon ridge (the optical waveguide)
+addrect;
+set("name", "silicon");
+set("material", "Si (Silicon)");
+set("x", 0);
+set("x span", wg_width);
+set("y min", 0);
+set("y max", wg_thickness);
+set("z", 0);
+set("z span", dev_length);
+set("mesh order", 1);
+
+# anode (p-side metal contact, left)
+addrect;
+set("name", "anode");
+set("material", "Al (Aluminium)");
+set("x min", -contact_outer);
+set("x max", -contact_inner);
+set("y min", slab_height);
+set("y max", slab_height+contact_height);
+set("z", 0);
+set("z span", dev_length);
+set("mesh order", 1);
+
+# cathode (n-side metal contact, right)
+addrect;
+set("name", "cathode");
+set("material", "Al (Aluminium)");
+set("x min", contact_inner);
+set("x max", contact_outer);
+set("y min", slab_height);
+set("y max", slab_height+contact_height);
+set("z", 0);
+set("z span", dev_length);
+set("mesh order", 1);
+
+# cladding
+addrect;
+set("name", "cladding");
+set("material", "SiO2 (Glass)");
+set("x min", -contact_outer);
+set("x max",  contact_outer);
+set("y min", 0);
+set("y max", clad_height);
+set("z", 0);
+set("z span", dev_length);
+set("alpha", 0);
+set("mesh order", 5);
+##########################################

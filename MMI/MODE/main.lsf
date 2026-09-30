@@ -1,0 +1,52 @@
+# MMI 1x2 design and optimization — MODE (EME solver).
+# Platform: 220 nm SOI, 1550 nm TE.
+#
+# Driver. Lumerical's interpreter has no "include", so each stage lives in its own
+# stepNN_*.lsf file in this folder and is called by name below. All steps share one
+# global workspace, so variables defined in step01 remain visible in step11.
+#
+# Theory: "../../MZI/MMI Theory.md".
+
+# before running check the working directory: File -> Change working directory
+
+############# Phase A: build the device #################
+step01_setup;                 # units, platform constants, material names
+step02_mmi_design;            # analytical W_MMI, L_MMI, d_y, taper lengths
+step03_geometry;              # waveguides, tapers, MMI body, BOX, cladding
+##########################################
+
+############# Phase B: verify modes and refine the length #################
+step04_fde_mode_check;        # FDE mode count; replace L_pi with the simulated value
+##########################################
+
+############# Phase C: configure and run the EME solver #################
+step05_eme_setup;             # EME region and the five cell groups
+step06_eme_ports;             # input and two output ports
+step07_eme_monitors;          # 2D field profile monitor
+step08_run_simulation;        # propagate + broadband wavelength sweep
+##########################################
+
+# Phase D: optimize and verify
+step09_length_sweep;          # sweep L_MMI over +/-20% using an EME propagation sweep
+step10_sweep_analysis;        # pick the optimum, report IL and balance
+step11_wavelength_sweep;      # broadband check at the optimal length
+step12_dy_sweep;              # sweep the output offset d_y, rebuilding per point
+
+# Closing summary
+?"";
+?"==============================================";
+?"  MMI 1x2 — Design Summary";
+?"==============================================";
+?"  W_MMI      : " + num2str(W_MMI/um,     "%.2f") + " um";
+?"  L_MMI opt  : " + num2str(L_opt/um,     "%.2f") + " um";
+?"  d_y        : " + num2str(dy/um,        "%.3f") + " um";
+?"  d_y best   : " + num2str(dy_opt/um,    "%.3f") + " um";
+?"  L_taper_in : " + num2str(L_taper_in/um,"%.1f") + " um";
+?"  IL         : " + num2str(min_IL,       "%.3f") + " dB";
+?"  Imbalance  : " + num2str(Imb_opt,      "%.3f") + " dB";
+?"==============================================";
+?"";
+?"  Next steps:";
+?"    * Export S-parameters for INTERCONNECT";
+?"    * Validate one design point in 3D FDTD (reference/varfdtd_reference.lsf)";
+?"";

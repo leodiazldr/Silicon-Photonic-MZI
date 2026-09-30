@@ -1,0 +1,122 @@
+# Output-offset (d_y) sweep: the two-fold image sits at +/-W_e/4 only to the accuracy
+# of the slab formula, so sweep the output ports around it and keep the offset with the
+# lowest insertion loss.
+#
+# The split does not enter the choice. A centred input with the outputs placed
+# symmetrically about the axis is mirror-symmetric, so the two output powers are equal by
+# construction, and the imbalance column only confirms the two ports are set up correctly.
+#
+# d_y moves the output waveguides, their meshes and the two output ports, so unlike
+# the length sweep this cannot be run as an EME propagation sweep - the geometry is
+# rebuilt and the solver re-run at every point. Expect this to take a few minutes.
+#
+# Needs the geometry at its final MMI length, i.e. step11 must have run first.
+
+# before running check the working directory: File -> Change working directory
+
+############# Sweep #################
+dy_center = dy;                              # analytical W_e/4, still in the workspace
+dy_span   = 0.2 * um;                        # +/- around the analytical offset
+N_dy      = 11;
+
+dy_sweep_vec = linspace(dy_center - dy_span/2, dy_center + dy_span/2, N_dy);
+
+T_top_vs_dy = matrix(N_dy, 1);
+T_bot_vs_dy = matrix(N_dy, 1);
+IL_vs_dy    = matrix(N_dy, 1);
+Imb_vs_dy   = matrix(N_dy, 1);
+
+# one wavelength per point: the offset is a geometric parameter, not a spectral one,
+# so this sweep does not need the C-band
+setemeanalysis("propagation sweep", false);
+
+?"";
+?"Sweeping output offset d_y with a full rebuild per point...";
+?"";
+?"   d_y (um)    T_top     T_bot     IL (dB)   Imb (dB)";
+
+for (i = 1:N_dy) {
+    switchtolayout;
+    dy_test = dy_sweep_vec(i);
+
+    # output tapers, wg_width_out_initial -> wg_width, centred at +/- dy_test
+    V_out_taper_top = [ x_mmi_end_opt,   dy_test - wg_width_out_initial / 2;
+                        x_taper_end_opt,  dy_test - wg_width           / 2;
+                        x_taper_end_opt,  dy_test + wg_width           / 2;
+                        x_mmi_end_opt,    dy_test + wg_width_out_initial / 2 ];
+    setnamed("MMI::output_taper_top", "vertices", V_out_taper_top);
+
+    V_out_taper_bottom = [ x_mmi_end_opt,   -dy_test - wg_width_out_initial / 2;
+                           x_taper_end_opt,  -dy_test - wg_width           / 2;
+                           x_taper_end_opt,  -dy_test + wg_width           / 2;
+                           x_mmi_end_opt,    -dy_test + wg_width_out_initial / 2 ];
+    setnamed("MMI::output_taper_bottom", "vertices", V_out_taper_bottom);
+
+    setnamed("MMI::output_wg_top",    "y",  dy_test);
+    setnamed("MMI::output_wg_bottom", "y", -dy_test);
+
+    setnamed("mesh_output_taper_top",    "y",  dy_test);
+    setnamed("mesh_output_taper_bottom", "y", -dy_test);
+    setnamed("mesh_output_wg_top",       "y",  dy_test);
+    setnamed("mesh_output_wg_bottom",    "y", -dy_test);
+
+    setnamed("EME::Ports::port_2", "y",  dy_test);
+    setnamed("EME::Ports::port_3", "y", -dy_test);
+
+    run;
+    setemeanalysis("wavelength sweep", true);
+    setemeanalysis("start wavelength", lambda0);
+    setemeanalysis("stop wavelength", lambda0);
+    setemeanalysis("number of wavelength points", 1);
+    emesweep("wavelength sweep");
+
+    S = getemesweep("S_wavelength_sweep");
+    T_top_vs_dy(i) = abs(S.s12(1))^2;
+    T_bot_vs_dy(i) = abs(S.s13(1))^2;
+
+    T_sum = T_top_vs_dy(i) + T_bot_vs_dy(i);
+    if (T_sum < 1e-30) { T_sum = 1e-30; }
+    IL_vs_dy(i) = -10 * log10(T_sum);
+
+    T_top_i = T_top_vs_dy(i);
+    T_bot_i = T_bot_vs_dy(i);
+    if (T_top_i < 1e-30) { T_top_i = 1e-30; }
+    if (T_bot_i < 1e-30) { T_bot_i = 1e-30; }
+    Imb_vs_dy(i) = abs(10 * log10(T_top_i / T_bot_i));
+
+    ?"   " + num2str(dy_test/um, "%7.3f") + "    " + num2str(T_top_vs_dy(i), "%.4f") + "    " + num2str(T_bot_vs_dy(i), "%.4f") + "    " + num2str(IL_vs_dy(i), "%6.3f") + "    " + num2str(Imb_vs_dy(i), "%6.3f");
+}
+
+plot(dy_sweep_vec, IL_vs_dy);
+plot(dy_sweep_vec, Imb_vs_dy);
+##########################################
+
+############# Results #################
+min_IL_dy = min(IL_vs_dy);
+idx_dy    = find(IL_vs_dy, min_IL_dy);
+dy_opt    = dy_sweep_vec(idx_dy);
+
+?"";
+?"==============================================";
+?"  MMI Output Offset Sweep Results";
+?"==============================================";
+?"  Analytical d_y       : " + num2str(dy_center/um, "%.3f") + " um";
+?"  Best d_y (min IL)    : " + num2str(dy_opt/um,    "%.3f") + " um";
+?"";
+?"  At the best offset:";
+?"    T_top  = " + num2str(T_top_vs_dy(idx_dy), "%.4f") + "  (" + num2str(10*log10(T_top_vs_dy(idx_dy)), "%.2f") + " dB)";
+?"    T_bot  = " + num2str(T_bot_vs_dy(idx_dy), "%.4f") + "  (" + num2str(10*log10(T_bot_vs_dy(idx_dy)), "%.2f") + " dB)";
+?"    IL     = " + num2str(min_IL_dy,          "%.3f") + " dB";
+?"    Imb    = " + num2str(Imb_vs_dy(idx_dy),  "%.3f") + " dB";
+?"==============================================";
+?"";
+?"  To adopt this offset: set d_y in step02_mmi_design.lsf, then re-run from";
+?"  step03. The optimum length depends on d_y, so step09 and step11 have to be";
+?"  re-run as well before the length and wavelength figures are final.";
+?"";
+##########################################
+
+############# Save #################
+matlabsave("dy_sweep.mat", dy_sweep_vec, T_top_vs_dy, T_bot_vs_dy, IL_vs_dy, Imb_vs_dy);
+?"Offset sweep saved to dy_sweep.mat";
+##########################################

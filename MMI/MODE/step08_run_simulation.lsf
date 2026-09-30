@@ -1,0 +1,26 @@
+# Run base simulation and wavelength sweep: propagate the field through the device,
+# then sweep the wavelength across the C-band and save the full S-matrix.
+
+# before running check the working directory: File -> Change working directory
+
+############# Run #################
+?"";
+?"Running EME propagation at analytical geometry...";
+run;
+?"EME simulation complete.";
+
+############# Results #################
+setemeanalysis("wavelength sweep", true);
+setemeanalysis("start wavelength",lambda0);
+setemeanalysis("stop wavelength", lambda0);
+setemeanalysis("number of wavelength points",1);
+emesweep("wavelength sweep");
+
+S = getemesweep("S_wavelength_sweep");
+lam = S.wavelength;
+S12   = abs(S.s12(1))^2;
+S13   = abs(S.s13(1))^2;
+
+# summary at the center wavelength (array midpoint, for an odd count)
+?"  Transmission port_2: " + num2str(S12, "%.4f");
+?"  Transmission port_3: " + num2str(S13, "%.4f");

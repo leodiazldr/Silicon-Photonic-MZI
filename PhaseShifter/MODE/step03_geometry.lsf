@@ -1,0 +1,89 @@
+# Optical geometry: the cross-section from ../CHARGE/step03_geometry.lsf, with the
+# ridge made of the carrier-perturbed silicon from step02.
+#
+# Lower mesh order wins where objects overlap, so the ridge (1) survives under the
+# cladding (5).
+
+# before running check the working directory: File -> Change working directory
+
+############# Structure #################
+# buried oxide
+addrect;
+set("name", "box");
+set("material", "SiO2 (Glass) - Const");
+set("x min", -contact_outer);
+set("x max",  contact_outer);
+set("y min", -box_depth);
+set("y max", 0);
+set("z", 0);
+set("z span", z_extent);
+
+# silicon slab
+addrect;
+set("name", "slab");
+set("material", np_material);
+#set("material", "Si (Silicon) - Dispersive & Lossless");
+set("x min", -contact_outer);
+set("x max",  contact_outer);
+set("y min", 0);
+set("y max", slab_height);
+set("z", 0);
+set("z span", z_extent);
+set("alpha", 0.3);
+set("override mesh order from material database", true);
+set("mesh order", 3);
+
+# silicon ridge (the optical waveguide) - perturbed material
+addrect;
+set("name", "waveguide");
+set("material", np_material);
+#set("material", "Si (Silicon) - Dispersive & Lossless");
+set("x", 0);
+set("x span", wg_width);
+set("y min", 0);
+set("y max", wg_thickness);
+set("z", 0);
+set("z span", z_extent);
+set("alpha", 0.3);
+set("override mesh order from material database", true);
+set("mesh order", 1);
+
+# cladding
+addrect;
+set("name", "cladding");
+set("material", "SiO2 (Glass) - Const");
+set("x min", -contact_outer);
+set("x max",  contact_outer);
+set("y min", 0);
+set("y max", clad_height);
+set("z", 0);
+set("z span", z_extent);
+set("alpha", 0);
+set("override mesh order from material database", true);
+set("mesh order", 5);
+
+# metal contacts
+addrect;                          # anode
+set("name", "anode");
+set("material", "Al (Aluminium) - CRC");
+set("x min", -contact_outer);
+set("x max", -contact_inner);
+set("y min", slab_height);
+set("y max", slab_height+contact_height);
+set("z", 0);
+set("z span", z_extent);
+set("override mesh order from material database", true);
+set("mesh order", 1);
+
+addrect;                          # cathode
+set("name", "cathode");
+set("material", "Al (Aluminium) - CRC");
+set("x min", contact_inner);
+set("x max", contact_outer);
+set("y min", slab_height);
+set("y max", slab_height+contact_height);
+set("z", 0);
+set("z span", z_extent);
+set("override mesh order from material database", true);
+set("mesh order", 1);
+##########################################

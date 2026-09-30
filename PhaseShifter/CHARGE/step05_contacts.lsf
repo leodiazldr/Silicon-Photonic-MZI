@@ -1,0 +1,23 @@
+# Electrical contacts: ohmic contacts on the metal regions from step03.
+# Requires step04_solver_and_monitors to have run first.
+#
+# Reverse bias for carrier depletion: the anode (p-side) is swept negative and the
+# cathode (n-side) is held at ground. The sweep is configured in step07_dc_sweep.
+
+# before running check the working directory: File -> Change working directory
+
+############# Contacts #################
+# anode (p-side, left)
+addelectricalcontact;
+set("name", "anode");
+set("surface type", "solid");
+set("solid", "anode");
+set("voltage", V_reverse_stop);        # initial bias; swept in step07
+
+# cathode (n-side, right)
+addelectricalcontact;
+set("name", "cathode");
+set("surface type", "solid");
+set("solid", "cathode");
+set("voltage", V_cathode);             # held at ground
+##########################################

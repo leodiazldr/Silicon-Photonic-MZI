@@ -1,0 +1,34 @@
+# Setup and platform constants: units, material names, operating wavelength and
+# single-mode waveguide geometry. Called by main.lsf; all variables here are global.
+
+# before running check the working directory: File -> Change working directory
+
+switchtolayout;
+deleteall;
+
+addpath("../../shared");
+materials;
+clear;
+
+# units
+um  = 1e-6;
+nm  = 1e-9;
+
+# platform
+wg_material    = "Si (Silicon) - Dispersive & Lossless";
+box_material   = "SiO2 (Glass) - Const";
+clad_material  = "SiO2 (Glass) - Const";
+
+lambda0        = 1550 * nm;
+f0             = 3e8 / lambda0;              # center frequency ~193.4 THz
+wavelength_span = 100 * nm;                  # C-band: 1500–1600 nm
+
+# waveguide
+wg_width      = 0.5  * um;                   # single-mode TE width
+wg_thickness  = 220  * nm;                   # SOI device layer thickness
+box_depth = 2 * um;
+clad_height = 2 * um;
+
+# material indices at 1550 nm (analytical estimates only)
+n_r  = 3.4777;                                # Si
+n_c  = 1.444;                                 # SiO2

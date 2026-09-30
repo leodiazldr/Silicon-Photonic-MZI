@@ -1,0 +1,39 @@
+# EME ports: each selects the fundamental TE mode of the local waveguide, and EME
+# projects the field at each port boundary onto that mode to build the S-matrix.
+#
+#   port_1 : input          (left,  y = 0)
+#   port_2 : top output     (right, y = +dy)
+#   port_3 : bottom output  (right, y = -dy)
+#
+# Result mapping used downstream: s12 is port_1 -> port_2, s13 is port_1 -> port_3.
+
+# before running check the working directory: File -> Change working directory
+
+############# Ports #################
+select("EME::Ports::port_1");
+set("y", 0);
+set("y span", W_MMI + 2*um);
+set("z", wg_thickness/2);
+set("z span", clad_height);
+set("mode selection", "fundamental TE mode");
+
+# port_2 exists by default; restrict its span to the top output waveguide
+select("EME::Ports::port_2");
+set("use full simulation span", false);
+set("y", dy);
+set("y span", W_MMI/4);
+set("z", wg_thickness/2);
+set("z span", clad_height);
+set("mode selection", "fundamental TE mode");
+
+# third port for the bottom output waveguide
+addemeport;
+select("EME::Ports::port_3");
+set("port location", "right");
+set("use full simulation span", false);
+set("y", -dy);
+set("y span", W_MMI/4);
+set("z", wg_thickness/2);
+set("z span", clad_height);
+set("mode selection", "fundamental TE mode");
+##########################################

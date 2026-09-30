@@ -1,0 +1,33 @@
+# Small-signal AC setup: reconfigures CHARGE for the admittance analysis that
+# gives the junction capacitance C(V).
+
+# before running check the working directory: File -> Change working directory
+
+############# Solver mode #################
+switchtolayout;
+select("CHARGE");
+set("solver mode", "ssac");      # small signal AC
+set("solver type", "newton");
+##########################################
+
+############# AC frequency sweep #################
+# Log sweep. C(V) is read on the quasi-static plateau, well below the RC cutoff;
+# the high-frequency end is what records the roll-off.
+set("frequency spacing", "log");
+set("log start frequency", 1e3);            # Hz
+set("log stop frequency", 1e15);            # Hz
+set("num frequency points per dec", 10);
+##########################################
+
+############# AC excitation #################
+# Drive at the anode (the p-side carrying the reverse bias) and read the response
+# at the same terminal, so the admittance measured is the junction admittance. The
+# cathode stays a DC-only ground. "all" applies the drive at every DC sweep point,
+# "last" only at the final one.
+select("CHARGE::boundary conditions::anode");
+set("apply ac small signal", "all");
+
+# leave this property unset if "none" is rejected
+select("CHARGE::boundary conditions::cathode");
+set("apply ac small signal", "none");
+##########################################

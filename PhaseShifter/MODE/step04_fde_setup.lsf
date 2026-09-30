@@ -1,0 +1,52 @@
+# FDE solver setup: region, boundary conditions, mesh and modal settings.
+# The solve itself happens in step05, once per bias point.
+#
+# "2D z normal" puts the cross-section in x-y with propagation along z - the same
+# convention as CHARGE, which is what lets the carrier map land on the mode.
+
+# before running check the working directory: File -> Change working directory
+
+############# FDE region #################
+addfde;
+set("solver type", "2D z normal");
+set("x", 0);
+set("x span", fde_x_span);
+set("y", fde_y_center);
+set("y span", fde_y_span);
+set("z", 0);
+set("x max bc", fde_bc);
+set("x min bc", fde_bc);
+set("y max bc", fde_bc);
+set("y min bc", fde_bc);
+
+# mesh refinement over the ridge
+addmesh;
+set("based on a structure", false);
+set("x", 0);
+set("x span", fde_x_span);
+set("y", fde_y_center);
+set("y span", wg_thickness);
+set("z", 0);
+set("dx", wg_width / 150);
+set("dy", slab_height / 25);
+##########################################
+
+############# Modal analysis #################
+# A single trial mode: the strip is single-mode in TE across the C-band.
+setanalysis("wavelength", wavelength0);
+setanalysis("number of trial modes", n_modes);
+##########################################
+
+############# Reference solve #################
+# Solve at equilibrium before the sweep starts. The field map should look like the
+# TE mode of a 500 x 220 nm strip and neff should come out near 2.4; if not, the
+# fault is here - geometry, mesh or perturbed material - and not in the sweep.
+n_found = findmodes;
+neff0 = getdata("FDE::data::mode1", "neff");
+
+?"";
+?"Reference solve (equilibrium):";
+?"  modes found : " + num2str(n_found);
+?"  neff        : " + num2str(real(neff0), "%.4f") + "  (expect ~2.4 for the TE mode)";
+?"  k (loss)    : " + num2str(imag(neff0), "%.3e");
+##########################################

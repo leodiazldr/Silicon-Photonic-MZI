@@ -1,0 +1,171 @@
+# REFERENCE ONLY — superseded 3D varFDTD implementation of the MMI, kept so the
+# same geometry can validate the EME results in a full 3D run. Not the current
+# design: it predates the analytical sizing in step02 and uses placeholder
+# dimensions (MMI_width = 1.5 um, MMI_L = 2.5 um). The active flow is the parent
+# folder's main.lsf + stepNN_*.lsf.
+
+# before running check the working directory: File -> Change working directory
+
+switchtolayout;
+deleteall;
+
+addpath("../../../shared");
+materials;
+
+clear;
+
+um = 1e-6;
+nm = 1e-9;
+
+wg_material = 'Si (Silicon) - Dispersive & Lossless';
+wg_width = 0.5*um;
+wg_thickness = 220*nm;
+
+MMI_width = 1.5*um;
+MMI_thickeness = 220*nm;
+MMI_L = 2.5*um;
+
+dy = wg_width/2+0.2*um;
+
+R = 10*um;
+theta = 35;
+
+box_material = 'SiO2 (Glass) - Const';
+clad_material = 'SiO2 (Glass) - Const';
+
+varfdtd_y_margin = 4*um;
+
+############# Structure #################
+addstructuregroup;
+set("name","MMI");
+set('x',0);
+set('y',0);
+set('z',0);
+
+addrect;
+set('name','puerto1');
+set('material',wg_material);
+set('x min',-200*um); set('x max',0);
+set('y',0); set('y span',wg_width);
+set('z min',0); set('z max',wg_thickness);
+addtogroup("MMI");
+
+addrect;
+set('name','puerto2');
+set('material',wg_material);
+set('x min',MMI_L); set('x max',200*um);
+set('y',dy); set('y span',wg_width);
+set('z min',0); set('z max',wg_thickness);
+addtogroup("MMI");
+
+addrect;
+set('name','puerto3');
+set('material',wg_material);
+set('x min',MMI_L); set('x max',200*um);
+set('y',-dy); set('y span',wg_width);
+set('z min',0); set('z max',wg_thickness);
+addtogroup("MMI");
+
+addrect;
+set('name','INTERFEROMETER');
+set('material',wg_material);
+set('x min',0); set('x max',MMI_L);
+set('y',0); set('y span',MMI_width);
+set('z min',0); set('z max',MMI_thickeness);
+addtogroup("MMI");
+
+addrect;
+set('name','box');
+set('material',box_material);
+set('y',0); set('y span',200*um);
+set('x min',-200*um); set('x max',200*um);
+set('z max',0); set('z min',-50*um);
+set('alpha',0.1);
+addtogroup('MMI');
+
+addrect;
+set('name','cladding');
+set('material',clad_material);
+set('y',0); set('y span',200*um);
+set('x min',-200*um); set('x max',200*um);
+set('z min',0); set('z max',50*um);
+set('override mesh order from material database', true);
+set('mesh order',3);
+set('alpha',0.1);
+addtogroup('MMI');
+##########################################
+
+############# Simulation #################
+varfdtd_x_margin = 5*um;
+varfdtd_z_margin = 4*um;
+varfdtd_mesh = 2;
+wavelength0 = 1550*nm;
+wavelength_span = 100*nm;
+
+X_MIN = -MMI_L-varfdtd_x_margin;
+X_MAX = -X_MIN;
+Y_SPAN = MMI_width + 2*varfdtd_y_margin;
+
+addvarfdtd;
+set('simulation time',10000e-15);
+set('x min',X_MIN); set('x max',X_MAX);
+set('y',0); set('y span',Y_SPAN);
+set('z min',-varfdtd_z_margin); set('z max',wg_thickness+varfdtd_z_margin);
+set('x0',0); set('y0',0);
+test_points_x = [X_MIN;X_MIN;X_MAX;X_MAX]*0.9;
+test_points_y = [Y_SPAN/2;-Y_SPAN/2;Y_SPAN/2;-Y_SPAN/2]*0.9;
+set('test points',[test_points_x,test_points_y]);
+set('mesh accuracy',varfdtd_mesh);
+
+addmodesource;
+set('x',X_MIN+1*um);
+set('y',0); set('y span',wg_width*10);
+set('set wavelength',true);
+set('center wavelength',wavelength0);
+set('wavelength span',wavelength_span);
+
+addpower;
+set('name','port 1');
+set('monitor type',5);
+set('x',X_MIN+2*um);
+set('y',0); set('y span',wg_width*10);
+set('z min',-varfdtd_z_margin); set('z max',wg_thickness+varfdtd_z_margin);
+
+addpower;
+set('name','port 2');
+set('monitor type',5);
+set('x',X_MAX-2*um);
+set('y',dy); set('y span',wg_width*10);
+set('z min',-varfdtd_z_margin); set('z max',wg_thickness+varfdtd_z_margin);
+
+addpower;
+set('name','port 3');
+set('monitor type',5);
+set('x',X_MAX-2*um);
+set('y',-dy); set('y span',wg_width*10);
+set('z min',-varfdtd_z_margin); set('z max',wg_thickness+varfdtd_z_margin);
+
+addmodeexpansion;
+set('name','expansion');
+set('x',X_MIN+2*um);
+set('y',0); set('y span',wg_width*10);
+set('z',wg_thickness/2);
+setexpansion("T1", "port 1");
+setexpansion("T2", "port 2");
+setexpansion("T3", "port 3");
+set('align to frequency monitor center',true);
+
+addprofile;
+set('name','profile_XY');
+set('monitor type',7);
+set('x min',X_MIN);
+set('x max',X_MAX);
+set('y',0); set('y span',Y_SPAN);
+set('z',wg_thickness/2);
+
+addmovie;
+set('name','movie');
+set('x min',X_MIN);
+set('x max',X_MAX);
+set('y',0); set('y span',Y_SPAN);
+##########################################

@@ -1,0 +1,73 @@
+# Reference setup for the 500 x 220 nm strip waveguide: builds the cross-section
+# and configures the FDE solver. The sweep scripts in this folder repeat this
+# geometry and add their own sweep on top.
+
+# before running check the working directory: File -> Change working directory
+
+switchtolayout;
+deleteall;
+
+addpath("../../shared");
+materials;  # shared dispersive / constant-index models
+
+clear;
+
+# units
+um = 1e-6;
+nm = 1e-9;
+
+# Waveguide
+wg_material = 'Si (Silicon) - Dispersive & Lossless';
+wg_width = 0.5*um;      # waveguide width
+wg_thickness = 220*nm;  # waveguide thickness (SOI device layer)
+
+box_material = 'SiO2 (Glass) - Const';
+clad_material = 'SiO2 (Glass) - Const';
+
+# FDE simulation
+fde_x_span = 20*um;     # FDE simulation window, x
+fde_y_span = 20*um;     # FDE simulation window, y
+fde_bc = 'PML';       # boundary conditions: 'Metal' or 'PML'
+
+wavelength0 = 1.55*um;  # operating wavelength
+n_modes = 10;           # number of trial modes to solve for
+
+############# Structure #################
+addrect;
+set('name','waveguide');
+set('material',wg_material);
+set('x',0); set('x span',wg_width);
+set('y min',0); set('y max',wg_thickness);
+
+addrect;
+set('name','box');
+set('material',box_material);
+set('x',0); set('x span',fde_x_span*2);
+set('y min',-fde_y_span); set('y max',0);
+
+addrect;
+set('name','cladding');
+set('material',clad_material);
+set('x',0); set('x span',fde_x_span*2);
+set('y min',0); set('y max',fde_y_span);
+set('alpha',0.2);
+set('override mesh order from material database',true);
+set('mesh order',3);
+##########################################
+
+############# Simulation #################
+addfde;
+set('x',0); set('x span',fde_x_span);
+set('y',wg_thickness/2); set('y span',fde_y_span);
+set('x max bc',fde_bc); set('x min bc',fde_bc);
+set('y max bc',fde_bc); set('y min bc',fde_bc);
+
+addmesh;
+set('based on a structure',true);
+set('structure','waveguide');
+set('dx',wg_width/50);
+set('dy',wg_thickness/50);
+##########################################
+
+setanalysis('wavelength',wavelength0);
+setanalysis('number of trial modes',n_modes);

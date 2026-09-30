@@ -1,0 +1,27 @@
+# Carrier data import and perturbed-silicon material.
+
+# before running check the working directory: File -> Change working directory
+
+############# Charge data #################
+matlabload(charge_file);
+
+addgridattribute("np Density");
+set("name", "np");                  # the bias index is set on this object by name in step05
+importdataset(charge);              # attaches every bias point in charge_sweep.mat
+
+# The spatial extent comes from the data, not from step01. After running, check
+# the grid attribute's x/y min/max in the object tree.
+##########################################
+
+############# Perturbed silicon #################
+np_material = "Si with carriers";
+deletematerial(np_material);
+
+temp = addmaterial("np Density");
+setmaterial(temp, "name", np_material);
+setmaterial(np_material, "np density model", "Soref and Bennet");
+
+# Lossless base material on purpose: Palik silicon carries its own absorption,
+# which would put a fixed offset on the loss curve.
+setmaterial(np_material, "Base Material", "Si (Silicon) - Dispersive & Lossless");
+##########################################

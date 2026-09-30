@@ -1,0 +1,16 @@
+# EME monitor: records the 2D field profile across the device in x-y, so the
+# self-imaging behaviour can be inspected visually.
+
+# before running check the working directory: File -> Change working directory
+
+############# Monitors #################
+addemeprofile;
+set("name", "field_profile");
+set("monitor type", "2D Z-normal");
+set("x min", x_in_port);
+set("x max", x_out_port);
+set("x resolution", 1000);
+set("y", 0);
+set("y span",  W_MMI + 2*um);
+set("z", wg_thickness/2);
+##########################################

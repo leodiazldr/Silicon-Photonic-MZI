@@ -1,55 +1,16 @@
-# Silicon-Photonic MZI Platform on 220 nm SOI — Component Library and Design Workflow
+# Silicon-Photonic MZI Modulator on 220 nm SOI
 
 Design and simulation of a silicon-photonic Mach–Zehnder interferometer (MZI) modulator for
 BB84 quantum key distribution state encoding: single-mode waveguides, low-loss bends, 1×2
-multimode interference (MMI) splitters, a GHz-bandwidth carrier-depletion phase shifter, and a
-GDS layout targeting a commercial SOI process.
-
-The BB84 encoder is the worked example, not the limit of the project. The components it is built
-from — and the workflow used to design each one — are the ones a programmable photonic circuit is
-built from: an MZI is the elementary 2×2 cell of an interferometer mesh, and a mesh is a
-programmable linear-optical processor. See
-[Applicability beyond quantum photonics](#applicability-beyond-quantum-photonics).
-
-**Platform:** 220 nm SOI, 1550 nm TE
-**Tools:** Ansys Lumerical (MODE, FDTD, CHARGE, INTERCONNECT), gdsfactory, KLayout
+multimode interference (MMI) splitters, and a GHz-bandwidth carrier-depletion phase shifter,
+on a commercial 220 nm SOI process.
 
 ---
 
-## Overview
-
-This project complements an experimental BB84 QKD thesis (free-space, polarization-encoded)
-with a computational design project that exercises the full photonic design flow:
-simulation → optimization → layout.
-
-| Thesis (experimental)          | This project (computational)      |
-| ------------------------------ | --------------------------------- |
-| Free-space MZI with PBS        | Integrated MMI with MMIs          |
-| Polarization encoding via QWP/HWP | Phase encoding via carrier depletion |
-| Benchtop, discrete components  | On-chip, monolithic               |
-| Breadboard-level integration   | Foundry-ready GDS                 |
-
-## Applicability beyond quantum photonics
-
-Every component here is a standard building block of integrated photonics, and the applications
-they are normally designed for overlap almost completely with the ones this project needs:
-
-| Component | In this project | Same component or model, elsewhere |
-| --------- | --------------- | ---------------------------------- |
-| Waveguide, bends | MZI arms; `n_eff` and `n_g` set the phase and the dispersion | Routing and delay in any PIC. `n_g` sets the free-spectral range of ring banks; routing loss is what limits how large a mesh can grow |
-| 1×2 MMI splitter | Splitter and combiner of the MZI | Fixed-ratio coupler of a Reck/Clements MZI mesh; the 2×2 cell of a linear-optical processor; splitter trees in WDM and in reservoir readouts |
-| PN phase shifter | Encodes the BB84 phase states, GHz-bandwidth | The reconfigurable phase element of a programmable mesh — `V_π·L`, loss and RC bandwidth are how any phase actuator is judged, thermo-optic included |
-| MZI (two MMIs plus a phase shifter) | The phase encoder | The 2×2 tunable coupler: the elementary gate of a programmable photonic processor, and the interference/delay element of photonic neural networks and optical reservoir computing |
-
-What transfers as it stands: the passive library and its models, the MMI design and optimisation
-flow, the electro-optic phase-shifter model, and the methodology — analytic sizing → numerical
-verification → parametric sweep → robustness across band and width bias → budget. What a computing
-application would additionally need (composition of cells into a calibrated mesh; a delay or
-feedback path and a weight bank for reservoir computing; thermal-crosstalk and drive-electronics
-engineering at scale) is out of scope here and is set out in
-[`MZI/Plan.md` §3](MZI/Plan.md).
-
 ## Platform
+
+Silicon photonics on 220 nm SOI, simulated in Ansys Lumerical (MODE, FDTD, CHARGE, INTERCONNECT),
+with gdsfactory and KLayout as the intended layout tools.
 
 | Parameter       | Choice                                       |
 | --------------- | -------------------------------------------- |
@@ -299,7 +260,7 @@ Two features of these curves are worth reading off directly. The imbalance is id
 which is a property rather than a measurement: a centred-input 1×2 MMI with its output ports placed
 symmetrically is mirror-symmetric, so `T_top = T_bot` by construction and the curve verifies the
 port setup. And the length sweep's minimum is broad and not smooth at the 0.1 dB level, so the
-lowest single point is within the solver's own scatter — which is why [`MZI/Plan.md` §6](MZI/Plan.md)
+lowest single point is within the solver's own scatter — which is why [`MZI/Plan.md` §5](MZI/Plan.md)
 states the selection rule as the band-averaged or worst-case loss over the flat region rather than
 the single-point minimum. Closing that gap, along with the taper-length and width-bias checks, is
 what remains on this component.
@@ -348,7 +309,7 @@ pip install -r requirements.txt
 | Phase | Description                  | Status         |
 | ----- | ---------------------------- | -------------- |
 | 1     | Waveguide and bend design    | Complete (width and wavelength sweeps, and the bend radius study; the bend `R_opt` is provisional — see [`Bends/MODE/README.md`](Bends/MODE/README.md)) |
-| 2     | MMI splitters                | Swept and characterised (length, wavelength and `d_y` sweeps run; 0.120 dB at 1550 nm; figures committed). Taper-width and width-bias robustness checks still open — see [`MZI/Plan.md` §7.1](MZI/Plan.md) |
+| 2     | MMI splitters                | Swept and characterised (length, wavelength and `d_y` sweeps run; 0.120 dB at 1550 nm; figures committed). Taper-width and width-bias robustness checks still open — see [`MZI/Plan.md` §6.1](MZI/Plan.md) |
 | 3     | Carrier-depletion modulator  | Complete (depletion width, junction capacitance and electro-optic response all simulated; V_π·L inside target) |
 | 4     | MZI system integration       | Not started    |
 | 5     | GDS layout                   | Not started    |
@@ -361,8 +322,3 @@ pip install -r requirements.txt
 3. Reed, G. T., Mashanovich, G., Gardes, F. Y., & Thomson, D. J. (2010). Silicon optical modulators. *Nature Photonics*, 4(8), 518–526.
 4. Chrostowski, L., & Hochberg, M. (2015). *Silicon Photonics Design: From Devices to Systems*. Cambridge University Press.
 5. Bennett, C. H., & Brassard, G. (1984). Quantum cryptography: Public key distribution and coin tossing. *Proc. IEEE ICCSSP*.
-6. Bogaerts, W., et al. (2020). Programmable photonic circuits. *Nature*, 586(7828), 207–216.
-7. Shen, Y., et al. (2017). Deep learning with coherent nanophotonic circuits. *Nature Photonics*, 11(7), 441–446.
-8. Clements, W. R., et al. (2016). Optimal design for universal multiport interferometers. *Optica*, 3(12), 1460–1465.
-9. Shastri, B. J., et al. (2021). Photonics for artificial intelligence and neuromorphic computing. *Nature Photonics*, 15(2), 102–114.
-10. Van der Sande, G., Brunner, D., & Soriano, M. C. (2017). Advances in photonic reservoir computing. *Nanophotonics*, 6(3), 561–576.

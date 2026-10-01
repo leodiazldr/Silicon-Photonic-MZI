@@ -1,15 +1,11 @@
-# Silicon-Photonic MZI Platform — Component Library and Design Workflow
+# Silicon-Photonic MZI Modulator on 220 nm SOI — Design Plan
 
 A component-level design and simulation project on 220 nm silicon-on-insulator, organised around a
 Mach–Zehnder interferometer (MZI) for BB84 quantum key distribution state encoding.
 
-The BB84 encoder is the worked example, not the limit of the project. Everything here is built the
-way a programmable photonic circuit is built: a small library of reusable components, each one
-designed analytically, verified numerically, optimised by parametric sweeping, checked for
-robustness across the band and against fabrication bias, and finally composed into a system with a
-loss budget. That workflow, and the component models it produces, transfer directly to
-programmable photonic processors, photonic computing and optical reservoir computing; §3 sets out
-which parts transfer as they stand and which would have to be added.
+Each component is designed analytically, verified numerically, optimised by parametric sweeping,
+and checked for robustness across the band and against fabrication bias. §5 states that workflow in
+full, and §4 records the results of applying it.
 
 **Revised 2026-09-30.** The original version, written 2026-07-24, was a 12-week schedule. This
 version records what has actually been built — including the measured MMI results — and scopes the
@@ -54,40 +50,7 @@ function.
 
 ---
 
-## 3. Applicability beyond quantum photonics
-
-The reference device is an MZI phase encoder. The components it is built from are the same ones a
-programmable photonic circuit is built from — an MZI *is* the elementary 2×2 cell of an
-interferometer mesh, and a mesh is a programmable linear-optical processor.
-
-| Component | Function in the BB84 encoder | Where the same component or model recurs |
-| --------- | ---------------------------- | ---------------------------------------- |
-| Single-mode waveguide, low-loss bends | Arm routing; `n_eff` and `n_g` set the phase and the dispersion | Every PIC. `n_g` sets the free-spectral range of ring-based banks, and routing loss is what limits how large a mesh can grow |
-| 1×2 MMI splitter (50/50, in-phase) | Splitter and combiner of the MZI | The fixed-ratio coupler of a Reck/Clements MZI mesh; the 2×2 cell of a linear-optical processor; splitter trees in WDM and in reservoir readouts |
-| Carrier-depletion PN phase shifter | Encodes the phase states, GHz-bandwidth | The reconfigurable phase element of a programmable mesh. This design is electro-optic for speed, but `V_π·L`, insertion loss and RC bandwidth are the same figures of merit any phase actuator is judged by, thermo-optic included |
-| MZI (two MMIs plus a phase shifter) | The phase encoder itself | The 2×2 tunable coupler — the elementary gate of a programmable photonic processor, and the delay/interference element of photonic neural networks and optical reservoir computing |
-
-**What transfers as it stands.** The passive library and its models (FDE `n_eff`/`n_g`, EME
-S-parameters); the MMI design and optimisation flow, which is application-independent; the
-electro-optic phase-shifter model, which returns exactly the quantities a mesh design needs from
-its actuators; and the methodology itself — analytic sizing, numerical verification, sweeping,
-robustness across band and width bias, then a budget.
-
-**What a computing application would additionally need**, and which is therefore out of scope
-here: composition of unit cells into a mesh (S-parameter composition or a system simulator) together
-with unitary decomposition and calibration; for reservoir computing, a delay or feedback path, a
-nonlinear element, and a readout weight bank; and, at scale, thermal crosstalk, drift and drive
-electronics that a single MZI never encounters.
-
-**Scope of the claim.** This repository does not attempt a computing demonstration, and does not
-claim novelty in the components — every one of them is standard. The claim is narrower and is
-verifiable from the repository: the component models, the solver setups and the optimisation
-workflow are the reusable part, and they are the same ones a programmable-circuit or neuromorphic
-design starts from.
-
----
-
-## 4. Scope and status
+## 3. Scope and status
 
 The design flow is organised by component. Two decisions made during the work are worth recording,
 because they differ from the original plan:
@@ -104,7 +67,7 @@ because they differ from the original plan:
 | --------- | ------ | ------ |
 | Single-mode waveguide | FDE (MODE) | Complete — width and wavelength sweeps |
 | Low-loss bends | FDE (MODE) | Complete — radius sweep and Bézier curvature study |
-| 1×2 MMI splitter | EME (MODE) | Swept and characterised — length, wavelength and output-offset sweeps run, figures committed; four robustness checks still open (§7.1) |
+| 1×2 MMI splitter | EME (MODE) | Swept and characterised — length, wavelength and output-offset sweeps run, figures committed; four robustness checks still open (§6.1) |
 | PN junction phase shifter (electrical) | CHARGE drift-diffusion + AC | Complete |
 | PN junction phase shifter (optical) | FDE (MODE) | Complete — V_π·L inside target |
 | MZI system integration | INTERCONNECT | Not started |
@@ -112,9 +75,9 @@ because they differ from the original plan:
 
 ---
 
-## 5. Completed work
+## 4. Completed work
 
-### 5.1 Waveguide (`Waveguide/MODE/`)
+### 4.1 Waveguide (`Waveguide/MODE/`)
 
 The 500 nm × 220 nm strip waveguide everything else is built on.
 
@@ -127,7 +90,7 @@ The 500 nm × 220 nm strip waveguide everything else is built on.
 **Deliverable met:** mode profile, `n_eff` vs. width, `n_eff` vs. wavelength, single-mode condition
 with fabrication tolerance.
 
-### 5.2 Bends (`Bends/`)
+### 4.2 Bends (`Bends/`)
 
 - Mode-mismatch loss at the straight-to-bend junction versus radius of curvature, from an FDE
   overlap integral
@@ -137,10 +100,10 @@ with fabrication tolerance.
 
 **Deliverable met:** bend loss vs. radius, minimum-radius specification, Bézier curvature study.
 
-### 5.3 MMI splitter (`MMI/MODE/`)
+### 4.3 MMI splitter (`MMI/MODE/`)
 
 Self-imaging 1×2 MMI — the 50/50 splitter and combiner of the MZI, and the component whose
-optimisation is written up in §6 as the reusable procedure.
+optimisation is written up in §5 as the reusable procedure.
 
 **Design targets:** 50:50 ± 1 %, insertion loss < 0.5 dB, bandwidth > 40 nm, in-phase outputs.
 
@@ -148,7 +111,7 @@ The design point is `W_MMI = 4.0 µm` with linear tapers (0.5 → 1.0 µm) on bo
 the output-offset sweep was run at `W_MMI = 4 µm` and 5 µm and the 4 µm case gave the lower
 insertion loss. The plausible reason is geometric rather than physical: at 4 µm the taper is
 one-quarter of the MMI width instead of one-fifth, so the taper-to-body mode match is better with
-the same taper polygons. That is a hypothesis about the taper, and §7.1 lists the sweep that would
+the same taper polygons. That is a hypothesis about the taper, and §6.1 lists the sweep that would
 settle it. The analytic sizing at this width gives `W_e = 4.16 µm`, `L_π = 51.7 µm`,
 `L_MMI = 3L_π/8 = 19.4 µm` and `d_y = W_e/4 = 1.039 µm`.
 
@@ -188,7 +151,7 @@ scatter of the sweep, so `d_y` is a weak parameter here and the analytic value w
 The **length sweep's minimum is broad and not smooth**. Point-to-point differences near the optimum
 run to ~0.1 dB (0.122, 0.120, 0.278, 0.200 dB across neighbouring points), which is the EME
 discretisation, not physics. Picking the single lowest point — which is what `step10` currently
-does — therefore risks selecting simulation noise. §6 step 6 states the rule that should be used
+does — therefore risks selecting simulation noise. §5 step 6 states the rule that should be used
 instead: judge the candidate on the band-averaged or worst-case transmission and sit on the flat
 part of the curve. The quoted 0.120 dB should be read as 0.12 dB to the accuracy the solver
 supports.
@@ -197,10 +160,10 @@ The loss is also not flat in wavelength: 0.12 dB at 1550 nm rising to 0.50 dB at
 C-band. Over the 40 nm the design targets, the worst case is 0.219 dB, so the bandwidth target is
 met with margin; over the full 100 nm the worst case just touches 0.5 dB.
 
-**Still outstanding:** nothing in the simulation flow, but four of the seven workflow steps in §6
-are incomplete for this component. They are listed in §7.1.
+**Still outstanding:** nothing in the simulation flow, but four of the seven workflow steps in §5
+are incomplete for this component. They are listed in §6.1.
 
-### 5.4 Carrier-depletion phase modulator (`PhaseShifter/`)
+### 4.4 Carrier-depletion phase modulator (`PhaseShifter/`)
 
 The core of the project, and the only component spanning two solvers.
 
@@ -255,7 +218,7 @@ for sweeping doping concentration and junction offset; the chosen profile alread
 loss and bandwidth targets simultaneously, and the response is sub-linear in bias, which is a
 property of the junction rather than of the doping level. Those sweeps belong under "Later".
 
-### 5.5 Repository
+### 4.5 Repository
 
 - Component/solver layout (`<Component>/<Solver>/`) with a `main.lsf` driver plus numbered steps per
   solver, each folder carrying its own `README.md`
@@ -266,10 +229,10 @@ property of the junction rather than of the doping level. Those sweeps belong un
 
 ---
 
-## 6. The component optimisation workflow
+## 5. The component optimisation workflow
 
 This is the reusable part of the project, stated independently of the MMI so that it can be applied
-to the next component unchanged. It was worked out while optimising the MMI, and §5.3 reports where
+to the next component unchanged. It was worked out while optimising the MMI, and §4.3 reports where
 each step currently stands for that component.
 
 **Step 1 — Fix what the theory pins down, and verify the one assumption it does not.** Freeze the
@@ -311,11 +274,11 @@ seven steps in each case.
 
 ---
 
-## 7. Near-term work
+## 6. Near-term work
 
-### 7.1 Finish the MMI workflow
+### 6.1 Finish the MMI workflow
 
-Four of the seven steps in §6 are incomplete for the MMI, and they are the same four that decide
+Four of the seven steps in §5 are incomplete for the MMI, and they are the same four that decide
 whether the quoted 0.12 dB survives contact with fabrication:
 
 - **Verify the taper length** (step 1) — doubling the input and output tapers and confirming the
@@ -328,25 +291,23 @@ whether the quoted 0.12 dB survives contact with fabrication:
   width error. The MMI body is the least width-sensitive element; the tapers are the sensitive part,
   which is a further reason to sweep them.
 - **Change the selection rule** in `step10_sweep_analysis.lsf` from the single-point minimum to the
-  band-averaged or worst-case insertion loss over the flat region, for the reason given in §5.3.
+  band-averaged or worst-case insertion loss over the flat region, for the reason given in §4.3.
 
-### 7.2 Device-level power budget
+### 6.2 Device-level power budget
 
 Fold the measured component losses into one budget: waveguide propagation loss, two MMI insertion
 losses, bend losses for the routing, and the phase shifter's free-carrier loss, against the 5 dB
 insertion-loss target. This is the first calculation that treats the design as a system rather than
-four independent components, and it is the natural bridge to §8.2. It is also the calculation that
-a programmable-circuit design extends: the same budget over a mesh, where the MMIs are counted in
-the hundreds.
+four independent components, and it is the natural bridge to §7.2.
 
 ---
 
-## 8. Later
+## 7. Later
 
 Consolidated here rather than dropped: each item is a genuine next step, but each depends on
-something in §7 being finished first, or on tooling not yet set up.
+something in §6 being finished first, or on tooling not yet set up.
 
-### 8.1 FDTD validation of the optimised MMI
+### 7.1 FDTD validation of the optimised MMI
 
 EME assumes the structure is piecewise-uniform along the propagation axis and decomposes the field
 onto a finite set of modes. Both assumptions are worth checking once on the final geometry with a
@@ -354,7 +315,7 @@ full 3D FDTD run, comparing insertion loss and imbalance against the EME predict
 short, a 2D varFDTD cross-check is a cheaper partial substitute — the superseded implementation
 under `MMI/MODE/reference/` is already set up for that.
 
-### 8.2 INTERCONNECT system simulation
+### 7.2 INTERCONNECT system simulation
 
 Build the MZI from the component models and verify BB84-relevant operation.
 
@@ -368,10 +329,7 @@ Build the MZI from the component models and verify BB84-relevant operation.
 Fallback if the compact model proves fiddly: the same transfer function computed analytically in
 Python from the simulated component parameters, which demonstrates the same result with less setup.
 
-This is also the step that generalises furthest: composing S-parameters is how a mesh is simulated,
-so the same machinery serves the computing applications in §3.
-
-### 8.3 GDS layout
+### 7.3 GDS layout
 
 A fabrication-ready layout of the complete MZI modulator.
 
@@ -383,47 +341,47 @@ A fabrication-ready layout of the complete MZI modulator.
   phase-shifter structure to measure `V_π·L` independently
 - Design rule checking, then export
 
-### 8.4 Parabolic taper profile
+### 7.4 Parabolic taper profile
 
 Dropped from the current scope; revisit only if the linear tapers leave the MMI insertion loss short
 of target. Swapping the taper polygons is a geometry-only change.
 
-### 8.5 Doping and junction-offset sweeps
+### 7.5 Doping and junction-offset sweeps
 
-The trade-off studies described in §5.4. Worth doing only if a target is missed, or if the phase
+The trade-off studies described in §4.4. Worth doing only if a target is missed, or if the phase
 shifter is reused in a design with a different bandwidth requirement.
 
 ---
 
-## 9. Design targets
+## 8. Design targets
 
 | Metric | Typical silicon carrier-depletion | This project's target | Result |
 |--------|-----------------------------------|-----------------------|--------|
 | `V_π·L` | 1–3 V·cm | < 3 V·cm | 2.63 V·cm |
 | Insertion loss (π shift) | 2–5 dB | < 5 dB | 0.3 dB free-carrier over 1 mm, before MMI and bends |
 | 3 dB EO bandwidth | 10–40 GHz | > 10 GHz | from the CHARGE RC estimate |
-| Extinction ratio | > 20 dB | > 20 dB | device-level, needs §8.2 |
+| Extinction ratio | > 20 dB | > 20 dB | device-level, needs §7.2 |
 | MMI splitting ratio | — | 50:50 ± 1 % | 48.6 % / 48.6 % — met, and exact by symmetry |
 | MMI insertion loss | — | < 0.5 dB | 0.120 dB at 1550 nm; 0.219 dB worst case over 40 nm; 0.501 dB worst case over the full C-band — met over the design bandwidth |
 | MMI bandwidth | — | > 40 nm | met: worst-case IL 0.219 dB over 1530–1570 nm |
 
 ---
 
-## 10. Risks
+## 9. Risks
 
 | Risk | Probability | Impact | Mitigation |
 |------|-------------|--------|------------|
-| The single-point IL minimum selected by `step10` overfits EME discretisation noise, since the curve is not smooth at the ~0.1 dB level | High | Low | Select on the band-averaged or worst-case IL over the flat region instead (§7.1) |
+| The single-point IL minimum selected by `step10` overfits EME discretisation noise, since the curve is not smooth at the ~0.1 dB level | High | Low | Select on the band-averaged or worst-case IL over the flat region instead (§6.1) |
 | The taper length is assumed adequate but has never been checked by doubling | Medium | Low | One extra run; a short taper appears as a constant loss offset |
 | Width bias (±10–20 nm) has not been evaluated, so fabrication tolerance is unquantified | Medium | Medium | Perturb the widths and repeat the length and wavelength sweeps; the tapers, not the MMI body, are the sensitive part |
-| EME's piecewise-uniform assumption is untested against a full-wave solver | Medium | Medium | 3D FDTD on one design point (§8.1); varFDTD as a cheaper partial substitute |
+| EME's piecewise-uniform assumption is untested against a full-wave solver | Medium | Medium | 3D FDTD on one design point (§7.1); varFDTD as a cheaper partial substitute |
 | The `d_y` sweep needs a geometry rebuild per point, so it is slower than the length sweep | Medium | Low | Already done; the offset turns out to be a weak parameter, so a coarse grid suffices |
 | INTERCONNECT compact model proves fiddly to fit | Medium | Medium | Analytical MZI transfer function in Python from the simulated component parameters |
 | GDS layout takes longer than estimated | Medium | Medium | Overlap layout work with the write-up; reduce layout scope (simpler test structures, fewer pads) |
 
 ---
 
-## 11. Relation to the experimental thesis
+## 10. Relation to the experimental thesis
 
 | Thesis (experimental) | Side project (computational) |
 |-----------------------|------------------------------|
@@ -435,17 +393,17 @@ shifter is reused in a design with a different bandwidth requirement.
 
 ---
 
-## 12. Prerequisites and setup
+## 11. Prerequisites and setup
 
 - [x] Lumerical licence including MODE (FDE + EME) and CHARGE
 - [x] Python environment with `numpy`, `h5py`, `matplotlib`
-- [ ] Install gdsfactory + KLayout for the layout stage (§8.3)
-- [ ] Download SiEPIC PDK or obtain foundry PDK documentation (§8.3)
+- [ ] Install gdsfactory + KLayout for the layout stage (§7.3)
+- [ ] Download SiEPIC PDK or obtain foundry PDK documentation (§7.3)
 - [x] Public GitHub repository with the component/solver layout
 
 ---
 
-## 13. Key references
+## 12. Key references
 
 **Component physics and platform**
 
@@ -461,20 +419,7 @@ shifter is reused in a design with a different bandwidth requirement.
 7. Sibson, P., et al. (2017). Integrated silicon photonics for high-speed quantum key distribution. *Optica*, 4(2), 172–177. — Example of a Si photonic QKD transmitter. This design is conceptually related.
 8. Wang, J., et al. (2020). Integrated photonic quantum technologies. *Nature Photonics*, 14, 273–284. — Review of integrated quantum photonics.
 
-**Programmable circuits and optical computing**
-
-9. Bogaerts, W., Pérez, D., Capmany, J., Miller, D. A. B., Poon, J., Englund, D., Morichetti, F., & Melloni, A. (2020). Programmable photonic circuits. *Nature*, 586(7828), 207–216. — What a programmable photonic processor is, and why its unit cell is this project's MZI.
-10. Pérez, D., Gasulla, I., Crudgington, L., Thomson, D. J., Khokhar, A. Z., Li, K., Cao, W., Mashanovich, G. Z., & Capmany, J. (2017). Multipurpose silicon photonics signal processor core. *Nature Communications*, 8, 636. — A reconfigurable silicon waveguide mesh, the platform-scale version of the same components.
-11. Shen, Y., Harris, N. C., Skirlo, S., Prabhu, M., Baehr-Jones, T., Hochberg, M., Sun, X., Zhao, S., Larochelle, H., Englund, D., & Soljačić, M. (2017). Deep learning with coherent nanophotonic circuits. *Nature Photonics*, 11(7), 441–446. — An MZI mesh as a linear-optical processor.
-12. Clements, W. R., Humphreys, P. C., Metcalf, B. J., Kolthammer, W. S., & Walmsley, I. A. (2016). Optimal design for universal multiport interferometers. *Optica*, 3(12), 1460–1465. — The mesh topology whose unit cell is the component designed here.
-
-**Neuromorphic photonics and reservoir computing**
-
-13. Shastri, B. J., Tait, A. N., Ferreira de Lima, T., Pernice, W. H. P., Bhaskaran, H., Wright, C. D., & Prucnal, P. R. (2021). Photonics for artificial intelligence and neuromorphic computing. *Nature Photonics*, 15(2), 102–114. — Where photonic computing is going and what the hardware requirements are.
-14. Van der Sande, G., Brunner, D., & Soriano, M. C. (2017). Advances in photonic reservoir computing. *Nanophotonics*, 6(3), 561–576. — Reservoir computing with photonic hardware: what the delay, nonlinearity and readout stages require.
-15. Vandoorne, K., Mechet, P., Van Vaerenbergh, T., Fiers, M., Morthier, G., Verstraeten, D., Schrauwen, B., Dambre, J., & Bienstman, P. (2014). Experimental demonstration of reservoir computing on a silicon photonics chip. *Nature Communications*, 5, 3541. — Reservoir computing built from exactly this platform.
-
 ---
 
-*Original plan written 2026-07-24; revised 2026-09-30 to reflect completed work, the broadened
-applicability of the component library and the workflow, and a realistic remaining scope.*
+*Original plan written 2026-07-24; revised 2026-09-30 to reflect completed work and a realistic
+remaining scope.*

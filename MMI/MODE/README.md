@@ -180,7 +180,7 @@ the optimum read 0.122, 0.120, 0.278 and 0.200 dB, which is EME discretisation r
 `step10` selects the single lowest point. A more defensible rule — judge candidates on the
 band-averaged or worst-case insertion loss and prefer the flat part of the curve — is the one
 recorded as step 6 of the component-optimisation workflow in
-[`../../MZI/Plan.md` §6](../../MZI/Plan.md).
+[`../../MZI/Plan.md` §5](../../MZI/Plan.md).
 
 ## Status
 
@@ -203,7 +203,7 @@ Remaining work, in the order it should be done:
 - [ ] Validate one design point in 3D FDTD
 
 This list is the component-optimisation sequence written out in
-[`../../MZI/Plan.md` §6](../../MZI/Plan.md) — the version of it meant to be reused on the next
+[`../../MZI/Plan.md` §5](../../MZI/Plan.md) — the version of it meant to be reused on the next
 component, so the MMI is where the recipe is exercised rather than the reason for it.
 
 ## Reference

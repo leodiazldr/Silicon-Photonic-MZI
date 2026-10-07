@@ -1,0 +1,105 @@
+# Input taper width sweep: the input taper opens from the waveguide to a width at the MMI
+# face (wg_width_out_initial), so sweep that width +/-20% about the analytic W_MMI/4 and
+# keep the width with the lowest insertion loss.
+#
+# The width changes the taper polygon and its mesh, so unlike the length sweep this cannot
+# run as an EME propagation sweep - the geometry is rebuilt and the solver re-run at every
+# point. Needs the optimised length in the workspace, i.e. step09 must have run first.
+
+# before running check the working directory: File -> Change working directory
+
+?"";
+?"Sweeping input taper width...";
+
+############# Sweep #################
+N_width     = 31;
+input_width_begin = wg_width_out_initial * 0.80;
+input_width_end = wg_width_out_initial * 1.20;
+
+input_width_sweep_vec = linspace(input_width_begin, input_width_end, N_width);
+
+T_top_vs_width = matrix(N_width, 1);
+T_bot_vs_width = matrix(N_width, 1);
+IL_vs_width    = matrix(N_width, 1);
+
+# one wavelength per point: the taper width is a geometric parameter, not a spectral one,
+# so this sweep does not need the C-band
+setemeanalysis("propagation sweep", false);
+
+?"";
+?"Sweeping input taper width with a full rebuild per point...";
+?"";
+?"   width (um)    T_top     T_bot     IL (dB)";
+
+for (i = 1:N_width) {
+    switchtolayout;
+    width_test = input_width_sweep_vec(i);
+    
+    V_in_taper = [ x_taper_start, -wg_width / 2;
+                x_mmi_start,   -width_test    / 2;
+                x_mmi_start,    width_test    / 2;
+                x_taper_start,  wg_width / 2 ];
+    setnamed("MMI::input_taper", "vertices", V_in_taper);
+
+    setnamed("mesh_input_taper", "y span",  width_test+0.5*um);
+
+    run;
+    setemeanalysis("wavelength sweep", true);
+    setemeanalysis("start wavelength", lambda0);
+    setemeanalysis("stop wavelength", lambda0);
+    setemeanalysis("number of wavelength points", 1);
+    emesweep("wavelength sweep");
+
+    S = getemesweep("S_wavelength_sweep");
+    T_top_vs_width(i) = abs(S.s12(1))^2;
+    T_bot_vs_width(i) = abs(S.s13(1))^2;
+
+    T_sum = T_top_vs_width(i) + T_bot_vs_width(i);
+    if (T_sum < 1e-30) { T_sum = 1e-30; }
+    IL_vs_width(i) = -10 * log10(T_sum);
+
+    ?"   " + num2str(width_test/um, "%7.3f") + "    " + num2str(T_top_vs_width(i), "%.4f") + "    " + num2str(T_bot_vs_width(i), "%.4f") + "    " + num2str(IL_vs_width(i), "%6.3f");
+}
+
+plot(input_width_sweep_vec, IL_vs_width);
+##########################################
+
+############# Results #################
+min_IL = min(IL_vs_width);
+idx_width    = find(IL_vs_width, min_IL);
+width_opt    = input_width_sweep_vec(idx_width);
+
+?"";
+?"==============================================";
+?"  MMI Input Taper Width Sweep Results";
+?"==============================================";
+?"  Starting width         : " + num2str(wg_width_out_initial/um, "%.3f") + " um";
+?"  Best width (min IL)    : " + num2str(width_opt/um,    "%.3f") + " um";
+?"";
+?"  At the best width:";
+?"    T_top  = " + num2str(T_top_vs_width(idx_width), "%.4f") + "  (" + num2str(10*log10(T_top_vs_width(idx_width)), "%.2f") + " dB)";
+?"    T_bot  = " + num2str(T_bot_vs_width(idx_width), "%.4f") + "  (" + num2str(10*log10(T_bot_vs_width(idx_width)), "%.2f") + " dB)";
+?"    IL     = " + num2str(min_IL,          "%.3f") + " dB";
+?"==============================================";
+?"";
+?"  To adopt this width: set wg_width_out_initial in step02_mmi_design.lsf, then re-run";
+?"  from step03. The optimum length depends on the taper width, so step09 to step12 have";
+?"  to be re-run as well before the length, taper and wavelength figures are final.";
+?"";
+##########################################
+
+############# Save #################
+matlabsave("input_taper_width_sweep.mat", input_width_sweep_vec, T_top_vs_width, T_bot_vs_width, IL_vs_width);
+?"Input taper width sweep saved to input_taper_width_sweep.mat";
+##########################################
+
+############# Rebuild #################
+switchtolayout;
+
+V_in_taper = [ x_taper_start, -wg_width / 2;
+            x_mmi_start,   -width_opt    / 2;
+            x_mmi_start,    width_opt    / 2;
+            x_taper_start,  wg_width / 2 ];
+setnamed("MMI::input_taper", "vertices", V_in_taper);
+
+setnamed("mesh_input_taper", "y span",  width_opt+0.5*um);

@@ -1,0 +1,66 @@
+# Save the optimised MMI design point for the FDTD validation build.
+#
+# Writes two files next to this script:
+#   mmi_design_point.mat  - matlabsave; loaded by ../FDTD/step01_setup.lsf
+#   mmi_design_point.txt  - the same values in plain text, readable without Lumerical
+#
+# Records the design point as built in the MODE flow (W_MMI, L_MMI, d_y, taper widths and
+# lengths) and the sweep optima from the workspace. Needs the full flow, step01-step13,
+# to have run: the optima L_opt, dy_opt, width_opt and width_out_opt only exist then.
+
+# before running check the working directory: File -> Change working directory
+
+############# Save #################
+matlabsave("mmi_design_point.mat", W_MMI, W_e, L_pi, L_MMI, dy, L_taper_in, L_taper_out, wg_width_out_initial, wg_width_in_end, L_in_wg, L_out_wg, wg_width, wg_thickness, box_depth, clad_height, lambda0, wavelength_span, L_opt, dy_opt, width_opt, width_out_opt);
+?"Design point saved to mmi_design_point.mat";
+##########################################
+
+############# Report #################
+filename = "mmi_design_point.txt";
+
+# Initialize / overwrite the file with the first line
+write(filename, "MMI 1x2 splitter - design point", "overwrite");
+write(filename, "220 nm SOI, 1550 nm TE. Written by step14_save_design.lsf.");
+write(filename, "");
+
+write(filename, "Design point (as built in the MODE flow)");
+write(filename, "  W_MMI                 = " + num2str(W_MMI/um, "%.3f") + " um");
+write(filename, "  W_e                   = " + num2str(W_e/um, "%.3f") + " um");
+write(filename, "  L_pi (slab)           = " + num2str(L_pi/um, "%.2f") + " um");
+write(filename, "  L_MMI                 = " + num2str(L_MMI/um, "%.3f") + " um");
+write(filename, "  d_y                   = " + num2str(dy/um, "%.4f") + " um");
+write(filename, "  input taper length    = " + num2str(L_taper_in/um, "%.3f") + " um");
+write(filename, "  output taper length   = " + num2str(L_taper_out/um, "%.3f") + " um");
+write(filename, "  input taper end width = " + num2str(wg_width_out_initial/um, "%.4f") + " um");
+write(filename, "  output taper in width = " + num2str(wg_width_in_end/um, "%.4f") + " um");
+write(filename, "  lead length, in       = " + num2str(L_in_wg/um, "%.3f") + " um");
+write(filename, "  lead length, out      = " + num2str(L_out_wg/um, "%.3f") + " um");
+write(filename, "  waveguide width       = " + num2str(wg_width/um, "%.4f") + " um");
+write(filename, "  waveguide thickness   = " + num2str(wg_thickness/um, "%.4f") + " um");
+write(filename, "  BOX depth             = " + num2str(box_depth/um, "%.3f") + " um");
+write(filename, "  cladding height       = " + num2str(clad_height/um, "%.3f") + " um");
+write(filename, "  wavelength            = " + num2str(lambda0/nm, "%.1f") + " nm");
+write(filename, "  wavelength span       = " + num2str(wavelength_span/nm, "%.1f") + " nm");
+
+write(filename, "");
+write(filename, "Sweep optima (adopted for the FDTD build)");
+write(filename, "  L_MMI optimum         = " + num2str(L_opt/um, "%.3f") + " um");
+write(filename, "  d_y optimum           = " + num2str(dy_opt/um, "%.4f") + " um");
+write(filename, "  input taper width opt = " + num2str(width_opt/um, "%.4f") + " um");
+write(filename, "  output taper width opt= " + num2str(width_out_opt/um, "%.4f") + " um");
+
+?"";
+?"==============================================";
+?"  MMI Design Point - saved";
+?"==============================================";
+?"  W_MMI         : " + num2str(W_MMI/um,         "%.3f") + " um";
+?"  L_MMI optimum : " + num2str(L_opt/um,         "%.3f") + " um";
+?"  d_y optimum     : " + num2str(dy_opt/um,        "%.4f") + " um";
+?"  input taper opt : " + num2str(width_opt/um,     "%.4f") + " um";
+?"  output taper opt: " + num2str(width_out_opt/um, "%.4f") + " um";
+?"==============================================";
+?"";
+?"  Files: mmi_design_point.mat (load with ../FDTD/step01_setup.lsf)";
+?"         mmi_design_point.txt (plain text)";
+?"";
+##########################################

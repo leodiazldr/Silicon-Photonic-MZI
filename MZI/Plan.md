@@ -67,7 +67,7 @@ because they differ from the original plan:
 | --------- | ------ | ------ |
 | Single-mode waveguide | FDE (MODE) | Complete — width and wavelength sweeps |
 | Low-loss bends | FDE (MODE) | Complete — radius sweep and Bézier curvature study |
-| 1×2 MMI splitter | EME (MODE) | Swept and characterised — length, wavelength and output-offset sweeps run, figures committed; four robustness checks still open (§6.1) |
+| 1×2 MMI splitter | EME (MODE) | Swept and characterised — length, both taper widths, output offset and wavelength all swept, figures committed; 0.069 dB at 1550 nm in EME, 0.103 dB in the 3D FDTD cross-check. Taper-length check, a length re-sweep and the width-bias robustness checks still open (§6.1) |
 | PN junction phase shifter (electrical) | CHARGE drift-diffusion + AC | Complete |
 | PN junction phase shifter (optical) | FDE (MODE) | Complete — V_π·L inside target |
 | MZI system integration | INTERCONNECT | Not started |
@@ -107,58 +107,65 @@ optimisation is written up in §5 as the reusable procedure.
 
 **Design targets:** 50:50 ± 1 %, insertion loss < 0.5 dB, bandwidth > 40 nm, in-phase outputs.
 
-The design point is `W_MMI = 4.0 µm` with linear tapers (0.5 → 1.0 µm) on both sides, chosen after
-the output-offset sweep was run at `W_MMI = 4 µm` and 5 µm and the 4 µm case gave the lower
-insertion loss. The plausible reason is geometric rather than physical: at 4 µm the taper is
-one-quarter of the MMI width instead of one-fifth, so the taper-to-body mode match is better with
-the same taper polygons. That is a hypothesis about the taper, and §6.1 lists the sweep that would
-settle it. The analytic sizing at this width gives `W_e = 4.16 µm`, `L_π = 51.7 µm`,
-`L_MMI = 3L_π/8 = 19.4 µm` and `d_y = W_e/4 = 1.039 µm`.
+The design point is `W_MMI = 5.0 µm` with linear tapers (0.5 → `W_MMI/4` = 1.25 µm) on both sides.
+The taper end width is not an independent constant: it is tied to the body as `W_MMI/4`, so that the
+taper-to-body ratio stays fixed when the width changes. That tie is a starting point rather than a
+result — the two taper-width sweeps move it wider, to 1.3333 µm on the input and 1.3833 µm on the
+output. The analytic sizing at this width gives `W_e = 5.156 µm`, `L_π = 79.53 µm`,
+`L_MMI = 3L_π/8 = 29.82 µm` and `d_y = W_e/4 = 1.2890 µm`.
 
 The slab formula behind those numbers uses the bulk silicon index and so ignores vertical
 confinement; step04 replaces the beat length with the simulated one. The correction is not small —
-`L_π` falls from 51.7 µm to 39.4 µm, moving `L_MMI` from 19.4 µm to 14.8 µm — which is precisely
+`L_π` falls from 79.53 µm to 61.56 µm, moving `L_MMI` from 29.82 µm to 23.085 µm — which is precisely
 why the sweeps below exist rather than the formula being trusted.
 
 | Sweep | Range and points | Figure of merit |
 | ----- | ---------------- | --------------- |
-| MMI length (`step09`) | 11.83 → 17.74 µm, 31 points (±20 % about 14.79 µm) | minimum insertion loss |
-| Wavelength (`step11`) | 1500 → 1600 nm, 101 points, at the optimal length | IL and split across the band |
-| Output offset `d_y` (`step12`) | 0.939 → 1.139 µm, 11 points (±0.10 µm about 1.039 µm) | minimum insertion loss |
+| MMI length (`step09`) | 18.47 → 27.70 µm, 31 points (±20 % about the FDE-refined 23.085 µm) | minimum insertion loss |
+| Input taper width (`step10`) | 1.00 → 1.50 µm, 31 points (±20 % about `W_MMI/4`) | minimum insertion loss |
+| Output offset `d_y` (`step11`) | 1.189 → 1.389 µm, 11 points (±0.10 µm about the analytic 1.2890 µm) | minimum insertion loss |
+| Output taper width (`step12`) | 1.00 → 1.50 µm, 31 points (±20 % about `W_MMI/4`) | minimum insertion loss |
+| Wavelength (`step13`) | 1500 → 1600 nm, 101 points, on the optimised geometry | IL and split across the band |
 
-**Results.** All three sweeps have been run and their figures are committed.
+**Results.** All five sweeps have been run and the figures are committed.
 
 | Metric | Result |
 | ------ | ------ |
-| `L_MMI` (min IL) | 14.00 µm, vs 14.79 µm from the FDE-refined analytic value |
-| `d_y` (min IL) | 1.019 µm, vs 1.039 µm analytic; adopted in `step02_mmi_design.lsf` |
-| Split at the optimum | 48.6 % / 48.6 % (`T = 0.4864` per port) |
-| Imbalance | zero to within 7×10⁻⁹ dB |
-| Insertion loss at 1550 nm | **0.120 dB** |
-| Insertion loss, 1530 → 1570 nm | 0.219 dB worst case |
-| Insertion loss, 1500 → 1600 nm | 0.239 dB mean, 0.501 dB worst (at 1597 nm) |
+| `L_MMI` (min IL) | 22.162 µm, vs 23.085 µm from the FDE-refined analytic value |
+| Input taper width (min IL) | 1.3333 µm, vs 1.25 µm as built |
+| `d_y` (min IL) | 1.2690 µm, vs 1.2890 µm analytic |
+| Output taper width (min IL) | 1.3833 µm, vs 1.25 µm as built |
+| Split at the optimum | 49.2 % / 49.2 % (`T = 0.4921` per port) |
+| Imbalance | zero to within 7×10⁻⁷ dB |
+| Insertion loss at 1550 nm | **0.069 dB** |
+| Insertion loss, 1530 → 1570 nm | 0.127 dB worst case |
+| Insertion loss, 1500 → 1600 nm | 0.155 dB mean, 0.397 dB worst (at 1510 nm) |
+
+Each sweep leaves the tree at its optimum, so the insertion loss falls in turn — 0.126 dB after the
+length sweep, 0.104 dB after the input taper, 0.100 dB after the output offset, and 0.069 dB once
+the output taper is set. A 3D FDTD run of the final design point in `MMI/FDTD/` returns 0.103 dB, so
+the EME figure survives a change of solver.
 
 Two of these deserve comment.
 
 The **imbalance is identically zero**, not merely small. A centred-input 1×2 MMI with output ports
 placed symmetrically about the axis is mirror-symmetric, so `T_top = T_bot` by construction; the
-simulation reproduces that to 10⁻⁹ dB. The imbalance curve is therefore a consistency check on the
+simulation reproduces that to 10⁻⁷ dB. The imbalance curve is therefore a consistency check on the
 port setup rather than an optimisation target, and the `d_y` sweep's real function is to maximise
-the summed transmission, not to balance the split. The optimum it finds is also shallow: moving
-from the analytic `W_e/4` to the swept minimum is worth 0.007 dB, well inside the point-to-point
-scatter of the sweep, so `d_y` is a weak parameter here and the analytic value would have served.
+the summed transmission, not to balance the split. The optimum that sweep finds is shallow, and
+`d_y` remains a weak parameter: the four optima all sit on plateaus rather than peaks.
 
 The **length sweep's minimum is broad and not smooth**. Point-to-point differences near the optimum
-run to ~0.1 dB (0.122, 0.120, 0.278, 0.200 dB across neighbouring points), which is the EME
-discretisation, not physics. Picking the single lowest point — which is what `step10` currently
-does — therefore risks selecting simulation noise. §5 step 6 states the rule that should be used
-instead: judge the candidate on the band-averaged or worst-case transmission and sit on the flat
-part of the curve. The quoted 0.120 dB should be read as 0.12 dB to the accuracy the solver
-supports.
+run to a few tenths of a dB, which is the EME discretisation, not physics. Picking the single lowest
+point — which is what `step09` currently does — therefore risks selecting simulation noise. §5 step 6
+states the rule that should be used instead: judge the candidate on the band-averaged or worst-case
+transmission and sit on the flat part of the curve. The quoted 0.069 dB should be read to the
+accuracy the solver supports.
 
-The loss is also not flat in wavelength: 0.12 dB at 1550 nm rising to 0.50 dB at the top of the
-C-band. Over the 40 nm the design targets, the worst case is 0.219 dB, so the bandwidth target is
-met with margin; over the full 100 nm the worst case just touches 0.5 dB.
+The loss is also not flat in wavelength: 0.069 dB at 1550 nm rising to 0.397 dB towards the edges of
+the C-band. Over the 40 nm the design targets, the worst case is 0.127 dB, so the bandwidth target
+is met with margin; over the full 100 nm both targets still hold, the worst case staying inside
+0.5 dB.
 
 **Still outstanding:** nothing in the simulation flow, but four of the seven workflow steps in §5
 are incomplete for this component. They are listed in §6.1.
@@ -222,8 +229,8 @@ property of the junction rather than of the doping level. Those sweeps belong un
 
 - Component/solver layout (`<Component>/<Solver>/`) with a `main.lsf` driver plus numbered steps per
   solver, each folder carrying its own `README.md`
-- Machine-specific Lumerical project files excluded; simulated data (`.mat`) and figures (`.png`)
-  committed so every result in the READMEs can be inspected without a Lumerical licence
+- Machine-specific Lumerical project files and simulated data (`.mat`) excluded; the result figures
+  (`.png`) are committed so every result in the READMEs can be inspected without a Lumerical licence
 - Python post-processing for every sweep, reading the `.mat` files with `h5py`
 - Design notes in `MZI/`
 
@@ -278,20 +285,22 @@ seven steps in each case.
 
 ### 6.1 Finish the MMI workflow
 
-Four of the seven steps in §5 are incomplete for the MMI, and they are the same four that decide
-whether the quoted 0.12 dB survives contact with fabrication:
+Four of the seven steps in §5 are still incomplete for the MMI, and they are the ones that decide
+whether the quoted 0.069 dB survives contact with fabrication:
 
 - **Verify the taper length** (step 1) — doubling the input and output tapers and confirming the
   loss does not change. Cheap, and it retires an unverified assumption behind every other sweep.
-- **Sweep the input taper width, then re-sweep `L_MMI`** (steps 3 and 5). This also tests the
-  hypothesis behind the choice of `W_MMI = 4 µm`: if the 4 µm advantage comes from the
-  taper-to-body width ratio, widening the taper at 5 µm should recover it.
-- **Sweep the output taper width** (step 4), which is the remaining unswept geometry.
-- **Width-bias robustness** (step 6) — repeat the length and wavelength sweeps with ±10–20 nm of
-  width error. The MMI body is the least width-sensitive element; the tapers are the sensitive part,
-  which is a further reason to sweep them.
-- **Change the selection rule** in `step10_sweep_analysis.lsf` from the single-point minimum to the
-  band-averaged or worst-case insertion loss over the flat region, for the reason given in §4.3.
+- **Re-sweep `L_MMI`** (steps 3 and 5). The input taper sets how much power enters the multimode
+  region and with what phase, so widening it to 1.3333 µm may have moved the length optimum; the
+  fine re-sweep those two steps call for, the counterpart to `step09`, has not been run.
+- **Width-bias robustness, and the figure of merit that survives it** (step 6) — repeat the length
+  and wavelength sweeps with ±10–20 nm of width error, and change the selection rule at the end of
+  `step09_length_sweep.lsf` from the single-point minimum to the band-averaged or worst-case
+  insertion loss over the flat region. The MMI body is the least width-sensitive element; the tapers
+  are the sensitive part, which is a further reason they were swept.
+
+Steps 2 and 4 are closed: the input-taper (`step10`), output-taper (`step12`) and `d_y` (`step11`)
+sweeps are done, and each left the insertion loss lower than the one before.
 
 ### 6.2 Device-level power budget
 
@@ -307,13 +316,17 @@ four independent components, and it is the natural bridge to §7.2.
 Consolidated here rather than dropped: each item is a genuine next step, but each depends on
 something in §6 being finished first, or on tooling not yet set up.
 
-### 7.1 FDTD validation of the optimised MMI
+### 7.1 FDTD validation of the optimised MMI — done
 
 EME assumes the structure is piecewise-uniform along the propagation axis and decomposes the field
-onto a finite set of modes. Both assumptions are worth checking once on the final geometry with a
-full 3D FDTD run, comparing insertion loss and imbalance against the EME prediction. If time is
-short, a 2D varFDTD cross-check is a cheaper partial substitute — the superseded implementation
-under `MMI/MODE/reference/` is already set up for that.
+onto a finite set of modes. Both assumptions were checked once on the final geometry with a full 3D
+FDTD run in `MMI/FDTD/`, comparing insertion loss and reflection against the EME prediction. The two
+solvers agree to 0.03 dB in insertion loss and 0.004 in per-port transmission — 0.103 dB against
+0.069 dB at 1550 nm — and the mesh was checked for convergence rather than trusted at one setting.
+
+Kept here as a record; it is no longer outstanding work. The superseded 2D varFDTD implementation
+under `MMI/MODE/reference/` remains available as a cheaper partial substitute for any future
+geometry.
 
 ### 7.2 INTERCONNECT system simulation
 
@@ -361,9 +374,9 @@ shifter is reused in a design with a different bandwidth requirement.
 | Insertion loss (π shift) | 2–5 dB | < 5 dB | 0.3 dB free-carrier over 1 mm, before MMI and bends |
 | 3 dB EO bandwidth | 10–40 GHz | > 10 GHz | from the CHARGE RC estimate |
 | Extinction ratio | > 20 dB | > 20 dB | device-level, needs §7.2 |
-| MMI splitting ratio | — | 50:50 ± 1 % | 48.6 % / 48.6 % — met, and exact by symmetry |
-| MMI insertion loss | — | < 0.5 dB | 0.120 dB at 1550 nm; 0.219 dB worst case over 40 nm; 0.501 dB worst case over the full C-band — met over the design bandwidth |
-| MMI bandwidth | — | > 40 nm | met: worst-case IL 0.219 dB over 1530–1570 nm |
+| MMI splitting ratio | — | 50:50 ± 1 % | 49.2 % / 49.2 % — met, and exact by symmetry |
+| MMI insertion loss | — | < 0.5 dB | 0.069 dB at 1550 nm (0.103 dB in 3D FDTD); 0.127 dB worst case over 40 nm; 0.397 dB worst case over the full C-band — met across the whole band |
+| MMI bandwidth | — | > 40 nm | met: worst-case IL 0.127 dB over 1530–1570 nm |
 
 ---
 
@@ -371,10 +384,10 @@ shifter is reused in a design with a different bandwidth requirement.
 
 | Risk | Probability | Impact | Mitigation |
 |------|-------------|--------|------------|
-| The single-point IL minimum selected by `step10` overfits EME discretisation noise, since the curve is not smooth at the ~0.1 dB level | High | Low | Select on the band-averaged or worst-case IL over the flat region instead (§6.1) |
+| The single-point IL minimum selected by `step09` overfits EME discretisation noise, since the curve is not smooth at the few-tenths-of-a-dB level | High | Low | Select on the band-averaged or worst-case IL over the flat region instead (§6.1) |
 | The taper length is assumed adequate but has never been checked by doubling | Medium | Low | One extra run; a short taper appears as a constant loss offset |
 | Width bias (±10–20 nm) has not been evaluated, so fabrication tolerance is unquantified | Medium | Medium | Perturb the widths and repeat the length and wavelength sweeps; the tapers, not the MMI body, are the sensitive part |
-| EME's piecewise-uniform assumption is untested against a full-wave solver | Medium | Medium | 3D FDTD on one design point (§7.1); varFDTD as a cheaper partial substitute |
+| EME's piecewise-uniform assumption was untested against a full-wave solver | Low | Low | Done: 3D FDTD on the final design point agrees to 0.03 dB (§7.1); varFDTD remains a cheaper partial substitute |
 | The `d_y` sweep needs a geometry rebuild per point, so it is slower than the length sweep | Medium | Low | Already done; the offset turns out to be a weak parameter, so a coarse grid suffices |
 | INTERCONNECT compact model proves fiddly to fit | Medium | Medium | Analytical MZI transfer function in Python from the simulated component parameters |
 | GDS layout takes longer than estimated | Medium | Medium | Overlap layout work with the write-up; reduce layout scope (simpler test structures, fewer pads) |

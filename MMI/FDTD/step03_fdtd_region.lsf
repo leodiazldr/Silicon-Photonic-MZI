@@ -1,0 +1,15 @@
+# FDTD solver region, mesh override and simulation time, sized to the design point.
+
+# before running check the working directory: File -> Change working directory
+
+############# Simulation #################
+addfdtd;
+set("x min", x_in_port + 1*um);
+set("x max", x_out_port - 1*um);
+set("y", 0);
+set("y span", W_MMI + 4*um);
+set("z", wg_thickness/2);
+set("z span", clad_height);
+set("mesh accuracy", 5);
+set("auto shutoff min", 1e-5);
+##########################################

@@ -76,16 +76,16 @@ if (N_modes_found >= 2) {
 
     setnamed("MMI::mmi_body", "x max", x_mmi_end);
 
-    V_out_taper_top = [ x_mmi_end,   dy - wg_width_out_initial / 2;
+    V_out_taper_top = [ x_mmi_end,   dy - wg_width_in_end / 2;
                         x_taper_end,  dy - wg_width           / 2;
                         x_taper_end,  dy + wg_width           / 2;
-                        x_mmi_end,    dy + wg_width_out_initial / 2 ];
+                        x_mmi_end,    dy + wg_width_in_end / 2 ];
     setnamed("MMI::output_taper_top", "vertices", V_out_taper_top);
 
-    V_out_taper_bottom = [ x_mmi_end,   -dy - wg_width_out_initial / 2;
+    V_out_taper_bottom = [ x_mmi_end,   -dy - wg_width_in_end / 2;
                            x_taper_end,  -dy - wg_width           / 2;
                            x_taper_end,  -dy + wg_width           / 2;
-                           x_mmi_end,    -dy + wg_width_out_initial / 2 ];
+                           x_mmi_end,    -dy + wg_width_in_end / 2 ];
     setnamed("MMI::output_taper_bottom", "vertices", V_out_taper_bottom);
 
     setnamed("MMI::output_wg_top", "x min", x_taper_end);

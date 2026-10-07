@@ -1,0 +1,123 @@
+# Output taper width sweep: the taper opens from the output waveguide to a width inside
+# the MMI image, so sweep the width at the MMI face (wg_width_in_end) +/-20% about the
+# analytic W_MMI/4 and keep the width with the lowest insertion loss.
+#
+# The split does not enter the choice: both output tapers are widened by the same amount,
+# so the device stays mirror-symmetric and the two output powers are equal by construction.
+#
+# The width changes the vertices of both output tapers and their meshes, so unlike the
+# length sweep this cannot run as an EME propagation sweep - the geometry is rebuilt and
+# the solver re-run at every point. Needs the geometry at its optimised length and offset,
+# i.e. step09 to step11 must have run first.
+
+# before running check the working directory: File -> Change working directory
+
+?"";
+?"Sweeping output taper width...";
+
+############# Sweep #################
+N_out_width        = 31;
+output_width_begin = wg_width_in_end * 0.80;
+output_width_end   = wg_width_in_end * 1.20;
+
+output_width_sweep_vec = linspace(output_width_begin, output_width_end, N_out_width);
+
+T_top_vs_out_width = matrix(N_out_width, 1);
+T_bot_vs_out_width = matrix(N_out_width, 1);
+IL_vs_out_width    = matrix(N_out_width, 1);
+
+# one wavelength per point: the taper width is a geometric parameter, not a spectral one,
+# so this sweep does not need the C-band
+setemeanalysis("propagation sweep", false);
+
+?"";
+?"Sweeping output taper width with a full rebuild per point...";
+?"";
+?"   width (um)    T_top     T_bot     IL (dB)";
+
+for (i = 1:N_out_width) {
+    switchtolayout;
+    width_out_test = output_width_sweep_vec(i);
+
+    V_out_taper_top = [ x_mmi_end_opt,   dy_opt - width_out_test / 2;
+                        x_taper_end_opt,  dy_opt - wg_width       / 2;
+                        x_taper_end_opt,  dy_opt + wg_width       / 2;
+                        x_mmi_end_opt,    dy_opt + width_out_test / 2 ];
+    setnamed("MMI::output_taper_top", "vertices", V_out_taper_top);
+
+    V_out_taper_bottom = [ x_mmi_end_opt,   -dy_opt - width_out_test / 2;
+                           x_taper_end_opt,  -dy_opt - wg_width       / 2;
+                           x_taper_end_opt,  -dy_opt + wg_width       / 2;
+                           x_mmi_end_opt,    -dy_opt + width_out_test / 2 ];
+    setnamed("MMI::output_taper_bottom", "vertices", V_out_taper_bottom);
+
+    setnamed("mesh_output_taper_top",    "y span", width_out_test+0.5*um);
+    setnamed("mesh_output_taper_bottom", "y span", width_out_test+0.5*um);
+
+    run;
+    setemeanalysis("wavelength sweep", true);
+    setemeanalysis("start wavelength", lambda0);
+    setemeanalysis("stop wavelength", lambda0);
+    setemeanalysis("number of wavelength points", 1);
+    emesweep("wavelength sweep");
+
+    S = getemesweep("S_wavelength_sweep");
+    T_top_vs_out_width(i) = abs(S.s12(1))^2;
+    T_bot_vs_out_width(i) = abs(S.s13(1))^2;
+
+    T_sum = T_top_vs_out_width(i) + T_bot_vs_out_width(i);
+    if (T_sum < 1e-30) { T_sum = 1e-30; }
+    IL_vs_out_width(i) = -10 * log10(T_sum);
+
+    ?"   " + num2str(width_out_test/um, "%7.3f") + "    " + num2str(T_top_vs_out_width(i), "%.4f") + "    " + num2str(T_bot_vs_out_width(i), "%.4f") + "    " + num2str(IL_vs_out_width(i), "%6.3f");
+}
+
+plot(output_width_sweep_vec, IL_vs_out_width);
+##########################################
+
+############# Results #################
+min_IL_out_width = min(IL_vs_out_width);
+idx_out_width    = find(IL_vs_out_width, min_IL_out_width);
+width_out_opt    = output_width_sweep_vec(idx_out_width);
+
+?"";
+?"==============================================";
+?"  MMI Output Taper Width Sweep Results";
+?"==============================================";
+?"  Starting width         : " + num2str(wg_width_in_end/um, "%.3f") + " um";
+?"  Best width (min IL)    : " + num2str(width_out_opt/um,    "%.3f") + " um";
+?"";
+?"  At the best width:";
+?"    T_top  = " + num2str(T_top_vs_out_width(idx_out_width), "%.4f") + "  (" + num2str(10*log10(T_top_vs_out_width(idx_out_width)), "%.2f") + " dB)";
+?"    T_bot  = " + num2str(T_bot_vs_out_width(idx_out_width), "%.4f") + "  (" + num2str(10*log10(T_bot_vs_out_width(idx_out_width)), "%.2f") + " dB)";
+?"    IL     = " + num2str(min_IL_out_width, "%.3f") + " dB";
+?"==============================================";
+?"";
+?"  To adopt this width: set wg_width_in_end in step02_mmi_design.lsf, then re-run from";
+?"  step03. The optimum length and offset depend on the taper widths, so step09 to step12";
+?"  have to be re-run as well before the length, taper and wavelength figures are final.";
+?"";
+##########################################
+
+############# Save #################
+matlabsave("output_taper_width_sweep.mat", output_width_sweep_vec, T_top_vs_out_width, T_bot_vs_out_width, IL_vs_out_width);
+?"Output taper width sweep saved to output_taper_width_sweep.mat";
+##########################################
+
+############# Rebuild #################
+switchtolayout;
+
+V_out_taper_top = [ x_mmi_end_opt,   dy_opt - width_out_opt / 2;
+                    x_taper_end_opt,  dy_opt - wg_width      / 2;
+                    x_taper_end_opt,  dy_opt + wg_width      / 2;
+                    x_mmi_end_opt,    dy_opt + width_out_opt / 2 ];
+setnamed("MMI::output_taper_top", "vertices", V_out_taper_top);
+
+V_out_taper_bottom = [ x_mmi_end_opt,   -dy_opt - width_out_opt / 2;
+                       x_taper_end_opt,  -dy_opt - wg_width      / 2;
+                       x_taper_end_opt,  -dy_opt + wg_width      / 2;
+                       x_mmi_end_opt,    -dy_opt + width_out_opt / 2 ];
+setnamed("MMI::output_taper_bottom", "vertices", V_out_taper_bottom);
+
+setnamed("mesh_output_taper_top",    "y span", width_out_opt+0.5*um);
+setnamed("mesh_output_taper_bottom", "y span", width_out_opt+0.5*um);

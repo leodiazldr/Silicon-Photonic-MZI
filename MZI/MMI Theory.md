@@ -257,31 +257,31 @@ $$
 L_\pi \approx \frac{4\,n_r\,W_e^2}{3\,\lambda_0}
 $$
 
-For the design point $W_{\text{MMI}} = 4$ µm, with $n_r = 3.4777$ and $\lambda_0 = 1.55$ µm:
-$W_e = 4.156$ µm → $L_\pi \approx \frac{4 \times 3.4777 \times (4.156)^2}{3 \times 1.55} \approx 51.7$ µm.
+For the design point $W_{\text{MMI}} = 5$ µm, with $n_r = 3.4777$ and $\lambda_0 = 1.55$ µm:
+$W_e = 5.156$ µm → $L_\pi \approx \frac{4 \times 3.4777 \times (5.156)^2}{3 \times 1.55} \approx 79.5$ µm.
 
 **Step 4 — MMI length** (first two-fold image):
 
 $$
-L_{\text{MMI}} = \frac{3L_\pi}{8} \approx 19.4 \ \mu\text{m}
+L_{\text{MMI}} = \frac{3L_\pi}{8} \approx 29.8 \ \mu\text{m}
 $$
 
 **Step 5 — Output waveguide positions**:
 
 $$
-d_y = \pm \frac{W_e}{4} \approx \pm 1.04 \ \mu\text{m}
+d_y = \pm \frac{W_e}{4} \approx \pm 1.29 \ \mu\text{m}
 $$
 
-These analytical values are starting points. The slab formula uses the bulk silicon index and so ignores vertical confinement, and the correction is not small: `step04_fde_mode_check.lsf` replaces $L_\pi$ with the value from the simulated eigenmodes, which for $W_{\text{MMI}} = 4$ µm takes $L_\pi$ from 51.7 µm to 39.4 µm and $L_{\text{MMI}}$ from 19.4 µm to 14.8 µm. The sweeps then run $\pm 20\%$ in $L_{\text{MMI}}$ (11.8–17.7 µm) and $\pm 0.10$ µm in $d_y$ around the refined values, since the effective-index model remains approximate when applied to the actual 3D rib structure.
+These analytical values are starting points. The slab formula uses the bulk silicon index and so ignores vertical confinement, and the correction is not small: `step04_fde_mode_check.lsf` replaces $L_\pi$ with the value from the simulated eigenmodes, which for $W_{\text{MMI}} = 5$ µm takes $L_\pi$ from 79.5 µm to 61.6 µm and $L_{\text{MMI}}$ from 29.8 µm to 23.1 µm. The sweeps then run $\pm 20\%$ in $L_{\text{MMI}}$ (18.5–27.7 µm) and $\pm 0.10$ µm in $d_y$ around the refined values, since the effective-index model remains approximate when applied to the actual 3D rib structure.
 
 ### Sanity Check on the Length Scale
 
-It is worth knowing the failure mode, because it is easy to verify a length analytically before running anything. For $W_{\text{MMI}} = 4$ µm:
+It is worth knowing the failure mode, because it is easy to verify a length analytically before running anything. For $W_{\text{MMI}} = 5$ µm:
 
 | Candidate length | Formula | Slab estimate | FDE-refined | What it actually produces |
 |---|---|---|---|---|
-| Two-fold image | $3L_\pi/8$ | ≈ 19 µm | 14.8 µm | **Two outputs at $\pm W_e/4$ — the splitter** |
-| Single image | $3L_\pi/2$ | ≈ 78 µm | 59 µm | One output at $y = 0$ — no splitting |
+| Two-fold image | $3L_\pi/8$ | ≈ 30 µm | 23.1 µm | **Two outputs at $\pm W_e/4$ — the splitter** |
+| Single image | $3L_\pi/2$ | ≈ 119 µm | 92 µm | One output at $y = 0$ — no splitting |
 
 Published SOI 1×2 MMIs with 4–6 µm bodies come out at roughly 20–40 µm on the slab estimate. A design in the 100 µm class should be treated as a red flag rather than a result.
 
@@ -291,11 +291,12 @@ Published SOI 1×2 MMIs with 4–6 µm bodies come out at roughly 20–40 µm on
 
 | Parameter | Current value | Comment |
 |-----------|--------------|---------|
-| $W_{\text{MMI}}$ | 4.0 µm | Design point, chosen after running the $d_y$ sweep at 4 µm and 5 µm |
-| $L_{\text{MMI}}$ | 14.0 µm | From the length sweep; 14.8 µm from the FDE-refined beat length, 19.4 µm from the slab formula |
-| $d_y$ | 1.019 µm | From the $d_y$ sweep; $W_e/4 = 1.039$ µm analytically |
-| $L_{\text{taper,in}}$ | 8.0 µm | Input taper |
-| $L_{\text{taper,out}}$ | 5.0 µm | Output taper |
+| $W_{\text{MMI}}$ | 5.0 µm | Design point; the taper end width is tied to it as $W_{\text{MMI}}/4$ |
+| $L_{\text{MMI}}$ | 22.162 µm | From the length sweep; 23.085 µm from the FDE-refined beat length, 29.82 µm from the slab formula |
+| $d_y$ | 1.2690 µm | From the $d_y$ sweep; $W_e/4 = 1.2890$ µm analytically |
+| Taper widths (in / out) | 1.3333 / 1.3833 µm | From the taper-width sweeps; as built $W_{\text{MMI}}/4 = 1.25$ µm |
+| $L_{\text{taper,in}}$ | 8.0 µm | Input taper length |
+| $L_{\text{taper,out}}$ | 5.0 µm | Output taper length |
 
 ## 9. Taper Design
 
@@ -311,7 +312,7 @@ Typical taper length: $L_{\text{taper}} \approx 5$–$10$ µm. The taper should 
 - The beat length $L_\pi \approx 4 n_r W_e^2/(3\lambda_0)$ is the fundamental design parameter.
 - For a **1×2 general interference MMI**: $L_{\text{MMI}} = 3L_\pi/8$, output ports at $y = \pm W_e/4$. This is the *first two-fold image*, at one quarter of the single-image length $3L_\pi/2$.
 - **Phase difference between outputs is zero** for a symmetric centered-input MMI, enforced by the $y \to -y$ symmetry. This can and should be confirmed in the EME simulation.
-- Current design point for $W_{\text{MMI}} = 4$ µm: $W_e \approx 4.16$ µm, $L_\pi \approx 51.7$ µm on the slab estimate and 39.4 µm from the simulated eigenmodes, $L_{\text{MMI}} = 14.0$ µm and $d_y = 1.019$ µm from the sweeps.
+- Current design point for $W_{\text{MMI}} = 5$ µm: $W_e \approx 5.16$ µm, $L_\pi \approx 79.5$ µm on the slab estimate and 61.6 µm from the simulated eigenmodes, $L_{\text{MMI}} = 22.162$ µm and $d_y = 1.2690$ µm from the sweeps.
 - Taper length should be included in the optimization sweep; the linear profile already meets the insertion-loss target, so the parabolic variant was left out of scope.
 
 ---

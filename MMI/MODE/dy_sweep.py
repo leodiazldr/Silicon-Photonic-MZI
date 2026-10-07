@@ -7,12 +7,12 @@ Created on Wed Sep 30 2026
 
 """
 Insertion loss and splitting imbalance versus the output-port offset d_y, from the
-sweep saved in 'dy_sweep.mat' by step12_dy_sweep.lsf.
+sweep saved in 'dy_sweep.mat' by step11_dy_sweep.lsf.
 
 d_y moves the two output waveguides and their ports, so unlike the length sweep each
 point is a full geometry rebuild and a fresh EME run. The analytical starting point is
 d_y = W_e/4, which is where the slab formula puts the two-fold image; this sweep is
-the check that the image really sits there, and the sweep in step12 is built
+the check that the image really sits there, and the sweep in step11 is built
 symmetrically about that value.
 
 Expected variables:
@@ -42,7 +42,7 @@ with h5py.File(filename, "r") as f:
 um = 1e-6
 dy_um = dy_sweep_vec / um
 
-# step12 builds the sweep symmetrically about the analytical offset
+# step11 builds the sweep symmetrically about the analytical offset
 dy_center = 0.5 * (dy_um.min() + dy_um.max())
 
 idx_opt = int(np.argmin(IL_vs_dy))

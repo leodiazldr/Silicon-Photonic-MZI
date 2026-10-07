@@ -7,9 +7,9 @@ Created on Wed Sep 30 2026
 
 """
 Transmission, insertion loss and splitting imbalance across the C-band, from the EME
-wavelength sweep saved in 'wavelength_sweep.mat' by step11_wavelength_sweep.lsf.
+wavelength sweep saved in 'wavelength_sweep.mat' by step13_wavelength_sweep.lsf.
 
-The sweep is taken at the MMI length that minimised the insertion loss in step10, so
+The sweep is taken at the MMI length that minimised the insertion loss in step09, so
 it is the broadband check: the 50:50 split and the low insertion loss are only useful
 if they hold across the band, not just at 1550 nm.
 

@@ -1,0 +1,29 @@
+# MMI 1x2 validation build - 3D FDTD.
+#
+# Loads the frozen design point written by ../MODE/step14_save_design.lsf and builds the
+# geometry, FDTD region, source and port monitors at the optimised length, offset and
+# taper widths, runs it, and saves the results. Inspect the layout before running if you
+# want; step05 issues the run and writes mmi_fdtd_results.mat.
+#
+# Regenerate the design point in the MODE folder after any change to the optimisation.
+#
+# Theory: "../../MZI/MMI Theory.md".
+
+# before running check the working directory: File -> Change working directory
+
+############# Phase A: import and build the geometry #################
+step01_setup;               # units, material names, import the design point
+step02_geometry;            # MMI structure group, extruded in z
+##########################################
+
+############# Phase B: solver, source and monitors #################
+step03_fdtd_region;         # FDTD region, mesh override, simulation time
+step04_sources_monitors;    # mode source at the input; port monitors and a field profile
+##########################################
+
+# Validate by comparing the saved port transmissions (mmi_fdtd_results.mat) to the EME
+# result in ../MODE/.
+
+############# Phase C: run and save the results #################
+step05_save_results;        # run the simulation; save S-parameters and the field profile
+##########################################

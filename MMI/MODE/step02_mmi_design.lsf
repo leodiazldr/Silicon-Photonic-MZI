@@ -11,7 +11,7 @@
 
 # effective width: W_e = W_MMI + (lambda0/pi)*(n_c/n_r)^(2*sigma)/sqrt(n_r^2-n_c^2)
 sigma_TE = 0;                                # 0 for TE, 1 for TM
-W_MMI    = 4.0 * um;                         # initial guess - sweep 4-6 um later
+W_MMI    = 5.0 * um;                         # initial guess - sweep 4-6 um later
 
 W_e = W_MMI + (lambda0 / pi) * (n_c / n_r)^(2 * sigma_TE) / sqrt(n_r^2 - n_c^2);
 
@@ -22,14 +22,15 @@ L_pi = 4 * n_r * W_e^2 / (3 * lambda0);
 L_MMI = 3 * L_pi / 8;
 
 # output ports
-#dy  = W_e / 4;
-#dy = 1.209 * um;    # obtained from step_12 for W_MMI = 5 um
-dy = 1.019 * um;    # obtained from step_12 for W_MMI = 4 um
+dy  = W_e / 4;
+#dy = 1.209 * um;    # obtained from step11_dy_sweep for W_MMI = 5 um
+#dy = 1.019 * um;    # obtained from step11_dy_sweep for W_MMI = 4 um
 
 # taper and lead lengths
 L_taper_in   = 8.0 * um;                     # input taper length
 L_taper_out  = 5.0 * um;                     # output taper length
-wg_width_out_initial = 1.0 * um;             # input taper end width
+wg_width_out_initial = W_MMI/4;              # input taper end width
+wg_width_in_end      = W_MMI/4;              # output taper initial width
 
 L_in_wg   = 10.0 * um;                       # lead length, input side
 L_out_wg  = 10.0 * um;                       # lead length, output side

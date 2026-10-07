@@ -1,0 +1,56 @@
+# Run the FDTD project built by step01-step04 and save the results.
+#
+# Writes mmi_fdtd_results.mat next to this script:
+#   f, lambda             frequency and wavelength vectors
+#   S_src, S_top, S_bot   complex S-parameters of the three ports for input excitation
+#   T_top, T_bot          power transmission at the two outputs, |S|^2
+#   R                     power reflection at the input, |S_src|^2
+#   IL                    insertion loss, -10*log10(T_top + T_bot)
+#   imbalance             10*log10(T_top) - 10*log10(T_bot)
+#   mon_x, mon_y, mon_E2  field profile from the "monitor" object, |E|^2
+#
+# FDTD excites one port mode at a time, chosen by the port group's active source. It must
+# be the input port ("source"); that gives the S-column for input excitation, which is all
+# a passive splitter needs. Compare T_top and T_bot against the EME s12/s13 in ../MODE/.
+
+# before running check the working directory: File -> Change working directory
+
+############# Simulation #################
+run;
+##########################################
+
+############# Results #################
+res_src = getresult("FDTD::ports::source",  "S");
+res_top = getresult("FDTD::ports::out_top", "S");
+res_bot = getresult("FDTD::ports::out_bot", "S");
+
+f     = res_src.f;
+S_src = res_src.S;
+S_top = res_top.S;
+S_bot = res_bot.S;
+
+c0        = 299792458;                 # speed of light, m/s
+lambda    = c0 / f;
+T_top     = abs(S_top)^2;
+T_bot     = abs(S_bot)^2;
+R         = abs(S_src)^2;
+IL        = -10*log10(T_top + T_bot);
+imbalance = 10*log10(T_top) - 10*log10(T_bot);
+
+E_mon  = getresult("monitor", "E");
+mon_x  = E_mon.x;
+mon_y  = E_mon.y;
+mon_E2 = abs(E_mon.Ex)^2 + abs(E_mon.Ey)^2 + abs(E_mon.Ez)^2;
+##########################################
+
+############# Save #################
+matlabsave("mmi_fdtd_results.mat", f, lambda, S_src, S_top, S_bot, T_top, T_bot, R, IL, imbalance, mon_x, mon_y, mon_E2);
+?"FDTD results saved to mmi_fdtd_results.mat";
+
+idx0 = find(lambda, lambda0);
+?"  lambda    : " + num2str(lambda(idx0)/nm, "%.1f") + " nm";
+?"  T_top     : " + num2str(T_top(idx0),      "%.4f");
+?"  T_bot     : " + num2str(T_bot(idx0),      "%.4f");
+?"  IL        : " + num2str(IL(idx0),         "%.3f") + " dB";
+?"  imbalance : " + num2str(imbalance(idx0),  "%.3f") + " dB";
+##########################################

@@ -3,7 +3,7 @@
 #
 # Driver. Lumerical's interpreter has no "include", so each stage lives in its own
 # stepNN_*.lsf file in this folder and is called by name below. All steps share one
-# global workspace, so variables defined in step01 remain visible in step11.
+# global workspace, so variables defined in step01 remain visible in step14.
 #
 # Theory: "../../MZI/MMI Theory.md".
 
@@ -23,14 +23,16 @@ step04_fde_mode_check;        # FDE mode count; replace L_pi with the simulated 
 step05_eme_setup;             # EME region and the five cell groups
 step06_eme_ports;             # input and two output ports
 step07_eme_monitors;          # 2D field profile monitor
-step08_run_simulation;        # propagate + broadband wavelength sweep
+step08_run_simulation;        # propagate
 ##########################################
 
 # Phase D: optimize and verify
 step09_length_sweep;          # sweep L_MMI over +/-20% using an EME propagation sweep
-step10_sweep_analysis;        # pick the optimum, report IL and balance
-step11_wavelength_sweep;      # broadband check at the optimal length
-step12_dy_sweep;              # sweep the output offset d_y, rebuilding per point
+step10_input_taper_sweep;     # sweep the input taper width, rebuilding per point
+step11_dy_sweep;              # sweep the output offset d_y, rebuilding per point
+step12_output_taper_sweep;    # sweep the output taper width, rebuilding per point
+step13_wavelength_sweep;      # broadband check on the optimised geometry
+step14_save_design;           # write the design point for the FDTD build in ../FDTD/
 
 # Closing summary
 ?"";
@@ -48,5 +50,5 @@ step12_dy_sweep;              # sweep the output offset d_y, rebuilding per poin
 ?"";
 ?"  Next steps:";
 ?"    * Export S-parameters for INTERCONNECT";
-?"    * Validate one design point in 3D FDTD (reference/varfdtd_reference.lsf)";
+?"    * Validate one design point in 3D FDTD (../FDTD/)";
 ?"";

@@ -1,0 +1,27 @@
+MMI 1x2 splitter - design point
+220 nm SOI, 1550 nm TE. Written by step14_save_design.lsf.
+
+Design point (as built in the MODE flow)
+  W_MMI                 = 5.000 um
+  W_e                   = 5.156 um
+  L_pi (slab)           = 79.53 um
+  L_MMI                 = 23.085 um
+  d_y                   = 1.2890 um
+  input taper length    = 8.000 um
+  output taper length   = 5.000 um
+  input taper end width = 1.2500 um
+  output taper in width = 1.2500 um
+  lead length, in       = 10.000 um
+  lead length, out      = 10.000 um
+  waveguide width       = 0.5000 um
+  waveguide thickness   = 0.2200 um
+  BOX depth             = 2.000 um
+  cladding height       = 2.000 um
+  wavelength            = 1550.0 nm
+  wavelength span       = 100.0 nm
+
+Sweep optima (adopted for the FDTD build)
+  L_MMI optimum         = 22.162 um
+  d_y optimum           = 1.2690 um
+  input taper width opt = 1.3333 um
+  output taper width opt= 1.3833 um

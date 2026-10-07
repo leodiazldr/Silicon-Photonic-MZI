@@ -10,7 +10,8 @@
 # the length sweep this cannot be run as an EME propagation sweep - the geometry is
 # rebuilt and the solver re-run at every point. Expect this to take a few minutes.
 #
-# Needs the geometry at its final MMI length, i.e. step11 must have run first.
+# Needs the geometry at its optimised length with the input taper width applied, i.e.
+# step09 and step10 must have run first.
 
 # before running check the working directory: File -> Change working directory
 
@@ -40,16 +41,16 @@ for (i = 1:N_dy) {
     dy_test = dy_sweep_vec(i);
 
     # output tapers, wg_width_out_initial -> wg_width, centred at +/- dy_test
-    V_out_taper_top = [ x_mmi_end_opt,   dy_test - wg_width_out_initial / 2;
+    V_out_taper_top = [ x_mmi_end_opt,   dy_test - wg_width_in_end / 2;
                         x_taper_end_opt,  dy_test - wg_width           / 2;
                         x_taper_end_opt,  dy_test + wg_width           / 2;
-                        x_mmi_end_opt,    dy_test + wg_width_out_initial / 2 ];
+                        x_mmi_end_opt,    dy_test + wg_width_in_end / 2 ];
     setnamed("MMI::output_taper_top", "vertices", V_out_taper_top);
 
-    V_out_taper_bottom = [ x_mmi_end_opt,   -dy_test - wg_width_out_initial / 2;
+    V_out_taper_bottom = [ x_mmi_end_opt,   -dy_test - wg_width_in_end / 2;
                            x_taper_end_opt,  -dy_test - wg_width           / 2;
                            x_taper_end_opt,  -dy_test + wg_width           / 2;
-                           x_mmi_end_opt,    -dy_test + wg_width_out_initial / 2 ];
+                           x_mmi_end_opt,    -dy_test + wg_width_in_end / 2 ];
     setnamed("MMI::output_taper_bottom", "vertices", V_out_taper_bottom);
 
     setnamed("MMI::output_wg_top",    "y",  dy_test);
@@ -111,8 +112,8 @@ dy_opt    = dy_sweep_vec(idx_dy);
 ?"==============================================";
 ?"";
 ?"  To adopt this offset: set d_y in step02_mmi_design.lsf, then re-run from";
-?"  step03. The optimum length depends on d_y, so step09 and step11 have to be";
-?"  re-run as well before the length and wavelength figures are final.";
+?"  step03. The optimum length and taper widths depend on d_y, so step09 to step12";
+?"  have to be re-run as well before the length, taper and wavelength figures are final.";
 ?"";
 ##########################################
 
@@ -120,3 +121,29 @@ dy_opt    = dy_sweep_vec(idx_dy);
 matlabsave("dy_sweep.mat", dy_sweep_vec, T_top_vs_dy, T_bot_vs_dy, IL_vs_dy, Imb_vs_dy);
 ?"Offset sweep saved to dy_sweep.mat";
 ##########################################
+
+############# Rebuild #################
+switchtolayout;
+
+V_out_taper_top = [ x_mmi_end_opt,   dy_opt - wg_width_in_end / 2;
+                    x_taper_end_opt,  dy_opt - wg_width           / 2;
+                    x_taper_end_opt,  dy_opt + wg_width           / 2;
+                    x_mmi_end_opt,    dy_opt + wg_width_in_end / 2 ];
+setnamed("MMI::output_taper_top", "vertices", V_out_taper_top);
+
+V_out_taper_bottom = [ x_mmi_end_opt,   -dy_opt - wg_width_in_end / 2;
+                       x_taper_end_opt,  -dy_opt - wg_width           / 2;
+                       x_taper_end_opt,  -dy_opt + wg_width           / 2;
+                       x_mmi_end_opt,    -dy_opt + wg_width_in_end / 2 ];
+setnamed("MMI::output_taper_bottom", "vertices", V_out_taper_bottom);
+
+setnamed("MMI::output_wg_top",    "y",  dy_opt);
+setnamed("MMI::output_wg_bottom", "y", -dy_opt);
+
+setnamed("mesh_output_taper_top",    "y",  dy_opt);
+setnamed("mesh_output_taper_bottom", "y", -dy_opt);
+setnamed("mesh_output_wg_top",       "y",  dy_opt);
+setnamed("mesh_output_wg_bottom",    "y", -dy_opt);
+
+setnamed("EME::Ports::port_2", "y",  dy_opt);
+setnamed("EME::Ports::port_3", "y", -dy_opt);

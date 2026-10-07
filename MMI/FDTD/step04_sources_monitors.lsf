@@ -1,0 +1,63 @@
+# Fundamental-TE mode source at the input, power monitors at the three ports, and a field
+# profile through the device. Port numbering follows the MODE flow: port 1 input,
+# port 2 top output, port 3 bottom output.
+#
+# The port monitors are plain power monitors. The output waveguides are single-mode, so
+# the transmitted power is the fundamental-mode transmission to good accuracy; add a mode
+# expansion monitor at each output if mode-resolved S-parameters are wanted.
+
+# before running check the working directory: File -> Change working directory
+
+############# Ports #################
+addport;
+set("name", "source");
+set("injection axis", "x-axis");
+set("direction", "Forward");
+set("x", x_in_port + 2*um);
+set("y", 0);
+set("y span", wg_width + 1*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness + 1*um);
+set("mode selection", "fundamental TE mode");
+
+addport;
+set("name", "out_top");
+set("injection axis", "x-axis");
+set("direction", "Backward");
+set("x", x_out_port - 2*um);
+set("y", dy_opt);
+set("y span", wg_width + 1*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness + 1*um);
+set("mode selection", "fundamental TE mode");
+
+addport;
+set("name", "out_bot");
+set("injection axis", "x-axis");
+set("direction", "Backward");
+set("x", x_out_port - 2*um);
+set("y", -dy_opt);
+set("y span", wg_width + 1*um);
+set("z", wg_thickness/2);
+set("z span", wg_thickness + 1*um);
+set("mode selection", "fundamental TE mode");
+
+select("FDTD::ports");
+set("monitor frequency points", 101);
+
+setglobalsource("center wavelength", lambda0);
+setglobalsource("wavelength span", wavelength_span);
+
+setglobalmonitor("frequency points", 101);
+##########################################
+
+############# Monitors #################
+addprofile;
+set("name", "monitor");
+set("monitor type", 7);          # 2D X-normal
+set("x min", x_in_port + 1*um);
+set("x max", x_out_port - 1*um);
+set("y", 0);
+set("y span", W_MMI + 4*um);
+set("z", wg_thickness/2);
+##########################################

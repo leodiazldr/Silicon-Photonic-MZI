@@ -7,9 +7,21 @@
 # =============================================================================
 *.lms
 *.ldev
+*.fsp
 *.log
 *.m1v
 *.mp4
+
+# =============================================================================
+# Simulated data
+# =============================================================================
+# Solver output and inter-solver handoff files. They are binary, they are
+# rewritten by every re-run, and none of them is needed to read a result — the
+# figures (*.png) are tracked for that. Note that PhaseShifter/MODE reads the
+# carrier map written by PhaseShifter/CHARGE, so the CHARGE flow has to be run
+# before the optical one in a fresh clone.
+# =============================================================================
+*.mat
 
 # =============================================================================
 # Python environments and bytecode
@@ -35,7 +47,7 @@ MZI/.obsidian/
 # =============================================================================
 # Deliberately NOT ignored
 # =============================================================================
-# Simulated data (*.mat), result figures (*.png) and the INTERCONNECT data card
-# (*.ldf) are tracked on purpose, so that every result in the READMEs can be
-# inspected without a Lumerical licence. Do not add them here.
+# Result figures (*.png) and the INTERCONNECT data card (*.ldf) are tracked on
+# purpose, so that every result in the READMEs can be inspected without a
+# Lumerical licence. Do not add them here.
 # =============================================================================

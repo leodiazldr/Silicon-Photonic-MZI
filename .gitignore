@@ -1,7 +1,7 @@
 # =============================================================================
 # Lumerical project, log and movie files
 # =============================================================================
-# Simulation projects are large, binary and machine-specific — the MMI one is
+# Simulation projects are large, binary and machine-specific: the MMI one is
 # over 100 MB, above GitHub's per-file limit. They regenerate every time a
 # simulation is saved, so there is nothing to gain by tracking them.
 # =============================================================================
@@ -16,7 +16,7 @@
 # Simulated data
 # =============================================================================
 # Solver output and inter-solver handoff files. They are binary, they are
-# rewritten by every re-run, and none of them is needed to read a result — the
+# rewritten by every re-run, and none of them is needed to read a result; the
 # figures (*.png) are tracked for that. Note that PhaseShifter/MODE reads the
 # carrier map written by PhaseShifter/CHARGE, so the CHARGE flow has to be run
 # before the optical one in a fresh clone.

@@ -1,4 +1,4 @@
-# MMI 1x2 design and optimization — MODE (EME solver).
+# MMI 1x2 design and optimization, MODE (EME solver).
 # Platform: 220 nm SOI, 1550 nm TE.
 #
 # Driver. Lumerical's interpreter has no "include", so each stage lives in its own
@@ -37,7 +37,7 @@ step14_save_design;           # write the design point for the FDTD build in ../
 # Closing summary
 ?"";
 ?"==============================================";
-?"  MMI 1x2 — Design Summary";
+?"  MMI 1x2, Design Summary";
 ?"==============================================";
 ?"  W_MMI      : " + num2str(W_MMI/um,     "%.2f") + " um";
 ?"  L_MMI opt  : " + num2str(L_opt/um,     "%.2f") + " um";

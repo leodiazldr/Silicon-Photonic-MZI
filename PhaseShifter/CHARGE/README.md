@@ -30,8 +30,8 @@ index, the effective index of the guided mode increases and the accumulated phas
 Δφ(V) = (2π/λ)·Δn_eff(V)·L
 ```
 
-The response is not limited by carrier lifetime — the depletion layer moves on the
-dielectric relaxation timescale — which is what makes GHz operation possible. The bandwidth
+The response is not limited by carrier lifetime: the depletion layer moves on the
+dielectric relaxation timescale, which is what makes GHz operation possible. The bandwidth
 is set by the RC time constant, `f_3dB = 1/(2πRC)`.
 
 Full derivation in [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md).
@@ -156,7 +156,7 @@ W = sqrt( 2·ε_s·(V_bi − V)·(N_A + N_D) / (q·N_A·N_D) )
 The simulation reproduces the *shape* of the closed-form result: a one-parameter fit
 `W_sim ≈ 197·sqrt(0.59 − V) nm` matches all 21 points to within 2.4 nm, so the drift-diffusion
 solution follows the expected `sqrt(V_bi − V)` law. What it does not reproduce is the
-magnitude — the simulated width runs 20 % high at 0 V and 34 % high at −1.5 V. Two properties
+magnitude: the simulated width runs 20 % high at 0 V and 34 % high at −1.5 V. Two properties
 of the model account for the offset:
 
 - **The ridge doping is not a uniform step.** [`step06_doping.lsf`](step06_doping.lsf) builds
@@ -164,12 +164,12 @@ of the model account for the offset:
   the top surface), not as uniform blocks. The concentration at the junction is therefore below
   the nominal `N_A` / `N_D` and falls further with depth, and lower effective doping means a
   wider depletion region. Fitting an effective uniform doping reproduces the simulation with
-  ≈ 0.70 × nominal at 0 V and ≈ 0.56 × nominal at −1.5 V — the drift is the signature of a
+  ≈ 0.70 × nominal at 0 V and ≈ 0.56 × nominal at −1.5 V: the drift is the signature of a
   graded profile rather than a step. The fitted `V_bi` of 0.59 V is below the nominal 0.83 V
   for the same reason.
 - **The extraction criterion reads a smoothed edge.** The 50 %-recovery point sits roughly one
   Debye length beyond the ideal edge on each side. With `L_D = sqrt(ε_s·kT/(q²N)) ≈ 13 nm` at
-  `1×10¹⁷ cm⁻³` and `≈ 9 nm` at `2×10¹⁷ cm⁻³`, that is a systematic ~20 nm of extra width —
+  `1×10¹⁷ cm⁻³` and `≈ 9 nm` at `2×10¹⁷ cm⁻³`, that is a systematic ~20 nm of extra width,
   which on its own accounts for most of the 25 nm offset at 0 V.
 
 So the agreement is qualitative rather than quantitative: the physics is captured, and the
@@ -180,7 +180,7 @@ actual implant depth profile instead of quoting a single doping level.
 ## Junction capacitance
 
 The depletion-width result above covers the carrier model. The AC sweep asks a different
-question: how much charge has to be moved to change that depletion width — that is, what the
+question: how much charge has to be moved to change that depletion width, that is, what the
 junction looks like as a capacitor to a driving signal.
 
 **Why the small-signal AC solver rather than dQ/dV.** Differencing the contact charge between
@@ -206,7 +206,7 @@ so `C` is a capacitance per unit length; the script reports it in fF/µm, which 
 the same as pF/mm.
 
 **What the resistance is, and what it is not.** In reverse bias the junction conducts almost
-nothing, so at low frequency `1/Re(Y)` is the junction's *shunt* resistance — enormous, and
+nothing, so at low frequency `1/Re(Y)` is the junction's *shunt* resistance, enormous, and
 unrelated to the modulation speed. The series resistance of the doped regions appears in the
 high-frequency asymptote instead: for a junction `Y_j = G_j + jωC_j` in series with `R_s`, the
 admittance seen at the contact is `Y_j/(1 + R_s·Y_j)`, which tends to `1/R_s` as ω grows. The

@@ -2,7 +2,7 @@
 
 ## 1. The Multimode Interferometer
 
-A multimode interferometer (MMI) is a passive photonic component that splits or combines optical signals by exploiting the self-imaging principle in a multimode waveguide. When light enters a sufficiently wide waveguide from a single-mode input, the abrupt widening excites multiple guided modes of the multimode section. These modes propagate with **different propagation constants** (different effective indices), accumulating different phase delays as they travel. At certain periodic distances, the superposition of these modes reconstructs single or multiple images of the input field — this is the self-imaging (or Talbot) effect, adapted from diffractive optics to guided-wave structures.
+A multimode interferometer (MMI) is a passive photonic component that splits or combines optical signals by exploiting the self-imaging principle in a multimode waveguide. When light enters a sufficiently wide waveguide from a single-mode input, the abrupt widening excites multiple guided modes of the multimode section. These modes propagate with **different propagation constants** (different effective indices), accumulating different phase delays as they travel. At certain periodic distances, the superposition of these modes reconstructs single or multiple images of the input field: this is the self-imaging (or Talbot) effect, adapted from diffractive optics to guided-wave structures.
 
 The MMI is preferred over directional couplers for the MZI splitter/combiner because:
 
@@ -30,7 +30,7 @@ $$
 c_\nu = \frac{\int \Phi_{\text{in}}(y) \, \psi_\nu^*(y) \, dy}{\int |\psi_\nu(y)|^2 \, dy}
 $$
 
-Because the input waveguide is centered at $y = 0$, and the structure is laterally symmetric, the input field is an **even function** of $y$. Consequently, **only even-order modes** ($\nu = 0, 2, 4, \dots$) are excited — the overlap integral with odd (antisymmetric) modes vanishes identically.
+Because the input waveguide is centered at $y = 0$, and the structure is laterally symmetric, the input field is an **even function** of $y$. Consequently, **only even-order modes** ($\nu = 0, 2, 4, \dots$) are excited: the overlap integral with odd (antisymmetric) modes vanishes identically.
 
 The lateral modes of a deeply etched rib waveguide are well approximated by the modes of a slab waveguide with Dirichlet boundary conditions at the effective walls:
 
@@ -73,7 +73,7 @@ $$
 \beta_0 - \beta_\nu \approx \frac{\nu(\nu + 2)\,\pi}{3 L_\pi}
 $$
 
-where $L_\pi$ is the **beat length** between the two lowest-order modes — the distance over which they accumulate a relative phase of $\pi$:
+where $L_\pi$ is the **beat length** between the two lowest-order modes, the distance over which they accumulate a relative phase of $\pi$:
 
 $$
 L_\pi \equiv \frac{\pi}{\beta_0 - \beta_1} \approx \frac{4\,n_r\,W_e^2}{3\,\lambda_0}
@@ -108,11 +108,11 @@ For the even modes that are actually excited ($\nu = 0, 2, 4, \dots$), two lengt
 | 4     | 24          | $3\pi \equiv \pi$                     | $12\pi \equiv 0$                      |
 | 6     | 48          | $6\pi \equiv 0$                       | $24\pi \equiv 0$                      |
 
-Read the two columns separately — they describe two different devices:
+Read the two columns separately; they describe two different devices:
 
 **At $z = 3L_\pi/8$** the relative phases follow the pattern $0, \pi, \pi, 0, \dots$. With these signs the even modes interfere *destructively at the centre* ($y = 0$) and *constructively at $y = \pm W_e/4$*. That is exactly the **two-fold image**: two equal copies of the input, side by side, with a null between them. This is the length of a 1×2 splitter.
 
-**At $z = 3L_\pi/2$** every excited mode has accumulated an integer multiple of $2\pi$ and is therefore back in phase with mode 0. The field reproduces the input profile *at the centre*, $y = 0$ — a **single (1-fold) direct image**. No splitting occurs here.
+**At $z = 3L_\pi/2$** every excited mode has accumulated an integer multiple of $2\pi$ and is therefore back in phase with mode 0. The field reproduces the input profile *at the centre*, $y = 0$, a **single (1-fold) direct image**. No splitting occurs here.
 
 The distinction matters: $3L_\pi/8$ and $3L_\pi/2$ are both special lengths, but only the former gives two outputs. Confusing them is the single most common error in 1×2 MMI design, and it produces a device roughly four times too long that images instead of splitting.
 
@@ -154,7 +154,7 @@ Evaluating this at the three points of interest:
 - at $y = \pm W_e/4$: the $\cos$ factors are all $\pm 1/\sqrt{2}$ and the alternating phases conspire so that every term adds with the *same* sign → a **maximum**
 - at $y = \pm W_e/2$: every even mode vanishes (Dirichlet condition at the walls)
 
-so the field consists of two peaks at $y = \pm W_e/4$ separated by a dip — the two-fold image. Since $\Phi(-y) = \Phi(y)$ at every $z$, the two peaks are necessarily equal in amplitude *and* phase.
+so the field consists of two peaks at $y = \pm W_e/4$ separated by a dip, the two-fold image. Since $\Phi(-y) = \Phi(y)$ at every $z$, the two peaks are necessarily equal in amplitude *and* phase.
 
 ## 6. Effective Index and Mode Count
 
@@ -164,7 +164,7 @@ $$
 n_{\text{eff},\nu} = \frac{\beta_\nu}{k_0}
 $$
 
-The fundamental mode ($\nu = 0$) has the highest effective index because its field is most confined to the high-index silicon core. Higher-order modes have lower effective indices — they "see" more of the lower-index cladding. The index difference between adjacent modes is approximately:
+The fundamental mode ($\nu = 0$) has the highest effective index because its field is most confined to the high-index silicon core. Higher-order modes have lower effective indices: they "see" more of the lower-index cladding. The index difference between adjacent modes is approximately:
 
 $$
 n_{\text{eff},\nu} - n_{\text{eff},\nu+1} \approx \frac{(2\nu + 3)\,\lambda_0}{8\,n_r\,W_e^2}
@@ -197,13 +197,13 @@ $$
 \mathbf{E}(y, z) = \mathbf{E}(-y, z)
 $$
 
-In particular, the fields at the two output ports are identical: $E_A = E_B$, meaning identical amplitude **and** identical phase. A phase difference between the two outputs would require breaking this symmetry — an asymmetric input, a shifted junction, or unequal output waveguides. Note that this holds at *every* $z$, for any symmetric MMI length; it is not special to $3L_\pi/8$.
+In particular, the fields at the two output ports are identical: $E_A = E_B$, meaning identical amplitude **and** identical phase. A phase difference between the two outputs would require breaking this symmetry, an asymmetric input, a shifted junction, or unequal output waveguides. Note that this holds at *every* $z$, for any symmetric MMI length; it is not special to $3L_\pi/8$.
 
 ### Consistency with the Mode Phases
 
 The symmetry argument and the modal picture must agree, and they do. At $z = 3L_\pi/8$ the relative phases of the excited modes are $0, \pi, \pi, 0, \dots$ (Section 4). Two points are worth noting:
 
-- The phase pattern is **symmetric about $y = 0$**: it contains no term that is odd in $y$, so the resulting field remains an even function and the two images stay in phase. An antisymmetric phase distribution — which is what would produce a $\pi$ between the ports — cannot be generated from a centred input.
+- The phase pattern is **symmetric about $y = 0$**: it contains no term that is odd in $y$, so the resulting field remains an even function and the two images stay in phase. An antisymmetric phase distribution, which is what would produce a $\pi$ between the ports, cannot be generated from a centred input.
 - Mode 2 and mode 4 pick up a relative phase of $\pi$ at this length. This is precisely what pushes the field energy away from the centre and into the two side lobes, i.e. it is the mechanism that *creates* the split. It is not a phase difference *between* the ports.
 
 So $\Delta\varphi = 0$ between the two outputs is guaranteed by symmetry, while the internal $\pi$ phases among the higher-order modes are what shape the two-fold image in the first place.
@@ -229,13 +229,13 @@ $$
 P_{\text{out}} = P_{\text{in}} \cos^2\!\left(\frac{\Delta\phi_{\text{arm}}}{2}\right)
 $$
 
-where $\Delta\phi_{\text{arm}}$ is the phase difference introduced between the two arms (by the carrier-depletion phase shifter in arm 1, while arm 2 is passive). With no applied voltage ($\Delta\phi_{\text{arm}} = 0$), all power returns to the central output of the combiner — this is the **constructive interference** condition. Applying a $\pi$ phase shift in arm 1 switches the output to the **destructive interference** condition ($P_{\text{out}} \approx 0$ for a perfectly balanced MZI). This is the working principle of the MZI modulator.
+where $\Delta\phi_{\text{arm}}$ is the phase difference introduced between the two arms (by the carrier-depletion phase shifter in arm 1, while arm 2 is passive). With no applied voltage ($\Delta\phi_{\text{arm}} = 0$), all power returns to the central output of the combiner: this is the **constructive interference** condition. Applying a $\pi$ phase shift in arm 1 switches the output to the **destructive interference** condition ($P_{\text{out}} \approx 0$ for a perfectly balanced MZI). This is the working principle of the MZI modulator.
 
 ## 8. Design Equations for the 1×2 SOI MMI
 
 ### Step-by-Step Design Procedure
 
-**Step 1 — Choose MMI width**: Wide enough to support at least $M \geq 3$ TE modes. For 220 nm SOI at 1550 nm:
+**Step 1. Choose MMI width**: Wide enough to support at least $M \geq 3$ TE modes. For 220 nm SOI at 1550 nm:
 
 $$
 W_{\text{MMI}} \approx 4\text{–}6 \ \mu\text{m}
@@ -243,7 +243,7 @@ $$
 
 The upper bound is set by the desired compactness and by the fact that extremely wide MMIs have closely spaced high-order modes that can degrade imaging quality.
 
-**Step 2 — Compute effective width** (Goos–Hänchen correction):
+**Step 2. Compute effective width** (Goos–Hänchen correction):
 
 $$
 W_e = W_{\text{MMI}} + \frac{\lambda_0}{\pi}\left(\frac{n_c}{n_r}\right)^{2\sigma} \frac{1}{\sqrt{n_r^2 - n_c^2}}
@@ -251,7 +251,7 @@ $$
 
 For TE ($\sigma = 0$): $W_e \approx W_{\text{MMI}} + 0.16 \ \mu\text{m}$ (a small correction for high-index-contrast SOI).
 
-**Step 3 — Compute the beat length**:
+**Step 3. Compute the beat length**:
 
 $$
 L_\pi \approx \frac{4\,n_r\,W_e^2}{3\,\lambda_0}
@@ -260,13 +260,13 @@ $$
 For the design point $W_{\text{MMI}} = 5$ µm, with $n_r = 3.4777$ and $\lambda_0 = 1.55$ µm:
 $W_e = 5.156$ µm → $L_\pi \approx \frac{4 \times 3.4777 \times (5.156)^2}{3 \times 1.55} \approx 79.5$ µm.
 
-**Step 4 — MMI length** (first two-fold image):
+**Step 4. MMI length** (first two-fold image):
 
 $$
 L_{\text{MMI}} = \frac{3L_\pi}{8} \approx 29.8 \ \mu\text{m}
 $$
 
-**Step 5 — Output waveguide positions**:
+**Step 5. Output waveguide positions**:
 
 $$
 d_y = \pm \frac{W_e}{4} \approx \pm 1.29 \ \mu\text{m}
@@ -280,8 +280,8 @@ It is worth knowing the failure mode, because it is easy to verify a length anal
 
 | Candidate length | Formula | Slab estimate | FDE-refined | What it actually produces |
 |---|---|---|---|---|
-| Two-fold image | $3L_\pi/8$ | ≈ 30 µm | 23.1 µm | **Two outputs at $\pm W_e/4$ — the splitter** |
-| Single image | $3L_\pi/2$ | ≈ 119 µm | 92 µm | One output at $y = 0$ — no splitting |
+| Two-fold image | $3L_\pi/8$ | ≈ 30 µm | 23.1 µm | **Two outputs at $\pm W_e/4$, the splitter** |
+| Single image | $3L_\pi/2$ | ≈ 119 µm | 92 µm | One output at $y = 0$, no splitting |
 
 Published SOI 1×2 MMIs with 4–6 µm bodies come out at roughly 20–40 µm on the slab estimate. A design in the 100 µm class should be treated as a red flag rather than a result.
 
@@ -304,7 +304,7 @@ The transition between the narrow input/output waveguides (0.5 µm) and the wide
 
 The design uses **linear tapers**, with the width varying as $W(z) = W_{\text{wg}} + (W_{\text{MMI}} - W_{\text{wg}})(z / L_{\text{taper}})$: simple to fabricate, and adequate for this width ratio. A **parabolic profile**, $W(z) = W_{\text{wg}} + (W_{\text{MMI}} - W_{\text{wg}})(z / L_{\text{taper}})^2$, would smooth the transition further and can reduce insertion loss by 0.1–0.2 dB at the same length, but the linear tapers already meet the loss target, so the parabolic variant was left out of scope.
 
-Typical taper length: $L_{\text{taper}} \approx 5$–$10$ µm. The taper should be adiabatic — the change in waveguide width over one beat length of the local mode should be much smaller than the beat length itself. A good starting point is $L_{\text{taper}} \geq 10 \times (W_{\text{MMI}} - W_{\text{wg}})$.
+Typical taper length: $L_{\text{taper}} \approx 5$–$10$ µm. The taper should be adiabatic: the change in waveguide width over one beat length of the local mode should be much smaller than the beat length itself. A good starting point is $L_{\text{taper}} \geq 10 \times (W_{\text{MMI}} - W_{\text{wg}})$.
 
 ## 10. Summary
 
@@ -319,8 +319,8 @@ Typical taper length: $L_{\text{taper}} \approx 5$–$10$ µm. The taper should 
 
 ## References
 
-- Soldano, L. B., & Pennings, E. C. M. (1995). Optical multi-mode interference devices based on self-imaging: principles and applications. *Journal of Lightwave Technology*, 13(4), 615–627. — **The canonical MMI theory paper.**
+- Soldano, L. B., & Pennings, E. C. M. (1995). Optical multi-mode interference devices based on self-imaging: principles and applications. *Journal of Lightwave Technology*, 13(4), 615–627. **The canonical MMI theory paper.**
 - Bachmann, M., Besse, P. A., & Melchior, H. (1994). General self-imaging properties in N × N multimode interference couplers including phase relations. *Applied Optics*, 33(18), 3905–3911.
-- Ulrich, R., & Ankele, G. (1975). Self-imaging in homogeneous planar optical waveguides. *Applied Physics Letters*, 27(6), 337–339. — Earliest formulation of the Talbot effect in guided-wave optics.
+- Ulrich, R., & Ankele, G. (1975). Self-imaging in homogeneous planar optical waveguides. *Applied Physics Letters*, 27(6), 337–339. Earliest formulation of the Talbot effect in guided-wave optics.
 - Chrostowski, L., & Hochberg, M. (2015). *Silicon Photonics Design: From Devices to Systems*. Cambridge University Press. Chapter 4.
 - Reed, G. T., & Knights, A. P. (2004). *Silicon Photonics: An Introduction*. Wiley. Chapter 4.

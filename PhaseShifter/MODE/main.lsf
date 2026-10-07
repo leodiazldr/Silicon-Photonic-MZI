@@ -23,7 +23,7 @@ step05_bias_sweep;             # solve the mode per bias point, save neff_vs_bia
 # Closing summary
 ?"";
 ?"==============================================";
-?"  PN Junction — Task 3.2 Complete";
+?"  PN Junction, Task 3.2 Complete";
 ?"==============================================";
 ?"  Structural model : optical cross-section, same geometry as CHARGE";
 ?"  Carrier model    : imported np density, Soref and Bennett";

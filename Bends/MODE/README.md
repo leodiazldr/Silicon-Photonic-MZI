@@ -1,4 +1,4 @@
-# Low-Loss Waveguide Bends — Radius Optimisation
+# Low-Loss Waveguide Bends, Radius Optimisation
 
 The 90° bends used to route the MZI arms, and the study that chooses their radius. Modelled
 in Lumerical **MODE** with the **FDE** solver, using its built-in bent-waveguide
@@ -25,8 +25,8 @@ Total bend loss is not monotonic in the radius, because two independent contribu
 opposite directions:
 
 - **Mode-mismatch loss** comes from the *shape change* the guided mode must undergo. The
-  mode of a straight waveguide and the mode of a curved waveguide are not identical — the
-  bend pushes the field outward — so at each straight-to-bend interface a fraction of the
+  mode of a straight waveguide and the mode of a curved waveguide are not identical (the
+  bend pushes the field outward), so at each straight-to-bend interface a fraction of the
   power couples into radiation. The tighter the bend, the larger the mismatch. Here it is
   computed directly: MODE's `overlap` function gives the power coupling between the straight
   mode and each bent mode, and because the light crosses *two* such interfaces (into the bend
@@ -46,7 +46,7 @@ The propagation term is modelled as a *constant* loss per unit length multiplied
 length, taken as **2 dB/cm** in both the sweep and the post-processing and labelled as such
 on the figure. That is a simplification: real bend-induced scattering grows as the radius
 shrinks, so a constant coefficient understates the penalty on tight bends. The shape of the
-curve — mismatch loss falling with `R`, propagation loss rising with `R` — is robust, but the
+curve, mismatch loss falling with `R`, propagation loss rising with `R`, is robust, but the
 exact value of `R_opt` should be revisited once a radius-dependent loss term is available.
 
 ## How the sweep is built
@@ -61,7 +61,7 @@ the radius, and for each radius it
 2. copies the bent mode to its own card `radius<R>`,
 3. calls `overlap('::radius0', '::radius<R>')` to get the straight-to-bend power coupling.
 
-Everything — the radius vector, `|Δn_eff|(R)` and the coupling — is saved to
+Everything, the radius vector, `|Δn_eff|(R)` and the coupling, is saved to
 `neff_Rc_sweep_Si.mat`, which is what the Python side consumes. Watching `|Δn_eff|` versus
 radius is a useful cross-check: it grows as the bend tightens, for the same physical reason
 that the overlap falls.
@@ -70,7 +70,7 @@ that the overlap falls.
 
 A circular arc is not the only way to turn a corner, and it is not the best one. The
 curvature of a straight-to-arc junction **jumps discontinuously** from 0 (straight) to 1/R
-(arc), and it is precisely that discontinuity — not the constant curvature itself — that the
+(arc), and it is precisely that discontinuity, not the constant curvature itself, that the
 mode cannot follow adiabatically, which is what shows up as mode-mismatch loss.
 
 [`../bezier_curves.py`](../bezier_curves.py) builds a cubic **Bézier** bend as the
@@ -88,12 +88,12 @@ the script evaluates `B(t)` and its first two derivatives, then the radius of cu
 
 and plots `ρ(t)` alongside the constant radius of the reference quarter-arc. For intermediate
 values of the shape parameter δ, the curvature **ramps smoothly from 0 up to a minimum and
-back to 0**, so the mode is never asked to change shape abruptly — the same idea as an Euler
+back to 0**, so the mode is never asked to change shape abruptly, the same idea as an Euler
 (spiral) bend. δ = 0 degenerates to a sharp corner and δ = 1 to a purely diagonal control
 polygon; the script prints the minimum `ρ/R` reached for each δ so the tightest part of each
 curve can be compared directly.
 
-This is a geometry study only — it establishes the shape and its curvature profile, but the
+This is a geometry study only: it establishes the shape and its curvature profile, but the
 Bézier bend has not yet been put through an FDE or FDTD loss calculation to quantify the
 improvement it buys.
 
@@ -140,15 +140,15 @@ python Bends/MODE/bend_loss_analysis.py
 python Bends/bezier_curves.py
 ```
 
-`bend_loss_analysis.py` prints the optimum radius and total loss, and opens two figures — loss versus radius
+`bend_loss_analysis.py` prints the optimum radius and total loss, and opens two figures, loss versus radius
 (with the optimum marked) and `|Δn_eff|` versus radius.
 
 ## See also
 
-- [`../../shared/materials.lsf`](../../shared/materials.lsf) — the Si and SiO₂ models used by
+- [`../../shared/materials.lsf`](../../shared/materials.lsf), the Si and SiO₂ models used by
   the sweep.
 - [`../../MZI/MMI Theory.md`](../../MZI/MMI%20Theory.md) and
-  [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md) — the
+  [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md), the
   project theory notes; the bend loss budget feeds the MZI power balance those notes describe.
 
 ## Status

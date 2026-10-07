@@ -1,4 +1,4 @@
-# REFERENCE ONLY — superseded 3D varFDTD implementation of the MMI, kept so the
+# REFERENCE ONLY, superseded 3D varFDTD implementation of the MMI, kept so the
 # same geometry can validate the EME results in a full 3D run. Not the current
 # design: it predates the analytical sizing in step02 and uses placeholder
 # dimensions (MMI_width = 1.5 um, MMI_L = 2.5 um). The active flow is the parent

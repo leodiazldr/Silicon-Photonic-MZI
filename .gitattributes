@@ -16,7 +16,7 @@
 *.ps1    text
 
 # =============================================================================
-# Binary assets — never diff, never normalise
+# Binary assets, never diff, never normalise
 # =============================================================================
 *.mat    binary
 *.png    binary
@@ -28,6 +28,6 @@
 *.mp4    binary
 
 # =============================================================================
-# Generated files — excluded from language statistics on GitHub
+# Generated files, excluded from language statistics on GitHub
 # =============================================================================
 shared/materials/* linguist-vendored

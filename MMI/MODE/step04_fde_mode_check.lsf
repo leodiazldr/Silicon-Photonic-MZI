@@ -33,7 +33,7 @@ N_modes_found = findmodes;
 
 ?"";
 ?"==============================================";
-?"  FDE Mode Check — MMI Cross-Section";
+?"  FDE Mode Check, MMI Cross-Section";
 ?"==============================================";
 ?"  Number of guided TE modes: " + num2str(N_modes_found);
 ?"  (minimum 3 required for 1x2 MMI)";
@@ -99,7 +99,7 @@ if (N_modes_found >= 2) {
 
 } else {
     ?"";
-    ?"  WARNING: fewer than 2 modes found — L_MMI left at the analytical value";
+    ?"  WARNING: fewer than 2 modes found, L_MMI left at the analytical value";
     ?"  from step02. Increase W_MMI and rerun.";
 }
 

@@ -1,4 +1,4 @@
-# 500 × 220 nm Strip Waveguide — Design and Characterisation
+# 500 × 220 nm Strip Waveguide, Design and Characterisation
 
 The single-mode silicon strip waveguide that every other component in the project is built
 from. Designed and characterised in Lumerical **MODE** using the **FDE**
@@ -7,7 +7,7 @@ from. Designed and characterised in Lumerical **MODE** using the **FDE**
 Every other component assumes this cross-section: the MMI splitter takes it as its
 input/output guide, the carrier-depletion phase shifter is formed in it, and the routing
 bends are bends *of* it. The scripts in this folder fix the geometry and extract the optical
-constants the rest of the design depends on — the effective index `n_eff`, the group index
+constants the rest of the design depends on: the effective index `n_eff`, the group index
 `n_g`, the polarisation of each mode, and the width at which the waveguide stops being
 single-mode.
 
@@ -24,7 +24,7 @@ single-mode.
 
 The obvious place to start is the vertical direction, and it turns out to be the tightest
 constraint. At 1550 nm a bare 220 nm silicon slab has a normalised frequency of only
-V ≈ 2.8 — below the π that marks the second vertical mode. The 220 nm height therefore
+V ≈ 2.8, below the π that marks the second vertical mode. The 220 nm height therefore
 carries a *single* TE-like vertical mode, but only just: it is close to its own single-mode
 limit.
 
@@ -40,12 +40,12 @@ width in opposite directions:
   confinement: more of the field sits in the oxide, the mode is more sensitive to a ±10 nm
   width error, and scattering loss rises.
 
-500 nm is the conventional compromise on a 220 nm platform — wide enough for good
+500 nm is the conventional compromise on a 220 nm platform, wide enough for good
 confinement and low loss, yet at or near the point where the second-order TE mode appears.
 That is why the same number appears as `wg_width` throughout the repository. The analytical
 V-number argument only estimates this boundary; the FDE sweep below is what actually locates
-it for this material stack, and the four consequences — single-mode condition, propagation
-loss, fabrication tolerance, and the `n_eff` values handed to every later stage — are what
+it for this material stack, and the four consequences, single-mode condition, propagation
+loss, fabrication tolerance, and the `n_eff` values handed to every later stage, are what
 make it worth measuring rather than assuming.
 
 ## What the width sweep measures
@@ -56,14 +56,14 @@ to 10 trial modes and records, per mode, the effective index `n_eff`, the group 
 and the **TE polarisation fraction**. The results are written to `wg_width_sweep.mat`, and
 the script also plots `n_eff` and the TE fraction against width. Compared with
 `main.lsf` the sweep uses a tighter 10 µm window with metal walls instead of a 20 µm
-window with PML — a deliberate speed/padding trade-off, since the solve is repeated 39 times.
+window with PML, a deliberate speed/padding trade-off, since the solve is repeated 39 times.
 
 The post-processing script [`width_sweep.py`](width_sweep.py) turns the raw arrays into the
 design picture:
 
 - it masks entries where no mode was found (`n_eff ≈ 0`);
 - it counts the guided modes per width as those with `n_eff` above the oxide index (1.444)
-  and **shades the width band in which only two modes are guided** — the single-mode region
+  and **shades the width band in which only two modes are guided**, the single-mode region
   on the plot;
 - it classifies every mode as **TE** (TE fraction > 0.5), **TM** (< 0.5) or **hybrid**, so
   the onset of higher-order and cross-polarised modes is visible at a glance;
@@ -148,11 +148,11 @@ python Waveguide/MODE/frequency_sweep.py
 
 ## See also
 
-- [`../../shared/materials.lsf`](../../shared/materials.lsf) — the Si and SiO₂ models these
+- [`../../shared/materials.lsf`](../../shared/materials.lsf), the Si and SiO₂ models these
   simulations run on.
-- [`../../MZI/MMI Theory.md`](../../MZI/MMI%20Theory.md) — the MMI's effective-width and
+- [`../../MZI/MMI Theory.md`](../../MZI/MMI%20Theory.md), the MMI's effective-width and
   beat-length formulas take this waveguide as their input guide.
-- [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md) — the
+- [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md), the
   phase shifter is formed in exactly this cross-section; the mode profile computed here is
   what its Δn_eff overlap integral is taken against.
 

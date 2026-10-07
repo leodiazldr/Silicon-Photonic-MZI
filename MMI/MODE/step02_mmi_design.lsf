@@ -37,7 +37,7 @@ L_out_wg  = 10.0 * um;                       # lead length, output side
 
 ############# Design summary #################
 ?"==============================================";
-?"  MMI 1x2 — Analytical Design Parameters";
+?"  MMI 1x2, Analytical Design Parameters";
 ?"==============================================";
 ?"  Platform: 220 nm SOI, 1550 nm, TE";
 ?"";

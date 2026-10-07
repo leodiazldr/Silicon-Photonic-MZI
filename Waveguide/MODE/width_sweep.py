@@ -46,7 +46,7 @@ neff_plot = np.where(mask, np.abs(neff_real), np.nan)
 te_frac   = np.where(mask, te_fraction_real, np.nan)
 
 # =================================================================
-# Plot — Continuous colormap encoding TE fraction
+# Plot: Continuous colormap encoding TE fraction
 # =================================================================
 
 n_clad = 1.444

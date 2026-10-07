@@ -1,4 +1,4 @@
-# Silicon-Photonic MZI Modulator on 220 nm SOI — Design Plan
+# Silicon-Photonic MZI Modulator on 220 nm SOI, Design Plan
 
 A component-level design and simulation project on 220 nm silicon-on-insulator, organised around a
 Mach–Zehnder interferometer (MZI) for BB84 quantum key distribution state encoding.
@@ -8,7 +8,7 @@ and checked for robustness across the band and against fabrication bias. §5 sta
 full, and §4 records the results of applying it.
 
 **Revised 2026-09-30.** The original version, written 2026-07-24, was a 12-week schedule. This
-version records what has actually been built — including the measured MMI results — and scopes the
+version records what has actually been built, including the measured MMI results, and scopes the
 remaining work to near-term, achievable steps, with the larger items consolidated under "Later".
 
 ---
@@ -24,7 +24,7 @@ remaining work to near-term, achievable steps, with the larger items consolidate
   match between two solvers is the part of the flow that does not appear in a textbook.
 - **Optimisation with a stated selection rule.** Every component here has a figure of merit, a
   sweep that measures it, and a recorded reason for the design point chosen.
-- **Integrated photonics for quantum communication** — how a monolithic device replaces a
+- **Integrated photonics for quantum communication**, how a monolithic device replaces a
   benchtop interferometer.
 
 It complements an experimental BB84 QKD thesis (free-space, polarization-encoded): the thesis
@@ -65,11 +65,11 @@ because they differ from the original plan:
 
 | Component | Method | Status |
 | --------- | ------ | ------ |
-| Single-mode waveguide | FDE (MODE) | Complete — width and wavelength sweeps |
-| Low-loss bends | FDE (MODE) | Complete — radius sweep and Bézier curvature study |
-| 1×2 MMI splitter | EME (MODE) | Swept and characterised — length, both taper widths, output offset and wavelength all swept, figures committed; 0.069 dB at 1550 nm in EME, 0.103 dB in the 3D FDTD cross-check. Taper-length check, a length re-sweep and the width-bias robustness checks still open (§6.1) |
+| Single-mode waveguide | FDE (MODE) | Complete, width and wavelength sweeps |
+| Low-loss bends | FDE (MODE) | Complete, radius sweep and Bézier curvature study |
+| 1×2 MMI splitter | EME (MODE) | Swept and characterised, length, both taper widths, output offset and wavelength all swept, figures committed; 0.069 dB at 1550 nm in EME, 0.103 dB in the 3D FDTD cross-check. Taper-length check, a length re-sweep and the width-bias robustness checks still open (§6.1) |
 | PN junction phase shifter (electrical) | CHARGE drift-diffusion + AC | Complete |
-| PN junction phase shifter (optical) | FDE (MODE) | Complete — V_π·L inside target |
+| PN junction phase shifter (optical) | FDE (MODE) | Complete, V_π·L inside target |
 | MZI system integration | INTERCONNECT | Not started |
 | GDS layout | gdsfactory / KLayout | Not started |
 
@@ -83,7 +83,7 @@ The 500 nm × 220 nm strip waveguide everything else is built on.
 
 - 220 nm SOI stack with dispersive Si / SiO₂ models from `shared/materials.lsf`
 - Width sweep 100–2000 nm in 50 nm steps, recording `n_eff`, `n_g` and the TE polarisation fraction
-  of every mode found — which locates the single-mode window and shows where higher-order and
+  of every mode found, which locates the single-mode window and shows where higher-order and
   cross-polarised modes appear
 - Wavelength sweep at the nominal width across the C-band, giving `n_eff(λ)` and `n_g(λ)`
 
@@ -102,7 +102,7 @@ with fabrication tolerance.
 
 ### 4.3 MMI splitter (`MMI/MODE/`)
 
-Self-imaging 1×2 MMI — the 50/50 splitter and combiner of the MZI, and the component whose
+Self-imaging 1×2 MMI, the 50/50 splitter and combiner of the MZI, and the component whose
 optimisation is written up in §5 as the reusable procedure.
 
 **Design targets:** 50:50 ± 1 %, insertion loss < 0.5 dB, bandwidth > 40 nm, in-phase outputs.
@@ -110,13 +110,13 @@ optimisation is written up in §5 as the reusable procedure.
 The design point is `W_MMI = 5.0 µm` with linear tapers (0.5 → `W_MMI/4` = 1.25 µm) on both sides.
 The taper end width is not an independent constant: it is tied to the body as `W_MMI/4`, so that the
 taper-to-body ratio stays fixed when the width changes. That tie is a starting point rather than a
-result — the two taper-width sweeps move it wider, to 1.3333 µm on the input and 1.3833 µm on the
+result; the two taper-width sweeps move it wider, to 1.3333 µm on the input and 1.3833 µm on the
 output. The analytic sizing at this width gives `W_e = 5.156 µm`, `L_π = 79.53 µm`,
 `L_MMI = 3L_π/8 = 29.82 µm` and `d_y = W_e/4 = 1.2890 µm`.
 
 The slab formula behind those numbers uses the bulk silicon index and so ignores vertical
-confinement; step04 replaces the beat length with the simulated one. The correction is not small —
-`L_π` falls from 79.53 µm to 61.56 µm, moving `L_MMI` from 29.82 µm to 23.085 µm — which is precisely
+confinement; step04 replaces the beat length with the simulated one. The correction is not small,
+`L_π` falls from 79.53 µm to 61.56 µm, moving `L_MMI` from 29.82 µm to 23.085 µm, which is precisely
 why the sweeps below exist rather than the formula being trusted.
 
 | Sweep | Range and points | Figure of merit |
@@ -141,7 +141,7 @@ why the sweeps below exist rather than the formula being trusted.
 | Insertion loss, 1530 → 1570 nm | 0.127 dB worst case |
 | Insertion loss, 1500 → 1600 nm | 0.155 dB mean, 0.397 dB worst (at 1510 nm) |
 
-Each sweep leaves the tree at its optimum, so the insertion loss falls in turn — 0.126 dB after the
+Each sweep leaves the tree at its optimum, so the insertion loss falls in turn, 0.126 dB after the
 length sweep, 0.104 dB after the input taper, 0.100 dB after the output offset, and 0.069 dB once
 the output taper is set. A 3D FDTD run of the final design point in `MMI/FDTD/` returns 0.103 dB, so
 the EME figure survives a change of solver.
@@ -157,7 +157,7 @@ the summed transmission, not to balance the split. The optimum that sweep finds 
 
 The **length sweep's minimum is broad and not smooth**. Point-to-point differences near the optimum
 run to a few tenths of a dB, which is the EME discretisation, not physics. Picking the single lowest
-point — which is what `step09` currently does — therefore risks selecting simulation noise. §5 step 6
+point, which is what `step09` currently does, therefore risks selecting simulation noise. §5 step 6
 states the rule that should be used instead: judge the candidate on the band-averaged or worst-case
 transmission and sit on the flat part of the curve. The quoted 0.069 dB should be read to the
 accuracy the solver supports.
@@ -199,7 +199,7 @@ series resistance.
   RC bandwidth estimate
 
 The depletion-width curve follows the closed-form `sqrt(V_bi − V)` law for an abrupt junction
-(127 nm → 213 nm for the same doping) but runs 20–34 % wider — a consequence of the graded implant
+(127 nm → 213 nm for the same doping) but runs 20–34 % wider, a consequence of the graded implant
 profile and of an extraction criterion that reads about a Debye length beyond the ideal edge. That
 comparison is worked through in `PhaseShifter/CHARGE/README.md`.
 
@@ -215,9 +215,9 @@ comparison is worked through in `PhaseShifter/CHARGE/README.md`.
 
 | Metric | Result | Target |
 | ------ | ------ | ------ |
-| `V_π·L` (mean slope) | **2.63 V·cm** | < 3 V·cm — met |
+| `V_π·L` (mean slope) | **2.63 V·cm** | < 3 V·cm, met |
 | `Δn_eff` over 0 → −1.5 V | 4.4×10⁻⁵ | — |
-| Free-carrier loss | 2.3 → 2.9 dB/cm (0.3 dB over 1 mm) | < 5 dB device budget — met |
+| Free-carrier loss | 2.3 → 2.9 dB/cm (0.3 dB over 1 mm) | < 5 dB device budget, met |
 | 3 dB EO bandwidth | from the CHARGE RC estimate | > 10 GHz |
 
 **Further optimisation is a trade-off study, not an open requirement.** The original plan called
@@ -242,36 +242,36 @@ This is the reusable part of the project, stated independently of the MMI so tha
 to the next component unchanged. It was worked out while optimising the MMI, and §4.3 reports where
 each step currently stands for that component.
 
-**Step 1 — Fix what the theory pins down, and verify the one assumption it does not.** Freeze the
+**Step 1. Fix what the theory pins down, and verify the one assumption it does not.** Freeze the
 parameters the analytic model gives reliably, but check once that the assumptions behind them hold.
 For the MMI this means checking that the taper is long enough by doubling its length and confirming
 the loss does not move: an over-short taper shows up as a constant offset in the loss floor, not as
 a change of shape, so it contaminates every later sweep while being easy to overlook.
 
-**Step 2 — Coarse sweep of the critical dimension around the analytic value.** Wide enough to see
+**Step 2. Coarse sweep of the critical dimension around the analytic value.** Wide enough to see
 the whole peak: ±20 % is the working default. The analytic value is a starting point, not a
-prediction, and the correction can be large — here the FDE-refined `L_MMI` is 24 % shorter than the
+prediction, and the correction can be large: here the FDE-refined `L_MMI` is 24 % shorter than the
 slab estimate.
 
-**Step 3 — Sweep the input coupling, then re-sweep the critical dimension.** The input taper sets
+**Step 3. Sweep the input coupling, then re-sweep the critical dimension.** The input taper sets
 how much power enters the multimode region and with what phase, so changing it moves the optimum
 length. Optimising them in sequence rather than together keeps each sweep interpretable.
 
-**Step 4 — Sweep the output side: taper width and lateral position.** The lateral offset positions
+**Step 4. Sweep the output side (taper width and lateral position).** The lateral offset positions
 the output ports on the two-fold image, and it is the one parameter in this design that cannot be
 varied inside an EME propagation sweep, because it moves the output waveguides, their meshes and
-the ports — so it needs a full geometry rebuild per point.
+the ports, so it needs a full geometry rebuild per point.
 
-**Step 5 — Final fine sweep of the critical dimension** around the optimum that steps 3 and 4 have
+**Step 5. Final fine sweep of the critical dimension** around the optimum that steps 3 and 4 have
 moved to.
 
-**Step 6 — Robustness, and choose the figure of merit that survives it.** Evaluate the optimum over
+**Step 6. Robustness, and choose the figure of merit that survives it.** Evaluate the optimum over
 the full wavelength band, and with ±10–20 nm of waveguide width bias. Use the band-averaged
 transmission, or the worst case, as the number the design is judged by, and if the peak is too
 sharp, move to the flat part of the curve and give away a little peak loss in exchange for
 tolerance. This is the step that turns an optimum into a manufacturable design point.
 
-**Step 7 — Record the chosen point and the reason.** Every value in `step02_mmi_design.lsf` carries
+**Step 7. Record the chosen point and the reason.** Every value in `step02_mmi_design.lsf` carries
 either its analytic origin or the sweep that produced it, so the design point can be re-derived.
 
 Steps 1–7 are component-generic: for a microring they become the gap, the radius, the bus coupling,
@@ -288,12 +288,12 @@ seven steps in each case.
 Four of the seven steps in §5 are still incomplete for the MMI, and they are the ones that decide
 whether the quoted 0.069 dB survives contact with fabrication:
 
-- **Verify the taper length** (step 1) — doubling the input and output tapers and confirming the
+- **Verify the taper length** (step 1), doubling the input and output tapers and confirming the
   loss does not change. Cheap, and it retires an unverified assumption behind every other sweep.
 - **Re-sweep `L_MMI`** (steps 3 and 5). The input taper sets how much power enters the multimode
   region and with what phase, so widening it to 1.3333 µm may have moved the length optimum; the
   fine re-sweep those two steps call for, the counterpart to `step09`, has not been run.
-- **Width-bias robustness, and the figure of merit that survives it** (step 6) — repeat the length
+- **Width-bias robustness, and the figure of merit that survives it** (step 6), repeat the length
   and wavelength sweeps with ±10–20 nm of width error, and change the selection rule at the end of
   `step09_length_sweep.lsf` from the single-point minimum to the band-averaged or worst-case
   insertion loss over the flat region. The MMI body is the least width-sensitive element; the tapers
@@ -316,13 +316,13 @@ four independent components, and it is the natural bridge to §7.2.
 Consolidated here rather than dropped: each item is a genuine next step, but each depends on
 something in §6 being finished first, or on tooling not yet set up.
 
-### 7.1 FDTD validation of the optimised MMI — done
+### 7.1 FDTD validation of the optimised MMI: done
 
 EME assumes the structure is piecewise-uniform along the propagation axis and decomposes the field
 onto a finite set of modes. Both assumptions were checked once on the final geometry with a full 3D
 FDTD run in `MMI/FDTD/`, comparing insertion loss and reflection against the EME prediction. The two
-solvers agree to 0.03 dB in insertion loss and 0.004 in per-port transmission — 0.103 dB against
-0.069 dB at 1550 nm — and the mesh was checked for convergence rather than trusted at one setting.
+solvers agree to 0.03 dB in insertion loss and 0.004 in per-port transmission, 0.103 dB against
+0.069 dB at 1550 nm, and the mesh was checked for convergence rather than trusted at one setting.
 
 Kept here as a record; it is no longer outstanding work. The superseded 2D varFDTD implementation
 under `MMI/MODE/reference/` remains available as a cheaper partial substitute for any future
@@ -374,8 +374,8 @@ shifter is reused in a design with a different bandwidth requirement.
 | Insertion loss (π shift) | 2–5 dB | < 5 dB | 0.3 dB free-carrier over 1 mm, before MMI and bends |
 | 3 dB EO bandwidth | 10–40 GHz | > 10 GHz | from the CHARGE RC estimate |
 | Extinction ratio | > 20 dB | > 20 dB | device-level, needs §7.2 |
-| MMI splitting ratio | — | 50:50 ± 1 % | 49.2 % / 49.2 % — met, and exact by symmetry |
-| MMI insertion loss | — | < 0.5 dB | 0.069 dB at 1550 nm (0.103 dB in 3D FDTD); 0.127 dB worst case over 40 nm; 0.397 dB worst case over the full C-band — met across the whole band |
+| MMI splitting ratio | — | 50:50 ± 1 % | 49.2 % / 49.2 %, met, and exact by symmetry |
+| MMI insertion loss | — | < 0.5 dB | 0.069 dB at 1550 nm (0.103 dB in 3D FDTD); 0.127 dB worst case over 40 nm; 0.397 dB worst case over the full C-band, met across the whole band |
 | MMI bandwidth | — | > 40 nm | met: worst-case IL 0.127 dB over 1530–1570 nm |
 
 ---
@@ -420,17 +420,17 @@ shifter is reused in a design with a different bandwidth requirement.
 
 **Component physics and platform**
 
-1. Soref, R. A., & Bennett, B. R. (1987). Electrooptical effects in silicon. *IEEE J. Quantum Electron.*, 23(1), 123–129. — The canonical plasma dispersion paper.
-2. Reed, G. T., Mashanovich, G., Gardes, F. Y., & Thomson, D. J. (2010). Silicon optical modulators. *Nature Photonics*, 4(8), 518–526. — Overview of Si modulator physics.
-3. Chrostowski, L., & Hochberg, M. (2015). *Silicon Photonics Design: From Devices to Systems*. Cambridge University Press. — The Si photonics design textbook. Chapters 4 (waveguides), 5 (modulators), and 10 (layout) are essential.
-4. Soldano, L. B., & Pennings, E. C. M. (1995). Optical multi-mode interference devices based on self-imaging: principles and applications. *J. Lightwave Technol.*, 13(4), 615–627. — MMI theory.
-5. Harris, N. C., Ma, Y., Mower, J., Baehr-Jones, T., Englund, D., Hochberg, M., & Galland, C. (2014). Efficient, compact and low loss thermo-optic phase shifter in silicon. *Optics Express*, 22(9), 10487–10493. — The alternative phase actuator, and the same figures of merit (`V_π·L`, loss, bandwidth) applied to it.
+1. Soref, R. A., & Bennett, B. R. (1987). Electrooptical effects in silicon. *IEEE J. Quantum Electron.*, 23(1), 123–129. The canonical plasma dispersion paper.
+2. Reed, G. T., Mashanovich, G., Gardes, F. Y., & Thomson, D. J. (2010). Silicon optical modulators. *Nature Photonics*, 4(8), 518–526. Overview of Si modulator physics.
+3. Chrostowski, L., & Hochberg, M. (2015). *Silicon Photonics Design: From Devices to Systems*. Cambridge University Press. The Si photonics design textbook. Chapters 4 (waveguides), 5 (modulators), and 10 (layout) are essential.
+4. Soldano, L. B., & Pennings, E. C. M. (1995). Optical multi-mode interference devices based on self-imaging: principles and applications. *J. Lightwave Technol.*, 13(4), 615–627. MMI theory.
+5. Harris, N. C., Ma, Y., Mower, J., Baehr-Jones, T., Englund, D., Hochberg, M., & Galland, C. (2014). Efficient, compact and low loss thermo-optic phase shifter in silicon. *Optics Express*, 22(9), 10487–10493. The alternative phase actuator, and the same figures of merit (`V_π·L`, loss, bandwidth) applied to it.
 
 **Quantum photonic integration**
 
-6. Bennett, C. H., & Brassard, G. (1984). Quantum cryptography: Public key distribution and coin tossing. *Proc. IEEE ICCSSP*. — The original BB84 paper.
-7. Sibson, P., et al. (2017). Integrated silicon photonics for high-speed quantum key distribution. *Optica*, 4(2), 172–177. — Example of a Si photonic QKD transmitter. This design is conceptually related.
-8. Wang, J., et al. (2020). Integrated photonic quantum technologies. *Nature Photonics*, 14, 273–284. — Review of integrated quantum photonics.
+6. Bennett, C. H., & Brassard, G. (1984). Quantum cryptography: Public key distribution and coin tossing. *Proc. IEEE ICCSSP*. The original BB84 paper.
+7. Sibson, P., et al. (2017). Integrated silicon photonics for high-speed quantum key distribution. *Optica*, 4(2), 172–177. Example of a Si photonic QKD transmitter. This design is conceptually related.
+8. Wang, J., et al. (2020). Integrated photonic quantum technologies. *Nature Photonics*, 14, 273–284. Review of integrated quantum photonics.
 
 ---
 

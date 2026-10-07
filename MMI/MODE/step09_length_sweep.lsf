@@ -4,7 +4,7 @@
 # before running check the working directory: File -> Change working directory
 
 ?"";
-?"Sweeping MMI length (this is fast — EME reuses the mode decomposition)...";
+?"Sweeping MMI length (this is fast, EME reuses the mode decomposition)...";
 
 ############# Sweep #################
 N_sweep     = 31;

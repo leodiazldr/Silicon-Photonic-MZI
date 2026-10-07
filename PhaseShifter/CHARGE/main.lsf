@@ -1,4 +1,4 @@
-# PN junction carrier-depletion phase shifter — CHARGE (drift-diffusion).
+# PN junction carrier-depletion phase shifter, CHARGE (drift-diffusion).
 # Doping profile, DC bias sweep and junction capacitance.
 #
 # Post-processing: depletion_vs_bias.ipynb  (W_dep(V), from the DC sweep)
@@ -33,7 +33,7 @@ step09_ac_sweep;               # sweep the bias again, save ac_sweep.mat
 # Closing summary
 ?"";
 ?"==============================================";
-?"  PN Junction — Task 3.1 Complete";
+?"  PN Junction, Task 3.1 Complete";
 ?"==============================================";
 ?"  Structure     : lateral PN junction, 220 nm SOI rib";
 ?"  N_A / N_D     : " + num2str(N_A*1e-6, "%.0e") + " / " + num2str(N_D*1e-6, "%.0e") + " cm^-3";

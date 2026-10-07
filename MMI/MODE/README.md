@@ -1,4 +1,4 @@
-# 1×2 MMI Splitter — Design and Optimization
+# 1×2 MMI Splitter, Design and Optimization
 
 Self-imaging 1×2 multimode interferometer, used as the 50/50 splitter and combiner of the
 MZI. Designed in Lumerical **MODE** using the **EME** (eigenmode expansion) solver.
@@ -16,8 +16,8 @@ MZI. Designed in Lumerical **MODE** using the **EME** (eigenmode expansion) solv
 | --------- | ----- |
 | MMI width `W_MMI` | 5.0 µm |
 | Effective width `W_e` | 5.156 µm |
-| MMI length `L_MMI` | **22.162 µm** — from the length sweep; 23.085 µm from the FDE-refined beat length, 29.82 µm from the slab formula |
-| Output offset `d_y` | **1.2690 µm** — from the `d_y` sweep; `W_e/4 = 1.2890 µm` analytically |
+| MMI length `L_MMI` | **22.162 µm**, from the length sweep; 23.085 µm from the FDE-refined beat length, 29.82 µm from the slab formula |
+| Output offset `d_y` | **1.2690 µm**, from the `d_y` sweep; `W_e/4 = 1.2890 µm` analytically |
 | Output separation | 2·`d_y` = 2.538 µm |
 | Tapers | linear, 0.5 → `W_MMI/4` = 1.25 µm as built; 8 µm input, 5 µm output |
 | Lead waveguides | 10 µm, both sides |
@@ -25,7 +25,7 @@ MZI. Designed in Lumerical **MODE** using the **EME** (eigenmode expansion) solv
 `W_MMI` is set in `step02_mmi_design.lsf`, and every sweep below is run on that body. The taper end
 width is not an independent constant there: it is tied to the body as `W_MMI/4`, so that the
 taper-to-body ratio stays fixed when the width changes. That tie is a starting point rather than a
-result, which is what the two taper-width sweeps are for — and both move it wider, to 1.3333 µm on
+result, which is what the two taper-width sweeps are for, and both move it wider, to 1.3333 µm on
 the input and 1.3833 µm on the output.
 
 ## Why an MMI rather than a directional coupler
@@ -58,7 +58,7 @@ the local eigenmodes of each cell. Three consequences matter here:
 - **Mode beating is the physics of the device**, and EME represents it directly rather than
   resolving it on a spatial grid.
 - **Length sweeps are essentially free.** Once the modes of each cell are computed, changing
-  the MMI length only changes a propagation phase — so the 31-point sweep in `step09` runs
+  the MMI length only changes a propagation phase, so the 31-point sweep in `step09` runs
   in seconds. The same sweep in FDTD would mean rebuilding and re-running the simulation
   each time.
 - **It is 3D-accurate** for structures whose cross-section changes slowly, which is true of
@@ -132,7 +132,7 @@ They read the `.mat` files with `h5py`, because `matlabsave` writes MATLAB v7.3 
 Both taper-width sweeps (`step10`, `step12`) write `.mat` files, and each has its own plotting
 script below. The design point they produce is reported in
 `mmi_design_point.txt` and in the Results table below. The `.mat` files are not tracked, so a fresh
-clone has the figures but not the data behind them — re-run the Lumerical steps to regenerate
+clone has the figures but not the data behind them; re-run the Lumerical steps to regenerate
 any of it.
 
 | Script | Reads | Writes | Shows |
@@ -148,10 +148,10 @@ any of it.
 
 The flow splits into a build half and a solve-and-optimise half:
 
-- **Build and refine** (`step01`–`step04`) — units and platform constants, the analytical sizing,
+- **Build and refine** (`step01`–`step04`), units and platform constants, the analytical sizing,
   the geometry, and an FDE mode check that replaces the analytical beat length with the simulated
   one and rebuilds the geometry around it.
-- **Solve and optimise** (`step05`–`step14`) — EME setup, ports and monitors, the first run with
+- **Solve and optimise** (`step05`–`step14`), EME setup, ports and monitors, the first run with
   its wavelength sweep, then the length sweep and the optimum it picks, the input-taper,
   output-offset and output-taper sweeps, the broadband check on the optimised geometry, and the
   design-point export that hands the geometry to the FDTD build.
@@ -159,15 +159,15 @@ The flow splits into a build half and a solve-and-optimise half:
 Note that `step02` deliberately uses the bulk silicon index in the slab formula, which
 ignores vertical confinement and therefore is only approximate.
 `step04` replaces it with a beat length derived from the true eigenmodes and rebuilds the
-geometry accordingly — so the length that `step05` onwards operate on is the refined value.
+geometry accordingly, so the length that `step05` onwards operate on is the refined value.
 The correction is large: `L_π` falls from 79.53 µm to 61.56 µm and `L_MMI` from 29.82 µm to
 23.085 µm, which is why the sweeps exist rather than the formula being trusted.
 
 ## FDTD handoff
 
 `step14_save_design.lsf` freezes the optimised design point into `mmi_design_point.mat` (and a
-plain-text `mmi_design_point.txt`). It records both the design point as built — `W_MMI`, `W_e`,
-`L_pi`, `d_y`, the taper widths and lengths, the platform constants — and the sweep optima
+plain-text `mmi_design_point.txt`). It records both the design point as built, `W_MMI`, `W_e`,
+`L_pi`, `d_y`, the taper widths and lengths, the platform constants, and the sweep optima
 (`L_opt`, `dy_opt`, `width_opt`, `width_out_opt`) picked by `step09`–`step12`. It needs the full
 flow to have run, since those optima only exist in the workspace at the end.
 
@@ -178,7 +178,7 @@ or the FDTD build will validate a stale geometry.
 ## Results
 
 All five sweeps have been run and the figures are committed. Each sweep moves one parameter and
-leaves the tree at its optimum, so the insertion loss falls in turn — 0.126 dB after the length
+leaves the tree at its optimum, so the insertion loss falls in turn, 0.126 dB after the length
 sweep, 0.104 dB after the input taper, 0.100 dB after the output offset and 0.069 dB once the output
 taper is set. The numbers below are from the final, fully optimised geometry.
 
@@ -214,23 +214,23 @@ The imbalance curve is flat at zero because it has to be: a centred-input 1×2 M
 ports sit symmetrically about the axis is mirror-symmetric, so the two output powers are equal by
 construction, and the simulation reproduces that to 10⁻⁷ dB. Read that curve as a consistency check
 on the port setup rather than as a design property. The `d_y` sweep is about total transmission,
-and the optimum it finds is shallow — 0.004 dB separates the swept offset from the analytic one —
+and the optimum it finds is shallow (0.004 dB separates the swept offset from the analytic one),
 so `d_y` is a weak parameter in this design.
 
 The two taper sweeps both want a wider taper than the as-built `W_MMI/4` = 1.25 µm. Opening the
 input taper to 1.3333 µm is worth 0.023 dB and opening the output taper to 1.3833 µm is worth
-0.032 dB — refinements against a 0.5 dB budget rather than rescues, but the two largest single wins
+0.032 dB, refinements against a 0.5 dB budget rather than rescues, but the two largest single wins
 in the set, and together with the length sweep they are what carry the loss from the as-built
 geometry down to 0.069 dB.
 
 Every one of the four optima is shallow, which is the more useful property of the set. The length
 sweep is flat to within 0.07 dB over ±0.3 µm of its minimum, the input taper to within 0.003 dB over
-1.30–1.35 µm, and the output taper to within 0.001 dB between 1.3833 and 1.40 µm — that last one is
+1.30–1.35 µm, and the output taper to within 0.001 dB between 1.3833 and 1.40 µm; that last one is
 a plateau rather than a peak, and taking 1.40 µm instead of 1.3833 µm would cost 0.0005 dB. A design
 point sitting on plateaus of that width is one that fabrication scatter can move without moving the
 loss. The exception is the length, where `step09` still selects the single lowest point; a more
-defensible rule — judge candidates on the band-averaged or worst-case insertion loss and prefer the
-flat part of the curve — is the one recorded as step 6 of the component-optimisation workflow in
+defensible rule, judge candidates on the band-averaged or worst-case insertion loss and prefer the
+flat part of the curve, is the one recorded as step 6 of the component-optimisation workflow in
 [`../../MZI/Plan.md` §5](../../MZI/Plan.md).
 
 ## Status
@@ -238,7 +238,7 @@ flat part of the curve — is the one recorded as step 6 of the component-optimi
 **The sweeps are run and the design point is set.** Four sweeps converge on it: the length sweep
 (`step09`) picks `L_MMI = 22.162 µm`, the input taper sweep (`step10`) picks 1.3333 µm, the
 output-offset sweep (`step11`) picks `d_y = 1.2690 µm`, and the output taper sweep (`step12`) picks
-1.3833 µm — each cutting the insertion loss in turn, from 0.126 dB after the length sweep to
+1.3833 µm, each cutting the insertion loss in turn, from 0.126 dB after the length sweep to
 0.069 dB once all four are applied. The wavelength sweep (`step13`) then confirms the split and the
 loss across the whole C-band. Both targets are met with margin: 50:50 exactly, by symmetry, and an
 insertion loss of 0.069 dB at 1550 nm against the 0.5 dB budget, 0.127 dB worst case over the 40 nm
@@ -247,21 +247,21 @@ design band and 0.397 dB worst case over the full 100 nm.
 Remaining work, in the order it should be done:
 
 - [ ] Verify the taper length is sufficient by doubling it and confirming the loss does not move
-- [x] Sweep the input taper width (`step10` — optimum 1.3333 µm)
-- [x] Sweep the output taper width (`step12` — optimum 1.3833 µm)
-- [x] Sweep the output offset `d_y` (`step11` — optimum 1.2690 µm)
+- [x] Sweep the input taper width (`step10`, optimum 1.3333 µm)
+- [x] Sweep the output taper width (`step12`, optimum 1.3833 µm)
+- [x] Sweep the output offset `d_y` (`step11`, optimum 1.2690 µm)
 - [ ] Re-sweep `L_MMI` now that the tapers have moved. The input taper sets how much power enters
       the body and with what phase, so widening it shifts the length optimum; that fine sweep, the
       counterpart to `step09`, has not been run
 - [ ] Repeat the length and wavelength sweeps with ±10–20 nm of width bias, and select on the
       band-averaged or worst-case insertion loss instead of the single-point minimum
 - [ ] Export the S-parameter matrix for INTERCONNECT
-- [x] Validate one design point in 3D FDTD — done in [`../FDTD/`](../FDTD/): the optima exported
+- [x] Validate one design point in 3D FDTD, done in [`../FDTD/`](../FDTD/): the optima exported
       by `step14_save_design.lsf` rebuilt and run in full 3D FDTD give 0.10 dB at 1550 nm and stay
       inside the 0.5 dB target across 1500–1600 nm, against 0.069 dB for the same point in EME
 
 This list is the component-optimisation sequence written out in
-[`../../MZI/Plan.md` §5](../../MZI/Plan.md) — the version of it meant to be reused on the next
+[`../../MZI/Plan.md` §5](../../MZI/Plan.md), the version of it meant to be reused on the next
 component, so the MMI is where the recipe is exercised rather than the reason for it.
 
 ## Reference

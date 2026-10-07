@@ -1,8 +1,8 @@
-# PN Junction Phase Shifter — Electro-Optic Response
+# PN Junction Phase Shifter, Electro-Optic Response
 
 The second half of the phase-shifter model. [`../CHARGE/`](../CHARGE/README.md) produces the
 carrier distribution at each bias voltage; this folder puts that distribution back into the
-optical model and asks what it does to the guided mode — how much the effective index moves,
+optical model and asks what it does to the guided mode, how much the effective index moves,
 how much loss it costs, and what phase-shifting efficiency that buys.
 
 Modelled in Lumerical **MODE** with the **FDE** solver.
@@ -20,7 +20,7 @@ Modelled in Lumerical **MODE** with the **FDE** solver.
 Two objects make this work, and neither is optional. A grid attribute of type **np density**
 holds the imported `n` and `p` fields as a spatial dataset; an **index perturbation material**
 converts those densities into a complex index change. A plain material is not sensitive to
-imported data — assigning ordinary silicon to the ridge here would silently produce a
+imported data: assigning ordinary silicon to the ridge here would silently produce a
 bias-independent effective index, which is a failure mode that looks like a physical result.
 
 The conversion model is **Soref–Bennett**, the same one quoted in the theory note, with the
@@ -48,8 +48,8 @@ copied from CHARGE rather than re-derived, and the convention is identical in bo
 | z | propagation (uniform; the FDE solve is 2D in x–y) |
 
 The second constraint is the FDE window, and here the two solvers are made to agree exactly.
-CHARGE's monitor data covers its simulation region — x ∈ [−1.5, +1.5] µm, and y over a 3 µm
-span centred on the waveguide — while any part of the mode falling outside that box would see
+CHARGE's monitor data covers its simulation region (x ∈ [−1.5, +1.5] µm, and y over a 3 µm
+span centred on the waveguide), while any part of the mode falling outside that box would see
 unperturbed silicon, diluting the computed index change in a way that looks like a physical
 result. `step04_fde_setup.lsf` therefore sets the FDE region to `2*lateral_half` in both
 directions about the same centre, so the carrier map fills the window with no unperturbed
@@ -58,7 +58,7 @@ margin.
 Nothing from the CHARGE cross-section is dropped: `step03_geometry.lsf` reproduces the BOX,
 slab, ridge, cladding and both metal contacts at their CHARGE coordinates. The ridge *and* the
 slab are assigned the perturbed material, so the imported carriers modulate the index wherever
-the map has data. Because the contacts' inner edge sits at ±1.2 µm — inside the ±1.5 µm window —
+the map has data. Because the contacts' inner edge sits at ±1.2 µm, inside the ±1.5 µm window,
 aluminium absorption is part of the computed loss; see the caveat under
 [Results](#results).
 
@@ -71,7 +71,7 @@ FDE returns a complex effective index. The real part is the phase:
 ```
 
 and the imaginary part is absorption, `α = 4π·Im(n_eff)/λ`. Because the perturbation material
-returns a complex index change, both curves come out of the same bias sweep — which is the
+returns a complex index change, both curves come out of the same bias sweep, which is the
 practical argument for importing the carriers rather than estimating Δn and Δα separately.
 
 Lumerical script matrices are real, so the two parts are collected into separate arrays and
@@ -86,8 +86,8 @@ needed for a π phase shift. Setting `(2π/λ)·|Δn_eff|·L = π` gives
 V_π·L = λ / (2·|dn_eff/dV|)
 ```
 
-evaluated from the slope of `n_eff(V)`. The slope is not constant — it is steepest near zero
-bias and flattens as the junction depletes — so
+evaluated from the slope of `n_eff(V)`. The slope is not constant: it is steepest near zero
+bias and flattens as the junction depletes, so
 [`neff_vs_bias.py`](neff_vs_bias.py) reports both the per-interval values and a single number
 from the mean slope over the whole swing. The mean-slope number is the one to quote when
 comparing designs; the per-interval curve is what shows how the device would actually be
@@ -112,7 +112,7 @@ biased.
 
 ## Running it
 
-`../CHARGE/charge_sweep.mat` has to exist first — run `../CHARGE/main.lsf`, or at least
+`../CHARGE/charge_sweep.mat` has to exist first: run `../CHARGE/main.lsf`, or at least
 `../CHARGE/step07_dc_sweep.lsf`, before anything here.
 
 In Lumerical MODE, from this folder:
@@ -135,9 +135,9 @@ Both the grid attribute and the perturbation material are created by name, and t
 strings used here are the ones Lumerical 2020 R2.4 accepts. If a step fails on another release,
 these are the two places to look first:
 
-- `step02_materials.lsf` — the grid attribute type string, the perturbation material, and the
+- `step02_materials.lsf`, the grid attribute type string, the perturbation material, and the
   `"np density model"` property that selects the Soref–Bennett model.
-- `step05_bias_sweep.lsf` — the bias-index property, which follows the pattern
+- `step05_bias_sweep.lsf`, the bias-index property, which follows the pattern
   `<swept quantity>_index` (`V_anode_index` here). The name can be read off the grid
   attribute's property table in the GUI.
 
@@ -164,13 +164,13 @@ other project folders share the same budget.
 A second caveat is specific to this geometry: the aluminium contacts sit inside the solve
 window (inner edge ±1.2 µm against a ±1.5 µm window), so `loss_vs_bias.png` mixes free-carrier
 absorption with whatever the metal contributes. Both terms are wanted in a device-level loss
-figure, but they are not separated here — the way to isolate the free-carrier part is to re-run
+figure, but they are not separated here: the way to isolate the free-carrier part is to re-run
 with the contacts excluded from the FDE region.
 
 ### Current results
 
 The sweep now in the repository is the asymmetric profile (`N_A = 2×10¹⁷`,
-`N_D = 1×10¹⁷ cm⁻³`) over 0 → −1.5 V, 21 points — the same grid as the CHARGE sweep.
+`N_D = 1×10¹⁷ cm⁻³`) over 0 → −1.5 V, 21 points, the same grid as the CHARGE sweep.
 
 | Metric | Value | Target |
 | ------ | ----- | ------ |
@@ -178,13 +178,13 @@ The sweep now in the repository is the asymmetric profile (`N_A = 2×10¹⁷`,
 | `n_eff` at −1.5 V | 2.562835 | — |
 | `Δn_eff` over the full swing | 4.4×10⁻⁵ | — |
 | `dn_eff/dV` (mean over 0 → −1.5 V) | 2.9×10⁻⁵ V⁻¹ | — |
-| `V_π·L` (mean slope) | **2.63 V·cm** | < 3 V·cm — met |
+| `V_π·L` (mean slope) | **2.63 V·cm** | < 3 V·cm, met |
 | `V_π·L` best bias interval | ≈ 1.9 V·cm (near 0 V) | — |
 | Free-carrier loss | 2.3 dB/cm at −1.5 V → 2.9 dB/cm at 0 V | ≪ budget |
 
 Two things about the shape of these curves are worth reading off the figures. The index change
 is **not linear in bias**: `dneff_vs_bias.png` is steepest near 0 V and flattens with reverse
-bias, which is the same behaviour the junction itself shows — the depletion width grows as
+bias, which is the same behaviour the junction itself shows: the depletion width grows as
 `sqrt(V_bi − V)`, so most of the depletion per volt is bought near equilibrium. That is why the
 per-interval `V_π·L` in `vpi_L_vs_bias.png` ranges from ≈ 1.9 to ≈ 3.7 V·cm across the sweep,
 and why the mean-slope number (2.63 V·cm), not any single interval, is the figure to quote.
@@ -218,10 +218,10 @@ MMI and bend contributions.
 
 ## See also
 
-- [`../CHARGE/README.md`](../CHARGE/README.md) — the carrier model this folder consumes, and
+- [`../CHARGE/README.md`](../CHARGE/README.md), the carrier model this folder consumes, and
   the source of the design targets.
-- [`../../shared/materials.lsf`](../../shared/materials.lsf) — the Si and SiO₂ models used here.
-- [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md) — the
+- [`../../shared/materials.lsf`](../../shared/materials.lsf), the Si and SiO₂ models used here.
+- [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md), the
   full derivation of the plasma-dispersion effect and the `V_π·L` figure of merit.
-- [`../CHARGE/README.md#references`](../CHARGE/README.md#references) — Soref & Bennett (1987),
+- [`../CHARGE/README.md#references`](../CHARGE/README.md#references), Soref & Bennett (1987),
   Reed et al. (2010), Chrostowski & Hochberg (2015).

@@ -5,7 +5,7 @@ scripts in [`../PhaseShifter/CHARGE/`](../PhaseShifter/CHARGE/).*
 
 ## 1. Why Silicon Needs a Special Modulation Mechanism
 
-Silicon is centrosymmetric, so it has **no linear electro-optic (Pockels) effect** — its second-order susceptibility $\chi^{(2)}$ vanishes. The Kerr effect ($\chi^{(3)}$) is too weak at practical voltages, and the Franz–Keldysh effect requires impractically large fields. Two mechanisms remain:
+Silicon is centrosymmetric, so it has **no linear electro-optic (Pockels) effect**: its second-order susceptibility $\chi^{(2)}$ vanishes. The Kerr effect ($\chi^{(3)}$) is too weak at practical voltages, and the Franz–Keldysh effect requires impractically large fields. Two mechanisms remain:
 
 | Mechanism                          | Physical basis                                                    | Speed | Notes                                        |
 | ---------------------------------- | ----------------------------------------------------------------- | ----- | -------------------------------------------- |
@@ -35,7 +35,7 @@ Three facts drive the whole design:
 
 1. **Adding carriers lowers the index** ($\Delta n < 0$ for $\Delta N > 0$). Conversely, *removing* carriers (depleting a region) *raises* the local index.
 2. **Holes are more effective than electrons** per carrier (the $0.8$ power and the larger prefactor).
-3. **Adding carriers increases absorption** ($\Delta\alpha > 0$). Depletion therefore *reduces* absorption inside the depletion region — but the surrounding still-doped regions remain lossy.
+3. **Adding carriers increases absorption** ($\Delta\alpha > 0$). Depletion therefore *reduces* absorption inside the depletion region, but the surrounding still-doped regions remain lossy.
 
 ## 3. PN Junction Fundamentals
 
@@ -69,7 +69,7 @@ Under reverse bias ($V < 0$) the term $V_{bi} - V$ grows, so the depletion layer
 
 ### 3.4 What the Simulation Gives
 
-The formula above assumes a uniform doping step, which the fabricated device (and the model) does not have. The CHARGE drift-diffusion simulation returns 152 nm at 0 V growing to 285 nm at −1.5 V, against 127 nm and 213 nm from the closed form — the same $\sqrt{V_{bi} - V}$ shape, 20–34 % wider in magnitude:
+The formula above assumes a uniform doping step, which the fabricated device (and the model) does not have. The CHARGE drift-diffusion simulation returns 152 nm at 0 V growing to 285 nm at −1.5 V, against 127 nm and 213 nm from the closed form, the same $\sqrt{V_{bi} - V}$ shape, 20–34 % wider in magnitude:
 
 | Bias $V$ | $W_{\text{dep}}$, theory | $W_{\text{dep}}$, simulation | Difference |
 |----------|--------------------------|------------------------------|------------|
@@ -77,7 +77,7 @@ The formula above assumes a uniform doping step, which the fabricated device (an
 | −0.75 V  | 175.1 nm                 | 226.1 nm                     | +29.1 %    |
 | −1.5 V   | 212.6 nm                 | 284.6 nm                     | +33.9 %    |
 
-The offset comes from the graded Pearson-IV doping profile implemented in [`../PhaseShifter/CHARGE/step06_doping.lsf`](../PhaseShifter/CHARGE/step06_doping.lsf) — so the concentration at the junction is below the nominal peak — together with a carrier-recovery edge criterion that reads about one Debye length beyond the ideal edge. The full discussion and the measured $W_{\text{dep}}(V)$ curve are in [`../PhaseShifter/CHARGE/README.md`](../PhaseShifter/CHARGE/README.md).
+The offset comes from the graded Pearson-IV doping profile implemented in [`../PhaseShifter/CHARGE/step06_doping.lsf`](../PhaseShifter/CHARGE/step06_doping.lsf) (so the concentration at the junction is below the nominal peak), together with a carrier-recovery edge criterion that reads about one Debye length beyond the ideal edge. The full discussion and the measured $W_{\text{dep}}(V)$ curve are in [`../PhaseShifter/CHARGE/README.md`](../PhaseShifter/CHARGE/README.md).
 
 The takeaway for the rest of this note: the closed-form junction model is good enough for *sizing* and for predicting trends (wider depletion with reverse bias, lower capacitance, more efficient phase shift), but the efficiency and loss numbers used for the design come from the simulation, not from the formula.
 
@@ -91,7 +91,7 @@ The optical mode is guided by the waveguide, whose center is placed at (or near)
 4. The effective index of the mode increases accordingly.
 5. The accumulated phase $\Delta\varphi = (2\pi/\lambda)\,\Delta n_{\text{eff}}\,L$ shifts.
 
-Because the process is purely electrostatic (no carrier injection or recombination required), the response time is set by how fast the depletion layer can move — i.e. by the RC time constant — giving GHz-scale operation.
+Because the process is purely electrostatic (no carrier injection or recombination required), the response time is set by how fast the depletion layer can move, i.e. by the RC time constant, giving GHz-scale operation.
 
 ## 5. From Local $\Delta n(x,z)$ to $\Delta n_{\text{eff}}$
 
@@ -148,11 +148,11 @@ Reducing $R$ and $C$ simultaneously is the central electrical trade-off. Typical
 | **Junction offset** | At mode center → maximum overlap → maximum $\Delta n_{\text{eff}}$, but maximum overlap with remaining doped carriers → higher loss | Offset → lower loss, lower efficiency |
 | **Device length $L$** | Lower $V_\pi$ required, but more loss and area | Compact, but higher drive voltage |
 
-The classic triangle is **efficiency vs. optical loss vs. bandwidth** — improving one usually costs the other two. The optimization in Task 3.3 sweeps this space to find the best compromise against the targets below.
+The classic triangle is **efficiency vs. optical loss vs. bandwidth**: improving one usually costs the other two. The optimization in Task 3.3 sweeps this space to find the best compromise against the targets below.
 
 ## 9. CHARGE Simulation Methodology (Task 3.1)
 
-CHARGE is a **drift-diffusion** solver: it self-consistently solves Poisson's equation together with the electron and hole continuity equations to obtain $n(\mathbf{r})$, $p(\mathbf{r})$, and the electrostatic potential $V(\mathbf{r})$. It is *not* an optical solver — it is purely electrical.
+CHARGE is a **drift-diffusion** solver: it self-consistently solves Poisson's equation together with the electron and hole continuity equations to obtain $n(\mathbf{r})$, $p(\mathbf{r})$, and the electrostatic potential $V(\mathbf{r})$. It is *not* an optical solver: it is purely electrical.
 
 The Task 3.1 workflow (the numbered scripts in [`../PhaseShifter/CHARGE/`](../PhaseShifter/CHARGE/README.md)):
 
@@ -161,7 +161,7 @@ The Task 3.1 workflow (the numbered scripts in [`../PhaseShifter/CHARGE/`](../Ph
 3. **Contacts**: add ohmic contacts on the $\text{p}^+$ (anode) and $\text{n}^+$ (cathode) regions.
 4. **Equilibrium**: run at $V = 0$ and verify the built-in potential $\approx V_{bi}$.
 5. **DC sweep**: sweep the anode from 0 to −1.5 V (reverse bias), re-solving at each point.
-6. **Export**: save the 2D maps $n(x,z)$, $p(x,z)$, $V(x,z)$ at each bias — these feed the MODE electro-optic simulation in Task 3.2.
+6. **Export**: save the 2D maps $n(x,z)$, $p(x,z)$, $V(x,z)$ at each bias: these feed the MODE electro-optic simulation in Task 3.2.
 
 The outputs to carry forward: carrier-density maps as functions of bias, from which $\Delta n(x,z)$ and $\Delta \alpha(x,z)$ are computed via Soref–Bennett.
 
@@ -178,7 +178,7 @@ The outputs to carry forward: carrier-density maps as functions of bias, from wh
 
 ## References
 
-- Soref, R. A., & Bennett, B. R. (1987). Electrooptical effects in silicon. *IEEE J. Quantum Electron.*, 23(1), 123–129. — The canonical plasma-dispersion paper.
-- Reed, G. T., Mashanovich, G., Gardes, F. Y., & Thomson, D. J. (2010). Silicon optical modulators. *Nature Photonics*, 4(8), 518–526. — Overview of Si modulator physics.
+- Soref, R. A., & Bennett, B. R. (1987). Electrooptical effects in silicon. *IEEE J. Quantum Electron.*, 23(1), 123–129. The canonical plasma-dispersion paper.
+- Reed, G. T., Mashanovich, G., Gardes, F. Y., & Thomson, D. J. (2010). Silicon optical modulators. *Nature Photonics*, 4(8), 518–526. Overview of Si modulator physics.
 - Chrostowski, L., & Hochberg, M. (2015). *Silicon Photonics Design: From Devices to Systems*. Cambridge University Press. Chapter 5 (modulators).
 - Sze, S. M., & Ng, K. K. (2006). *Physics of Semiconductor Devices*. Wiley. Chapters 2–3 (PN junction fundamentals).

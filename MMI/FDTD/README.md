@@ -1,4 +1,4 @@
-# 1×2 MMI — 3D FDTD validation build
+# 1×2 MMI, 3D FDTD validation build
 
 A scaffold that reconstructs the optimised 1×2 MMI in a full 3D FDTD simulation and
 post-processes the result, to cross-check the EME result from [`../MODE/`](../MODE/). It
@@ -8,7 +8,7 @@ validates one design point; it is not a re-optimisation, and it performs no para
 
 The geometry is not defined here. It is imported from `../MODE/mmi_design_point.mat`, which is
 written by `../MODE/step14_save_design.lsf`. That file carries the design point as built in the MODE
-flow plus the sweep optima; this build uses the optima — the MMI length `L_opt` = 22.162 µm, the
+flow plus the sweep optima; this build uses the optima, the MMI length `L_opt` = 22.162 µm, the
 output offset `dy_opt` = 1.2690 µm, and the two taper widths `width_opt` = 1.3333 µm (input) and
 `width_out_opt` = 1.3833 µm (output).
 
@@ -42,7 +42,7 @@ main;
 ```
 
 `main` builds the project, runs it, and writes `mmi_fdtd_results.mat` next to
-`step05_save_results.lsf` — the file `filename` at the top of `fdtd_results.py` points at.
+`step05_save_results.lsf`, the file `filename` at the top of `fdtd_results.py` points at.
 
 `step03_fdtd_region.lsf` ships with `mesh accuracy = 5`, the setting the quoted results come from, so
 the script as committed reproduces them. The convergence check behind that choice is under
@@ -52,7 +52,7 @@ To inspect the layout before spending the run, comment out the `step05_save_resu
 build with `main`, then call `step05_save_results;` on its own afterwards.
 
 The port group's active source must be the input port (`source`). FDTD excites one port mode
-at a time, so a single run gives the S-column for input excitation — which is all a passive
+at a time, so a single run gives the S-column for input excitation, which is all a passive
 splitter needs.
 
 Then post-process, from the repository root:
@@ -78,7 +78,7 @@ measuring a design property.
 
 One run of the frozen design point, 101 frequency points over 1500–1600 nm, at mesh accuracy 5. The
 two output powers are equal to better than 3×10⁻⁵ in `|S|²`, as the mirror symmetry requires, and
-the insertion loss stays inside the 0.5 dB target across the whole 100 nm span — not only the 40 nm
+the insertion loss stays inside the 0.5 dB target across the whole 100 nm span, not only the 40 nm
 design bandwidth.
 
 | Metric | Result |
@@ -89,8 +89,8 @@ design bandwidth.
 | Reflection at 1550 nm | −39.7 dB (`R = 1.1×10⁻⁴`) |
 | Reflection over 1500–1600 nm | −41.7 to −37.0 dB |
 
-Read against the EME result for the same design point — 0.069 dB and `T = 0.4921` per port at
-1550 nm, in [`../MODE/`](../MODE/) — the two solvers agree to 0.03 dB in insertion loss and 0.004 in
+Read against the EME result for the same design point (0.069 dB and `T = 0.4921` per port at
+1550 nm, in [`../MODE/`](../MODE/)), the two solvers agree to 0.03 dB in insertion loss and 0.004 in
 per-port transmission. That agreement is what this build exists to establish: EME assumes a
 piecewise-uniform structure along the propagation axis and a finite mode set, and the 3D FDTD run,
 which assumes neither, reproduces the loss.

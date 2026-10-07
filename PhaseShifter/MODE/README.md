@@ -104,7 +104,7 @@ biased.
 | `step04_fde_setup.lsf` | FDE region, mesh, modal settings, and a reference solve at equilibrium |
 | `step05_bias_sweep.lsf` | Sweeps the bias, solving the mode at each point; writes `neff_vs_bias.mat` |
 | `neff_vs_bias.py` | Post-processing: `n_eff(V)`, `Δn_eff(V)`, loss(V), `V_π·L(V)` and four figures |
-| `neff_vs_bias.mat` | Sweep output, consumed by the Python script |
+| `neff_vs_bias.mat` | Sweep output, consumed by the Python script; solver output, not committed |
 | `neff_vs_bias.png` | Result figure: effective index versus bias |
 | `dneff_vs_bias.png` | Result figure: index modulation versus bias |
 | `loss_vs_bias.png` | Result figure: free-carrier absorption versus bias |

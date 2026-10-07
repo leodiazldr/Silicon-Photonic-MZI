@@ -78,8 +78,8 @@ cross-section is mapped onto it:
 | `capacitance_vs_bias.png` | — | Result figure: junction capacitance versus bias |
 | `resistance_vs_bias.png` | — | Result figure: small-signal resistance versus bias |
 | `capacitance_vs_frequency.png` | — | Result figure: capacitance spectrum at selected biases |
-| `charge_sweep.mat` | — | DC sweep output; consumed by the notebook **and by `../MODE/`** |
-| `ac_sweep.mat` | — | AC sweep output; consumed by `capacitance_vs_bias.py` |
+| `charge_sweep.mat` | — | DC sweep output; consumed by the notebook **and by `../MODE/`**; solver output, not committed |
+| `ac_sweep.mat` | — | AC sweep output; consumed by `capacitance_vs_bias.py`; solver output, not committed |
 
 ## Running it
 

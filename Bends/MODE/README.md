@@ -113,7 +113,7 @@ The Bézier geometry study produces its own figure, at the component root:
 | ---- | ------- |
 | `mode_mismatch_Rc_sweep.lsf` | Sweeps bend radius 4–20 µm; records `\|Δn_eff\|` and straight↔bend power coupling; writes `neff_Rc_sweep_Si.mat` |
 | `bend_loss_analysis.py` | Post-processing: total loss vs radius, optimum radius, and the two result figures |
-| `neff_Rc_sweep_Si.mat` | Raw sweep output, consumed by `bend_loss_analysis.py` |
+| `neff_Rc_sweep_Si.mat` | Raw sweep output, consumed by `bend_loss_analysis.py`; solver output, not committed |
 | `bend_loss_vs_radius.png` | Result figure: the two loss contributions, the total, and the optimum radius |
 | `bend_neff_shift_vs_radius.png` | Result figure: `\|Δn_eff\|` versus radius |
 | `../bezier_curves.py` | Cubic-Bézier bend geometry and curvature profile (component root, not in this folder) |

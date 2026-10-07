@@ -83,8 +83,8 @@ post-processing, and its own `README.md`.
 │   │   ├── …
 │   │   ├── depletion_vs_bias.ipynb  Post-processing (W_dep vs bias)
 │   │   ├── capacitance_vs_bias.py   Post-processing (C(V), R(V), f_3dB(V))
-│   │   ├── charge_sweep.mat    DC sweep output; consumed by the notebook and by MODE/
-│   │   ├── ac_sweep.mat        Small-signal AC sweep output
+│   │   ├── *.mat               Generated sweep output, not committed; charge_sweep.mat
+│   │   │                       is consumed by the notebook and by MODE/
 │   │   └── README.md
 │   └── MODE/                   FDE: the electro-optic response
 │       ├── main.lsf            Driver; calls step01…step05 in order

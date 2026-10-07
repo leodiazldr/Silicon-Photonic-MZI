@@ -112,8 +112,8 @@ The dispersion sweeps at the nominal 500 nm width, with linear and quadratic fit
 | `frequency_sweep.lsf` | Sweeps 1500–1600 nm; writes the INTERCONNECT data card and `frequency_sweep_si.mat` |
 | `frequency_sweep.py` | Post-processing: `n_eff(λ)` and `n_g(λ)` with linear and quadratic fits |
 | `waveguide_si_500x220.ldf` | INTERCONNECT data card for the 500 × 220 nm Si waveguide |
-| `wg_width_sweep.mat` | Raw width-sweep output, consumed by `width_sweep.py` |
-| `frequency_sweep_si.mat` | Raw frequency-sweep output, consumed by `frequency_sweep.py` |
+| `wg_width_sweep.mat` | Raw width-sweep output, consumed by `width_sweep.py`; solver output, not committed |
+| `frequency_sweep_si.mat` | Raw frequency-sweep output, consumed by `frequency_sweep.py`; solver output, not committed |
 | `waveguide_modes_vs_width.png` | Result figure: guided modes vs width, coloured by polarisation |
 | `waveguide_neff_vs_wavelength.png` | Result figure: `n_eff(λ)` with linear and quadratic fits |
 | `waveguide_ng_vs_wavelength.png` | Result figure: `n_g(λ)` with linear and quadratic fits |

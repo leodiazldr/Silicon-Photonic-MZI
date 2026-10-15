@@ -235,12 +235,7 @@ Remaining work, in the order it should be done:
       the body and with what phase, so widening it shifts the length optimum; that fine sweep, the
       counterpart to `step09`, has not been run
 - [ ] Export the S-parameter matrix for INTERCONNECT
-- [x] Validate one design point in 3D FDTD, done in [`../FDTD/`](../FDTD/): the optima exported
-      by `step14_save_design.lsf` rebuilt and run in full 3D FDTD give 0.10 dB at 1550 nm and stay
-      inside the 0.5 dB target across 1500–1600 nm, against 0.069 dB for the same point in EME. The
-      same geometry at the coarser `mesh accuracy = 2` gives 0.18 dB, so the FDTD figure carries a
-      mesh spread of about 0.08 dB and is not proven converged (see
-      [Mesh accuracy](../FDTD/README.md#mesh-accuracy)).
+- [x] Validate one design point in 3D FDTD, done in [`../FDTD/`](../FDTD/).
 
 ## Reference
 

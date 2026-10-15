@@ -1,0 +1,40 @@
+# Setup: units, platform constants, material names, and the S-bend parameters.
+# Called by main.lsf; all variables here are global.
+
+# before running check the working directory: File -> Change working directory
+
+switchtolayout;
+deleteall;
+
+addpath("../../shared");
+materials;
+clear;
+
+# units
+um = 1e-6;
+nm = 1e-9;
+
+# platform
+wg_material   = "Si (Silicon) - Dispersive & Lossless";
+box_material  = "SiO2 (Glass) - Const";
+clad_material = "SiO2 (Glass) - Const";
+
+lambda0         = 1550 * nm;
+wavelength_span = 100 * nm;                  # C-band: 1500-1600 nm
+
+wg_width     = 0.5 * um;
+wg_thickness = 220 * nm;
+box_depth    = 2 * um;
+clad_height  = 2 * um;
+
+# S-bend: a Bezier path through six poles, spanning 2R axially and R laterally. This is the
+# shape the MMI outputs used to carry, kept as it was, so the bend can be characterised on its
+# own and dropped into the MZI model as a separate element.
+R_bend = 13 * um;
+delta  = 0.2;
+
+# straight leads that carry the ports
+L_lead = 5 * um;
+
+# cladding margin beyond the widest part of the device
+y_margin = 2 * um;

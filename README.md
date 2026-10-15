@@ -45,9 +45,12 @@ post-processing, and its own `README.md`.
 │
 ├── Bends/                      Low-loss waveguide bends
 │   ├── bezier_curves.py        Cubic Bézier bends vs circular arcs, curvature analysis
-│   └── MODE/                   FDE
-│       ├── mode_mismatch_Rc_sweep.lsf  Straight↔bend overlap vs radius of curvature
-│       ├── bend_loss_analysis.py       Loss model, optimum radius, figures
+│   ├── MODE/                   FDE
+│   │   ├── mode_mismatch_Rc_sweep.lsf  Straight↔bend overlap vs radius of curvature
+│   │   ├── bend_loss_analysis.py       Loss model, optimum radius, figures
+│   │   └── README.md
+│   └── FDTD/                   3D FDTD two-port S-parameters of the Bézier S-bend
+│       ├── main.lsf            Driver; builds, runs and saves
 │       └── README.md
 │
 ├── MMI/                        1×2 MMI splitter / combiner
@@ -93,8 +96,7 @@ post-processing, and its own `README.md`.
 │       ├── neff_vs_bias.py     Post-processing (n_eff, loss, V_pi·L)
 │       └── README.md
 │
-└── MZI/                        Design notes (Obsidian vault)
-    ├── Plan.md
+└── General/                    Design notes (Obsidian vault)
     ├── MMI Theory.md
     └── PN Phase Shifter Theory.md
 ```
@@ -142,11 +144,11 @@ then set the final geometry, `L_MMI = 22.162 µm`, `d_y = 1.2690 µm`, the input
 take the insertion loss from 0.126 dB to 0.069 dB at 1550 nm.
 
 The optimised design point is frozen to `mmi_design_point.mat` by `step14_save_design.lsf` and
-rebuilt in 3D FDTD in [`MMI/FDTD/`](MMI/FDTD/README.md) for a single-point validation of the
+rebuilt in 3D FDTD in [`MMI/FDTD/`](MMI/FDTD/README.md) for a single-point 3D cross-check of the
 EME result.
 
 See [`MMI/MODE/README.md`](MMI/MODE/README.md), [`MMI/FDTD/README.md`](MMI/FDTD/README.md) and
-[`MZI/MMI Theory.md`](MZI/MMI%20Theory.md).
+[`General/MMI Theory.md`](General/MMI%20Theory.md).
 
 ### Carrier-depletion phase shifter: `PhaseShifter/`
 
@@ -166,7 +168,7 @@ Design targets: V_π·L < 3 V·cm, insertion loss < 5 dB, 3 dB bandwidth > 10 GH
 
 See [`PhaseShifter/CHARGE/README.md`](PhaseShifter/CHARGE/README.md),
 [`PhaseShifter/MODE/README.md`](PhaseShifter/MODE/README.md) and
-[`MZI/PN Phase Shifter Theory.md`](MZI/PN%20Phase%20Shifter%20Theory.md).
+[`General/PN Phase Shifter Theory.md`](General/PN%20Phase%20Shifter%20Theory.md).
 
 ## Results so far
 
@@ -195,6 +197,18 @@ zero, so the mode is never asked to follow the curvature discontinuity that a st
 junction presents.
 
 ![Cubic Bézier curvature profile](Bends/bezier_curves.png)
+
+The FDE sweep and the curvature study fix the shape, and the bend is then solved on its own in
+full 3D FDTD in [`Bends/FDTD/`](Bends/FDTD/README.md), at the shape the MMI outputs used to carry,
+so it can be dropped into the MZI model as a two-port component. At the design point (`R` = 13 µm,
+`δ` = 0.2) it passes 0.032 dB at 1550 nm, with the reflection at −41 dB at 1550 nm and no worse than −35 dB across
+the span. Solving the same bend at a finer mesh moves the loss by 0.007 dB at 1550 nm and by at most
+0.067 dB anywhere in the band, so the mesh is not what sets it. That column of S-parameters is what
+the INTERCONNECT model of the MZI is built from.
+
+![S-bend S-squared parameters](Bends/FDTD/bend_S2-params.png)
+
+![S-bend field profile at 1550 nm](Bends/FDTD/bend_field_profile.png)
 
 ### Phase shifter
 
@@ -292,20 +306,21 @@ of its minimum, the input taper to within 0.003 dB over 1.30–1.35 µm, and the
 0.0005 dB between 1.3833 µm and 1.40 µm, so the
 design sits on plateaus rather than peaks and fabrication scatter can move a parameter without
 moving the loss. What remains is robustness rather than optimisation: the taper-length check, a
-re-sweep of the length now that the tapers have moved, and the ±10–20 nm width-bias sweeps, with the
-selection rule still to be changed from the single-point minimum to the band-averaged or worst-case
-loss ([`MZI/Plan.md` §5](MZI/Plan.md), step 6).
+re-sweep of the length now that the tapers have moved, and the ±10–20 nm width-bias sweeps.
 
 ### MMI in 3D FDTD
 
 The frozen design point is exported to `mmi_design_point.mat` by `step14_save_design.lsf`, then
-rebuilt in full 3D FDTD and run at 101 frequency points across 1500–1600 nm. The split is 50:50 to
-within the resolution of the plotted curves; a centred-input 1×2 MMI with symmetric outputs is
-mirror-symmetric, so it has to be, and the insertion loss stays under the 0.5 dB target across the
-whole 100 nm span: 0.08 dB over the flat part of the band, 0.10 dB at 1550 nm and 0.42 dB worst case
-at 1600 nm, against 0.069 dB at 1550 nm for the same point in EME. Reflection sits at −40 dB or
-better over most of the band. Running the same geometry at three mesh accuracies, 2, 3 and 5,
-gives 0.17, 0.12 and 0.10 dB at 1550 nm, so the figure is mesh-converged to about 0.02 dB.
+rebuilt in full 3D FDTD and run at 101 frequency points across 1500–1600 nm. The outputs are short
+straight stubs off the output tapers, matching the EME design point, and the S-bends that route the
+two arms apart in the MZI are characterised on their own in [`Bends/FDTD/`](Bends/FDTD/README.md).
+Splitting them out keeps the two solvers on the same geometry so they can be compared directly, and
+turns the bend into its own block in the INTERCONNECT model. The split is 50:50 to within the
+resolution of the plotted curves; a centred-input 1×2 MMI with symmetric outputs is mirror-symmetric,
+so it has to be, and the insertion loss stays under the 0.5 dB target across the whole 100 nm span:
+0.07 dB best, 0.11 dB averaged over the 40 nm design band, 0.10 dB at 1550 nm and 0.47 dB worst case
+at 1600 nm, against 0.069 dB at 1550 nm for the same point in EME. Reflection is no worse than
+−35.6 dB anywhere and −40 dB or better over most of the span.
 
 ![3D FDTD S-squared parameters](MMI/FDTD/mmi_fdtd_S2-params.png)
 
@@ -359,8 +374,8 @@ pip install -r requirements.txt
 
 | Phase | Description                  | Status         |
 | ----- | ---------------------------- | -------------- |
-| 1     | Waveguide and bend design    | Complete (width and wavelength sweeps, and the bend radius study; the bend `R_opt` is provisional, see [`Bends/MODE/README.md`](Bends/MODE/README.md)) |
-| 2     | MMI splitters                | Swept and characterised (length, both taper widths, output offset and wavelength all swept; 0.069 dB at 1550 nm in EME, 0.10 dB in the 3D FDTD cross-check). Taper-length check, a length re-sweep and the width-bias robustness checks still open, see [`MZI/Plan.md` §6.1](MZI/Plan.md) |
+| 1     | Waveguide and bend design    | Complete (width and wavelength sweeps, and the bend radius study; the Bézier S-bend also has a two-port 3D FDTD characterisation in [`Bends/FDTD/`](Bends/FDTD/README.md); the bend `R_opt` is provisional, see [`Bends/MODE/README.md`](Bends/MODE/README.md)) |
+| 2     | MMI splitters                | Swept and characterised (length, both taper widths, output offset and wavelength all swept; 0.069 dB at 1550 nm in EME, 0.10 dB in the 3D FDTD cross-check). The taper-length check, a length re-sweep and the width-bias robustness checks are still open |
 | 3     | Carrier-depletion modulator  | Complete (depletion width, junction capacitance and electro-optic response all simulated; V_π·L inside target) |
 | 4     | MZI system integration       | Not started    |
 | 5     | GDS layout                   | Not started    |

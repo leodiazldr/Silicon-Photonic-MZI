@@ -1,0 +1,19 @@
+# FDTD solver region, mesh accuracy and simulation time.
+#
+# The region sits 1 um inside the cladding on every side, so the PML never truncates
+# the device.
+
+# before running check the working directory: File -> Change working directory
+
+############# Simulation #################
+addfdtd;
+set("x min", x_in_port);
+set("x max", x_out_port);
+set("y min", y_min_cell + 1*um);
+set("y max", y_max_cell - 1*um);
+set("z", wg_thickness/2);
+set("z span", clad_height);
+set("simulation time", 1500e-15);
+set("mesh accuracy", 2);
+set("auto shutoff min", 1e-5);
+##########################################

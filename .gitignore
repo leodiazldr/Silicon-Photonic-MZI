@@ -42,7 +42,7 @@ __pycache__/
 # editor and plugin state, which is not part of the design notes themselves.
 # =============================================================================
 .vscode/
-MZI/.obsidian/
+General/.obsidian/
 
 # =============================================================================
 # Deliberately NOT ignored

@@ -1,0 +1,45 @@
+# Run the FDTD project built by step01-step04 and save the two-port S-parameters and the
+# field profile.
+#
+# Writes bend_fdtd_results.mat next to this script:
+#   lambda                wavelength vector [m]
+#   S_in, S_out           complex S-parameters of the two ports for input excitation
+#   T                     power transmission, |S_out|^2
+#   R                     power reflection at the input, |S_in|^2
+#   IL                    insertion loss, -10*log10(T)
+#   mon_x, mon_y, mon_E2  field profile from the "monitor" object, |E|^2
+
+# before running check the working directory: File -> Change working directory
+
+############# Simulation #################
+run;
+##########################################
+
+############# Results #################
+res_in  = getresult("FDTD::ports::in",  "S");
+res_out = getresult("FDTD::ports::out", "S");
+
+lambda = res_in.lambda;
+S_in   = res_in.S;
+S_out  = res_out.S;
+
+T  = abs(S_out)^2;
+R  = abs(S_in)^2;
+IL = -10*log10(T);
+
+E_mon  = getresult("monitor", "E");
+mon_x  = E_mon.x;
+mon_y  = E_mon.y;
+mon_E2 = abs(E_mon.Ex)^2 + abs(E_mon.Ey)^2 + abs(E_mon.Ez)^2;
+##########################################
+
+############# Save #################
+matlabsave("bend_fdtd_results.mat", lambda, S_in, S_out, T, R, IL, mon_x, mon_y, mon_E2);
+?"FDTD results saved to bend_fdtd_results.mat";
+
+idx0 = find(lambda, lambda0);
+?"  lambda : " + num2str(lambda(idx0)/nm, "%.1f") + " nm";
+?"  T      : " + num2str(T(idx0),  "%.4f");
+?"  R      : " + num2str(R(idx0),  "%.6f");
+?"  IL     : " + num2str(IL(idx0), "%.4f") + " dB";
+##########################################

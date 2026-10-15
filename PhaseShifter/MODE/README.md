@@ -17,7 +17,7 @@ Modelled in Lumerical **MODE** with the **FDE** solver.
 
 ## Getting the carrier map into the optical model
 
-Two objects make this work, and neither is optional. A grid attribute of type **np density**
+Two objects make this work. A grid attribute of type **np density**
 holds the imported `n` and `p` fields as a spatial dataset; an **index perturbation material**
 converts those densities into a complex index change. A plain material is not sensitive to
 imported data: assigning ordinary silicon to the ridge here would silently produce a
@@ -25,7 +25,7 @@ bias-independent effective index, which is a failure mode that looks like a phys
 
 The conversion model is **Soref–Bennett**, the same one quoted in the theory note, with the
 base material set to the *lossless* dispersive silicon model from
-[`../../shared/materials.lsf`](../../shared/materials.lsf). That choice is deliberate: Palik
+[`../../shared/materials.lsf`](../../shared/materials.lsf). That choice is intentional: Palik
 silicon carries its own absorption, which would put a fixed offset on the loss curve and make
 the bias-dependent part harder to read. With a lossless base, everything imaginary in the
 result is free-carrier absorption.
@@ -34,7 +34,7 @@ The charge data is one dataset with the bias voltage as a parameter, so stepping
 points is a matter of setting a parameter index on the grid attribute rather than loading a new
 file for each one.
 
-## Coordinates have to match, exactly
+## Coordinates have to match
 
 The charge map is placed by coordinates, not by any structural link to the CHARGE file. If the
 waveguide sits even a few tens of nanometres away from where it sat in CHARGE, the carriers
@@ -210,8 +210,6 @@ Kept here as known limitations rather than open work:
   name the same properties differently.
 - The loss curve is non-flat and bias-dependent, which is the signature that the perturbation
   material is returning the Soref–Bennett absorption term as intended.
-- The equilibrium reference would need replacing with a proper mode-tracking scheme if the bias
-  sweep ever had to run past −1.5 V, where mode order is less safe to assume.
 
 Still to be folded into the MZI-level power budget: `V_π·L` and this loss term, alongside the
 MMI and bend contributions.
@@ -221,7 +219,7 @@ MMI and bend contributions.
 - [`../CHARGE/README.md`](../CHARGE/README.md), the carrier model this folder consumes, and
   the source of the design targets.
 - [`../../shared/materials.lsf`](../../shared/materials.lsf), the Si and SiO₂ models used here.
-- [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md), the
+- [`../../General/PN Phase Shifter Theory.md`](../../General/PN%20Phase%20Shifter%20Theory.md), the
   full derivation of the plasma-dispersion effect and the `V_π·L` figure of merit.
 - [`../CHARGE/README.md#references`](../CHARGE/README.md#references), Soref & Bennett (1987),
   Reed et al. (2010), Chrostowski & Hochberg (2015).

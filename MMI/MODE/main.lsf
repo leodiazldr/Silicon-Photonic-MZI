@@ -5,7 +5,7 @@
 # stepNN_*.lsf file in this folder and is called by name below. All steps share one
 # global workspace, so variables defined in step01 remain visible in step14.
 #
-# Theory: "../../MZI/MMI Theory.md".
+# Theory: "../../General/MMI Theory.md".
 
 # before running check the working directory: File -> Change working directory
 

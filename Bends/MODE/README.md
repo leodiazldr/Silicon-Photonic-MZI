@@ -5,8 +5,7 @@ in Lumerical **MODE** with the **FDE** solver, using its built-in bent-waveguide
 (conformal-transformation) analysis; the Bézier alternative is explored as a separate
 geometry script.
 
-Bends are where a compact photonic circuit spends most of its loss budget, and the MZI needs
-several of them to route two matched arms between the splitter and the combiner. This folder
+The MZI needs several of them to route two matched arms between the splitter and the combiner. This folder
 answers two questions: *what radius should the bends be*, and *can a non-circular bend do
 better*.
 
@@ -94,8 +93,8 @@ polygon; the script prints the minimum `ρ/R` reached for each δ so the tightes
 curve can be compared directly.
 
 This is a geometry study only: it establishes the shape and its curvature profile, but the
-Bézier bend has not yet been put through an FDE or FDTD loss calculation to quantify the
-improvement it buys.
+Bézier bend has not yet been put through an FDE loss calculation to quantify the
+improvement it buys; the two-port FDTD characterisation is in [`../FDTD/`](../FDTD/). But we can say that the optimum value of delta for a given radius is the one that balances an adiabatic transition and a peak curvature that is not extreme.
 
 ## Results
 
@@ -147,19 +146,17 @@ python Bends/bezier_curves.py
 
 - [`../../shared/materials.lsf`](../../shared/materials.lsf), the Si and SiO₂ models used by
   the sweep.
-- [`../../MZI/MMI Theory.md`](../../MZI/MMI%20Theory.md) and
-  [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md), the
+- [`../../General/MMI Theory.md`](../../General/MMI%20Theory.md) and
+  [`../../General/PN Phase Shifter Theory.md`](../../General/PN%20Phase%20Shifter%20Theory.md), the
   project theory notes; the bend loss budget feeds the MZI power balance those notes describe.
 
 ## Status
 
-The radius sweep and its post-processing are implemented, and the raw data and figures are
-committed. Outstanding items:
+Outstanding items:
 
 - [ ] Replace the constant propagation-loss term with a radius-dependent one (see above).
 - [ ] Sweep the Bézier shape parameter δ and compare its mode-mismatch loss against the
   circular arc in FDE, rather than comparing curvature profiles alone.
-- [ ] Include the bend in an INTERCONNECT-level loss budget for the full MZI.
 
 ## Reference
 

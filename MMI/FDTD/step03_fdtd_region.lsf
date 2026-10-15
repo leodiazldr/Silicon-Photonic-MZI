@@ -1,15 +1,19 @@
-# FDTD solver region, mesh override and simulation time, sized to the design point.
+# FDTD solver region, mesh accuracy and simulation time, sized to the design point.
+#
+# The BOX and cladding run 1 um past the two ports, so the region, which sits 1 um inside
+# them on every side, never has its PML truncate the device.
 
 # before running check the working directory: File -> Change working directory
 
 ############# Simulation #################
 addfdtd;
-set("x min", x_in_port + 1*um);
-set("x max", x_out_port - 1*um);
+set("x min", x_in_port);
+set("x max", x_out_port);
 set("y", 0);
-set("y span", W_MMI + 4*um);
+set("y span", 2*y_outer - 2*um);   # 1 um inside the cladding, holding the MMI body and both outputs
 set("z", wg_thickness/2);
 set("z span", clad_height);
-set("mesh accuracy", 5);
+set("simulation time", 1500e-15);
+set("mesh accuracy", 4);
 set("auto shutoff min", 1e-5);
 ##########################################

@@ -34,7 +34,7 @@ The response is not limited by carrier lifetime: the depletion layer moves on th
 dielectric relaxation timescale, which is what makes GHz operation possible. The bandwidth
 is set by the RC time constant, `f_3dB = 1/(2πRC)`.
 
-Full derivation in [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md).
+Full derivation in [`../../General/PN Phase Shifter Theory.md`](../../General/PN%20Phase%20Shifter%20Theory.md).
 
 ## Design parameters
 
@@ -172,10 +172,7 @@ of the model account for the offset:
   `1×10¹⁷ cm⁻³` and `≈ 9 nm` at `2×10¹⁷ cm⁻³`, that is a systematic ~20 nm of extra width,
   which on its own accounts for most of the 25 nm offset at 0 V.
 
-So the agreement is qualitative rather than quantitative: the physics is captured, and the
-residual has a clear origin in the graded profile and the edge criterion rather than being a
-mesh artefact. Matching the magnitude would need a profile-aware model that integrates the
-actual implant depth profile instead of quoting a single doping level.
+So the agreement is qualitative rather than quantitative: Matching the magnitude would need a profile-aware model that integrates the actual implant depth profile instead of quoting a single doping level.
 
 ## Junction capacitance
 

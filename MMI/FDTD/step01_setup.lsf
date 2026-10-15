@@ -1,8 +1,5 @@
-# Setup: units, material names, and the frozen MMI design point.
-#
-# The design point is imported from ../MODE/mmi_design_point.mat, written by the MODE
-# flow's step14_save_design.lsf. Coordinates follow the MODE flow: x = propagation, 0 at
-# the start of the MMI body; y = lateral; z = vertical, 0 at the BOX/silicon interface.
+# Setup: units, material names, and the frozen MMI design point, imported from
+# ../MODE/mmi_design_point.mat (written by ../MODE/step14_save_design.lsf).
 
 # before running check the working directory: File -> Change working directory
 
@@ -24,3 +21,4 @@ clad_material = "SiO2 (Glass) - Const";
 
 # frozen design point: geometry values and the sweep optima
 matlabload("../MODE/mmi_design_point.mat");
+

@@ -150,9 +150,9 @@ python Waveguide/MODE/frequency_sweep.py
 
 - [`../../shared/materials.lsf`](../../shared/materials.lsf), the Si and SiO₂ models these
   simulations run on.
-- [`../../MZI/MMI Theory.md`](../../MZI/MMI%20Theory.md), the MMI's effective-width and
+- [`../../General/MMI Theory.md`](../../General/MMI%20Theory.md), the MMI's effective-width and
   beat-length formulas take this waveguide as their input guide.
-- [`../../MZI/PN Phase Shifter Theory.md`](../../MZI/PN%20Phase%20Shifter%20Theory.md), the
+- [`../../General/PN Phase Shifter Theory.md`](../../General/PN%20Phase%20Shifter%20Theory.md), the
   phase shifter is formed in exactly this cross-section; the mode profile computed here is
   what its Δn_eff overlap integral is taken against.
 

@@ -1,9 +1,11 @@
 # MMI structure group at the optimised design point: input waveguide, input taper, MMI
-# body, output tapers and waveguides, BOX and cladding, all extruded in z.
+# body, output tapers and short output waveguides, BOX and cladding, extruded in z.
 #
-# Coordinates follow the MODE flow: x = propagation with 0 at the start of the MMI body,
-# y = lateral, z = vertical with 0 at the BOX/silicon interface. The MMI length, output
-# offset and taper widths are the optima imported from ../MODE/mmi_design_point.mat.
+# The two arms are left straight: the S-bends that route them apart are a separate
+# component, characterised in ../../Bends/FDTD/.
+#
+# Coordinates: x = propagation (0 at the start of the MMI body), y = lateral,
+# z = vertical (0 at the BOX/silicon interface).
 
 # before running check the working directory: File -> Change working directory
 
@@ -15,6 +17,9 @@ x_taper_end   = x_mmi_end     + L_taper_out;
 
 x_in_port     = x_taper_start - L_in_wg;
 x_out_port    = x_taper_end   + L_out_wg;
+
+# BOX and cladding half-extent
+y_outer       = W_MMI/2 + 2*um;
 ##########################################
 
 ############# Structure #################
@@ -92,13 +97,13 @@ set("z min", 0);
 set("z max", wg_thickness);
 addtogroup("MMI");
 
-# output waveguides
+# output waveguides: short straight stubs after the tapers, hosting the output ports
 addrect;
 set("name", "output_wg_top");
 set("material", wg_material);
 set("x min", x_taper_end);
 set("x max", x_out_port);
-set("y",  dy_opt);
+set("y", dy_opt);
 set("y span", wg_width);
 set("z min", 0);
 set("z max", wg_thickness);
@@ -121,8 +126,8 @@ set("name", "box");
 set("material", box_material);
 set("x min", x_in_port - 1*um);
 set("x max", x_out_port + 1*um);
-set("y min", -W_MMI - 4*um);
-set("y max",  W_MMI + 4*um);
+set("y min", -y_outer);
+set("y max",  y_outer);
 set("z min", -box_depth);
 set("z max", 0);
 set("alpha", 0.15);
@@ -134,8 +139,8 @@ set("name", "cladding");
 set("material", clad_material);
 set("x min", x_in_port - 1*um);
 set("x max", x_out_port + 1*um);
-set("y min", -W_MMI - 4*um);
-set("y max",  W_MMI + 4*um);
+set("y min", -y_outer);
+set("y max",  y_outer);
 set("z min", 0);
 set("z max", wg_thickness + clad_height);
 set("override mesh order from material database", true);

@@ -24,7 +24,7 @@ MZI. Designed in Lumerical **MODE** using the **EME** (eigenmode expansion) solv
 
 `W_MMI` is set in `step02_mmi_design.lsf`, and every sweep below is run on that body. The taper end
 width is not an independent constant there: it is tied to the body as `W_MMI/4`, so that the
-taper-to-body ratio stays fixed when the width changes. That tie is a starting point rather than a
+taper-to-body ratio stays fixed when the width changes. That tie is only a starting point rather than a
 result, which is what the two taper-width sweeps are for, and both move it wider, to 1.3333 µm on
 the input and 1.3833 µm on the output.
 
@@ -47,7 +47,7 @@ For a symmetric, centered-input 1×2 general-interference MMI:
 
 `L_MMI = 3L_π/8` follows from the fact that, for a centered input, only the even modes are
 excited, so the field exactly reproduces itself every `3L_π/4` and forms two equal images
-at the half-period `3L_π/8`. See [`../../MZI/MMI Theory.md`](../../MZI/MMI%20Theory.md) for
+at the half-period `3L_π/8`. See [`../../General/MMI Theory.md`](../../General/MMI%20Theory.md) for
 the full derivation.
 
 ## Why EME instead of FDTD
@@ -156,12 +156,12 @@ The flow splits into a build half and a solve-and-optimise half:
   output-offset and output-taper sweeps, the broadband check on the optimised geometry, and the
   design-point export that hands the geometry to the FDTD build.
 
-Note that `step02` deliberately uses the bulk silicon index in the slab formula, which
+Note that `step02` uses the bulk silicon index in the slab formula, which
 ignores vertical confinement and therefore is only approximate.
-`step04` replaces it with a beat length derived from the true eigenmodes and rebuilds the
+`step04` replaces it with a beat length derived from the eigenmodes and rebuilds the
 geometry accordingly, so the length that `step05` onwards operate on is the refined value.
 The correction is large: `L_π` falls from 79.53 µm to 61.56 µm and `L_MMI` from 29.82 µm to
-23.085 µm, which is why the sweeps exist rather than the formula being trusted.
+23.085 µm.
 
 ## FDTD handoff
 
@@ -212,37 +212,18 @@ precision everywhere, so the contiguous band over which both targets hold runs t
 
 The imbalance curve is flat at zero because it has to be: a centred-input 1×2 MMI whose output
 ports sit symmetrically about the axis is mirror-symmetric, so the two output powers are equal by
-construction, and the simulation reproduces that to 10⁻⁷ dB. Read that curve as a consistency check
-on the port setup rather than as a design property. The `d_y` sweep is about total transmission,
+construction. The `d_y` sweep is about total transmission,
 and the optimum it finds is shallow (0.004 dB separates the swept offset from the analytic one),
 so `d_y` is a weak parameter in this design.
 
 The two taper sweeps both want a wider taper than the as-built `W_MMI/4` = 1.25 µm. Opening the
 input taper to 1.3333 µm is worth 0.023 dB and opening the output taper to 1.3833 µm is worth
-0.032 dB, refinements against a 0.5 dB budget rather than rescues, but the two largest single wins
-in the set, and together with the length sweep they are what carry the loss from the as-built
+0.032 dB and together with the length sweep they are what carry the loss from the as-built
 geometry down to 0.069 dB.
 
-Every one of the four optima is shallow, which is the more useful property of the set. The length
-sweep is flat to within 0.07 dB over ±0.3 µm of its minimum, the input taper to within 0.003 dB over
-1.30–1.35 µm, and the output taper to within 0.001 dB between 1.3833 and 1.40 µm; that last one is
-a plateau rather than a peak, and taking 1.40 µm instead of 1.3833 µm would cost 0.0005 dB. A design
-point sitting on plateaus of that width is one that fabrication scatter can move without moving the
-loss. The exception is the length, where `step09` still selects the single lowest point; a more
-defensible rule, judge candidates on the band-averaged or worst-case insertion loss and prefer the
-flat part of the curve, is the one recorded as step 6 of the component-optimisation workflow in
-[`../../MZI/Plan.md` §5](../../MZI/Plan.md).
+Every one of the four optima is shallow, which is the more useful property of the set as it makes the performance of the component more tolerant to fabrication errors.
 
 ## Status
-
-**The sweeps are run and the design point is set.** Four sweeps converge on it: the length sweep
-(`step09`) picks `L_MMI = 22.162 µm`, the input taper sweep (`step10`) picks 1.3333 µm, the
-output-offset sweep (`step11`) picks `d_y = 1.2690 µm`, and the output taper sweep (`step12`) picks
-1.3833 µm, each cutting the insertion loss in turn, from 0.126 dB after the length sweep to
-0.069 dB once all four are applied. The wavelength sweep (`step13`) then confirms the split and the
-loss across the whole C-band. Both targets are met with margin: 50:50 exactly, by symmetry, and an
-insertion loss of 0.069 dB at 1550 nm against the 0.5 dB budget, 0.127 dB worst case over the 40 nm
-design band and 0.397 dB worst case over the full 100 nm.
 
 Remaining work, in the order it should be done:
 
@@ -253,16 +234,13 @@ Remaining work, in the order it should be done:
 - [ ] Re-sweep `L_MMI` now that the tapers have moved. The input taper sets how much power enters
       the body and with what phase, so widening it shifts the length optimum; that fine sweep, the
       counterpart to `step09`, has not been run
-- [ ] Repeat the length and wavelength sweeps with ±10–20 nm of width bias, and select on the
-      band-averaged or worst-case insertion loss instead of the single-point minimum
 - [ ] Export the S-parameter matrix for INTERCONNECT
 - [x] Validate one design point in 3D FDTD, done in [`../FDTD/`](../FDTD/): the optima exported
       by `step14_save_design.lsf` rebuilt and run in full 3D FDTD give 0.10 dB at 1550 nm and stay
-      inside the 0.5 dB target across 1500–1600 nm, against 0.069 dB for the same point in EME
-
-This list is the component-optimisation sequence written out in
-[`../../MZI/Plan.md` §5](../../MZI/Plan.md), the version of it meant to be reused on the next
-component, so the MMI is where the recipe is exercised rather than the reason for it.
+      inside the 0.5 dB target across 1500–1600 nm, against 0.069 dB for the same point in EME. The
+      same geometry at the coarser `mesh accuracy = 2` gives 0.18 dB, so the FDTD figure carries a
+      mesh spread of about 0.08 dB and is not proven converged (see
+      [Mesh accuracy](../FDTD/README.md#mesh-accuracy)).
 
 ## Reference
 

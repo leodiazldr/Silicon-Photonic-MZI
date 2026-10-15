@@ -1,0 +1,103 @@
+# S-bend device at the design shape: input lead, the six-pole Bezier S-bend, output
+# lead, BOX and cladding, extruded in z.
+#
+# Coordinates: x = propagation (0 at the start of the bend), y = lateral,
+# z = vertical (0 at the BOX/silicon interface).
+#
+# Poles, with d = delta:
+#   (0, 0), (R*d, 0), (R, R*d), (R, R*(1-d)), (R*(2-d), R), (2R, R)
+# The first and last segments are horizontal, so the bend leaves and arrives tangent to
+# the propagation axis. This is the same pole set MMI/FDTD builds.
+
+# before running check the working directory: File -> Change working directory
+
+############# Coordinates #################
+x_in_port  = -L_lead;
+x_s_start  = 0;
+x_s_end    = 2*R_bend;
+x_out_port = x_s_end + L_lead;
+y_out      = R_bend;
+
+# cell extent: the cladding spans the bend plus a margin on both sides
+y_min_cell = -y_margin;
+y_max_cell = y_out + y_margin;
+##########################################
+
+############# Structure #################
+addstructuregroup;
+set("name", "S_bend_device");
+set("x", 0);
+set("y", 0);
+set("z", 0);
+
+# input lead waveguide
+addrect;
+set("name", "input_wg");
+set("material", wg_material);
+set("x min", x_in_port);
+set("x max", x_s_start);
+set("y", 0);
+set("y span", wg_width);
+set("z min", 0);
+set("z max", wg_thickness);
+addtogroup("S_bend_device");
+
+# S-bend waveguide
+addwaveguide;
+set("name", "s_bend");
+set("material", wg_material);
+set("base height", wg_thickness);
+set("base width", wg_width);
+set("base angle", 90);
+poles = [ 0,                0;
+          R_bend*delta,     0;
+          R_bend,           R_bend*delta;
+          R_bend,           R_bend*(1-delta);
+          R_bend*(2-delta), R_bend;
+          2*R_bend,         R_bend ];
+set("poles", poles);
+set("x", 0);
+set("y", 0);
+set("z", wg_thickness/2);
+addtogroup("S_bend_device");
+
+# output lead waveguide
+addrect;
+set("name", "output_wg");
+set("material", wg_material);
+set("x min", x_s_end);
+set("x max", x_out_port);
+set("y", y_out);
+set("y span", wg_width);
+set("z min", 0);
+set("z max", wg_thickness);
+addtogroup("S_bend_device");
+
+# buried oxide
+addrect;
+set("name", "box");
+set("material", box_material);
+set("x min", x_in_port - 1*um);
+set("x max", x_out_port + 1*um);
+set("y min", y_min_cell);
+set("y max", y_max_cell);
+set("z min", -box_depth);
+set("z max", 0);
+set("alpha", 0.15);
+addtogroup("S_bend_device");
+
+# cladding
+addrect;
+set("name", "cladding");
+set("material", clad_material);
+set("x min", x_in_port - 1*um);
+set("x max", x_out_port + 1*um);
+set("y min", y_min_cell);
+set("y max", y_max_cell);
+set("z min", 0);
+set("z max", wg_thickness + clad_height);
+set("override mesh order from material database", true);
+set("mesh order", 3);
+set("alpha", 0.15);
+addtogroup("S_bend_device");
+##########################################

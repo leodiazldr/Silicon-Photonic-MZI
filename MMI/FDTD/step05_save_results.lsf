@@ -24,13 +24,11 @@ res_src = getresult("FDTD::ports::source",  "S");
 res_top = getresult("FDTD::ports::out_top", "S");
 res_bot = getresult("FDTD::ports::out_bot", "S");
 
-f     = res_src.f;
-S_src = res_src.S;
-S_top = res_top.S;
-S_bot = res_bot.S;
+lambda = res_src.lambda;
+S_src  = res_src.S;
+S_top  = res_top.S;
+S_bot  = res_bot.S;
 
-c0        = 299792458;                 # speed of light, m/s
-lambda    = c0 / f;
 T_top     = abs(S_top)^2;
 T_bot     = abs(S_bot)^2;
 R         = abs(S_src)^2;
@@ -44,7 +42,7 @@ mon_E2 = abs(E_mon.Ex)^2 + abs(E_mon.Ey)^2 + abs(E_mon.Ez)^2;
 ##########################################
 
 ############# Save #################
-matlabsave("mmi_fdtd_results.mat", f, lambda, S_src, S_top, S_bot, T_top, T_bot, R, IL, imbalance, mon_x, mon_y, mon_E2);
+matlabsave("mmi_fdtd_results.mat", lambda, S_src, S_top, S_bot, T_top, T_bot, R, IL, imbalance, mon_x, mon_y, mon_E2);
 ?"FDTD results saved to mmi_fdtd_results.mat";
 
 idx0 = find(lambda, lambda0);

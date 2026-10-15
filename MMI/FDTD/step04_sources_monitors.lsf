@@ -1,10 +1,6 @@
-# Fundamental-TE mode source at the input, power monitors at the three ports, and a field
-# profile through the device. Port numbering follows the MODE flow: port 1 input,
-# port 2 top output, port 3 bottom output.
-#
-# The port monitors are plain power monitors. The output waveguides are single-mode, so
-# the transmitted power is the fundamental-mode transmission to good accuracy; add a mode
-# expansion monitor at each output if mode-resolved S-parameters are wanted.
+# Fundamental-TE mode source at the input, power monitors at the three ports, and a 2D
+# field-profile monitor. Port numbering as in the MODE flow: 1 input, 2 top output,
+# 3 bottom output.
 
 # before running check the working directory: File -> Change working directory
 
@@ -24,7 +20,7 @@ addport;
 set("name", "out_top");
 set("injection axis", "x-axis");
 set("direction", "Backward");
-set("x", x_out_port - 2*um);
+set("x", x_out_port - 1*um);
 set("y", dy_opt);
 set("y span", wg_width + 1*um);
 set("z", wg_thickness/2);
@@ -35,7 +31,7 @@ addport;
 set("name", "out_bot");
 set("injection axis", "x-axis");
 set("direction", "Backward");
-set("x", x_out_port - 2*um);
+set("x", x_out_port - 1*um);
 set("y", -dy_opt);
 set("y span", wg_width + 1*um);
 set("z", wg_thickness/2);
@@ -48,7 +44,7 @@ set("monitor frequency points", 101);
 setglobalsource("center wavelength", lambda0);
 setglobalsource("wavelength span", wavelength_span);
 
-setglobalmonitor("frequency points", 101);
+setglobalmonitor("frequency points", 1);
 ##########################################
 
 ############# Monitors #################
@@ -56,8 +52,8 @@ addprofile;
 set("name", "monitor");
 set("monitor type", 7);          # 2D X-normal
 set("x min", x_in_port + 1*um);
-set("x max", x_out_port - 1*um);
+set("x max", x_out_port);
 set("y", 0);
-set("y span", W_MMI + 4*um);
+set("y span", 2*y_outer - 2*um);
 set("z", wg_thickness/2);
 ##########################################

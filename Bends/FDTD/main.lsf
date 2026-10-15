@@ -1,0 +1,43 @@
+# Bezier S-bend (six poles) - 3D FDTD, two-port S-parameter extraction.
+# Platform: 220 nm SOI, 1550 nm TE.
+#
+# The bend spans 2R axially and R laterally at the design shape (R = 13 um, delta = 0.2).
+# That is the same S-bend the MMI outputs used to be routed through, so the bend can be
+# characterised here on its own and dropped into the MZI model as a separate element.
+#
+# Driver. Lumerical's interpreter has no "include", so each stage lives in its own
+# stepNN_*.lsf file in this folder and is called by name below. All steps share one
+# global workspace, so variables defined in step01 remain visible in step05.
+#
+# Shape and curvature background: ../../Bends/MODE/README.md.
+
+# before running check the working directory: File -> Change working directory
+
+############# Phase A: build the device #################
+step01_setup;                 # units, platform constants, R, delta
+step02_geometry;              # leads, S-bend, BOX, cladding
+##########################################
+
+############# Phase B: solver, source and monitors #################
+step03_fdtd_region;           # FDTD region, mesh accuracy, shut-off
+step04_sources_monitors;      # two S-parameter ports and a field profile monitor
+##########################################
+
+############# Phase C: run and save the results #################
+step05_save_results;          # run the simulation; save S-parameters and the field profile
+##########################################
+
+# Closing summary
+?"";
+?"==============================================";
+?"  Bezier S-bend (six poles), 3D FDTD";
+?"==============================================";
+?"  R          : " + num2str(R_bend/um, "%.2f") + " um";
+?"  delta      : " + num2str(delta, "%.3f");
+?"  span       : " + num2str(2*R_bend/um, "%.1f") + " um axial, " + num2str(R_bend/um, "%.1f") + " um lateral";
+?"==============================================";
+?"";
+?"  Next steps:";
+?"    * Post-process with bend_results.py";
+?"    * Compare against the EME bend loss in ../MODE/";
+?"";

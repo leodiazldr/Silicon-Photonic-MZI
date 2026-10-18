@@ -1,7 +1,7 @@
 # PN junction carrier-depletion phase shifter, CHARGE (drift-diffusion).
 # Doping profile, DC bias sweep and junction capacitance.
 #
-# Post-processing: depletion_vs_bias.ipynb  (W_dep(V), from the DC sweep)
+# Post-processing: depletion_vs_bias.py   (W_dep(V), from the DC sweep)
 #                  capacitance_vs_bias.py  (C(V), from the AC sweep)
 
 # before running check the working directory: File -> Change working directory
@@ -43,7 +43,7 @@ step09_ac_sweep;               # sweep the bias again, save ac_sweep.mat
 ?"";
 ?"  Output: charge_sweep.mat  (DC carrier maps)";
 ?"          ac_sweep.mat     (small-signal admittance)";
-?"  Next  : depletion_vs_bias.ipynb -> W_dep(V)";
+?"  Next  : depletion_vs_bias.py -> W_dep(V)";
 ?"          capacitance_vs_bias.py -> C(V), R(V), f_3dB(V)";
 
 # The electro-optic half of the model lives in ../MODE/: run the DC sweep here

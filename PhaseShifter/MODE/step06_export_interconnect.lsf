@@ -1,0 +1,81 @@
+# Write the INTERCONNECT compact-model data card.
+#
+# Input : neff_vs_bias.mat (step05)
+# Output: phase_shifter_neff_vs_V.txt
+#
+# Optical Modulator Measured (OM), measurement type "effective index":
+#   column 1  bias voltage [V]
+#   column 2  Re(neff) - Re(neff at V_ref)
+#   column 3  Im(neff)
+#
+# Run after step01 and step05, or through main.lsf.
+
+# before running check the working directory: File -> Change working directory
+
+matlabload(result_file);
+n_points = length(V);
+
+############# Reference point #################
+# The element applies the modulation phase on top of the arm, so the real part is
+# written as a change from the equilibrium bias.
+i_ref = 1;
+for (i = 2:n_points) {
+    if (abs(V(i) - V_ref) < abs(V(i_ref) - V_ref)) {
+        i_ref = i;
+    }
+}
+
+neff_ref = neff_real(i_ref);
+dneff = neff_real - neff_ref;
+##########################################
+
+############# Guards #################
+ascending = 1;
+for (i = 2:n_points) {
+    if (V(i) <= V(i-1)) {
+        ascending = 0;
+    }
+}
+if (ascending == 0) {
+    ?"WARNING: V is not strictly ascending; INTERCONNECT reads the voltage axis as written.";
+}
+
+dV = abs(V(n_points) - V(1)) / (n_points - 1);
+if (abs(V(i_ref) - V_ref) > dV) {
+    ?"WARNING: V_ref is outside the sweep; the nearest bias point was used.";
+}
+##########################################
+
+############# Data card #################
+# write() appends a newline per call, so the previous card is removed first.
+if (fileexists(ic_file)) {
+    rm(ic_file);
+}
+for (i = 1:n_points) {
+    row = num2str(V(i), "%.6e") + " " + num2str(dneff(i), "%.6e") +
+          " " + num2str(neff_imag(i), "%.6e");
+    write(ic_file, row);
+}
+##########################################
+
+############# Summary #################
+?"";
+?"INTERCONNECT data card: " + ic_file;
+?"  rows      : " + num2str(n_points);
+?"  voltage   : " + num2str(V(1), "%.2f") + " to " + num2str(V(n_points), "%.2f") + " V";
+?"  reference : " + num2str(V(i_ref), "%.2f") + " V, neff = " + num2str(neff_ref, "%.6f");
+?"  dneff     : " + num2str(min(dneff), "%.3e") + " to " + num2str(max(dneff), "%.3e");
+?"  Im(neff)  : " + num2str(min(neff_imag), "%.3e") + " to " + num2str(max(neff_imag), "%.3e");
+?"  loss      : " + num2str(alpha_dB_cm(1), "%.2f") + " to " +
+    num2str(alpha_dB_cm(n_points), "%.2f") + " dB/cm";
+?"  L_pi      : " + num2str(wavelength0/(2*(max(dneff)-min(dneff)))*1e3, "%.1f") +
+    " mm at the full swing";
+?"";
+?"  Element: Optical Modulator Measured (OM)";
+?"    input parameter  : table";
+?"    load from file   : true";
+?"    measurement type : effective index";
+?"    measurement file : " + ic_file;
+?"    frequency        : " + num2str(c/wavelength0/1e12, "%.3f") + " THz";
+?"    length           : set on the element";
+##########################################

@@ -1,8 +1,10 @@
-# Setup: units, geometry, optical settings, bias grid.
+# Setup: units, imported geometry, optical settings, imported bias grid.
 #
-# Geometry is copied from ../CHARGE/step01_setup.lsf so the imported carrier map
-# lands on the right coordinates: x = lateral, 0 at the waveguide centre;
-# y = vertical, 0 at the BOX/silicon interface.
+# The cross-section and the bias grid are not defined here: ../CHARGE/step01_setup.lsf
+# writes charge_params.mat on every run and this file loads it. That keeps the two
+# solvers on one definition, which is what makes the imported carrier map land on the
+# right coordinates: x = lateral, 0 at the waveguide centre; y = vertical, 0 at the
+# BOX/silicon interface.
 
 # before running check the working directory: File -> Change working directory
 
@@ -19,19 +21,13 @@ um = 1e-6;
 nm = 1e-9;
 cm = 1e-2;
 
-# geometry (cross-section)
-wg_width      = 0.5  * um;
-wg_thickness  = 220  * nm;
-box_depth     = 2.0  * um;
-clad_height   = 2.0  * um;
-slab_height    = 0.09 * um;
-contact_height= 0.09 * um;
-contact_inner = 1.2  * um;
-contact_outer = 2.0  * um;
+# geometry (cross-section), imported from the electrical model. The carrier map is
+# placed by coordinate, not by a structural link to the CHARGE file, so a dimension
+# redefined here would move the carriers relative to the waveguide with no visible
+# error: ../CHARGE/step01_setup.lsf has to run first.
+matlabload("../CHARGE/charge_params.mat");
 
-lateral_half  = 1.5  * um;     # CHARGE simulation half-extent; the FDE window matches it
-
-z_extent      = 1.0  * um;     # arbitrary for a 2D solve, only needs to be shared
+z_extent      = dev_length;    # arbitrary for a 2D solve, only needs to be shared
 
 # optical settings
 wavelength0 = 1.55 * um;
@@ -43,11 +39,16 @@ fde_y_span   = 2*lateral_half;
 fde_y_center = wg_thickness/2;
 fde_bc       = "Metal";
 
-# bias grid; must match ../CHARGE/step07_dc_sweep.lsf -- the bias index used to
-# select a carrier map later is an index into that sweep
-V_bias_start  = -1.5;
-V_bias_stop   =  0.0;
-V_bias_points = 21;
+# bias grid: the sweep of ../CHARGE/step07_dc_sweep.lsf, imported above. The bias
+# index used to select a carrier map later is an index into that sweep, so the grid
+# and its ordering have to be the CHARGE ones, not a local copy.
+V_bias_start  = V_reverse_start;   # deep reverse, first point
+V_bias_stop   = V_reverse_stop;    # equilibrium, last point
+V_bias_points = V_num_points;
 
 charge_file = "../CHARGE/charge_sweep.mat";
 result_file = "neff_vs_bias.mat";
+
+# INTERCONNECT compact model: Optical Modulator Measured, "effective index"
+V_ref   = 0.0;                          # bias the index change is referenced to
+ic_file = "phase_shifter_neff_vs_V.txt";

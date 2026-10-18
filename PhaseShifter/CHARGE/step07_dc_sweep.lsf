@@ -2,7 +2,7 @@
 # grounded, and the carrier maps for the whole range are produced in one run.
 #
 # Output: charge_sweep.mat -- n, p and the mesh at every bias point. Consumed by
-# depletion_vs_bias.ipynb (W_dep) and by ../MODE/.
+# depletion_vs_bias.py (W_dep) and by ../MODE/.
 
 # before running check the working directory: File -> Change working directory
 

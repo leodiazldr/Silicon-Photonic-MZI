@@ -1,10 +1,12 @@
-# Doping regions: four constant doping regions across the cross-section.
+# Doping regions: two Pearson-IV implants in the ridge, two diffused blocks on the slab.
 #
-# The moderately doped p/n regions sit in the ridge and overlap the optical mode -
-# that is where depletion happens. The heavily doped p+/n+ regions sit out on the
-# slab, away from the mode, to give a low-resistance path to the metal contacts.
+# The implanted p/n regions sit in the ridge and overlap the optical mode - that is
+# where depletion happens, and the implant makes the doping fall away with depth.
+# The heavily doped p+/n+ blocks sit out on the slab, away from the mode, to give a
+# low-resistance path to the metal contacts.
 #
-# "concentration" / "peak concentration" are in m^-3.
+# "concentration" is the block level (adddiffusion); "peak concentration" is the
+# value at the top of the profile (addimplant). Both are in m^-3.
 
 # before running check the working directory: File -> Change working directory
 
@@ -12,8 +14,8 @@
 # p+ contact region (left)
 adddiffusion;
 set("name", "p_plus");
-set("x min", -contact_outer);
-set("x max", -contact_inner);
+set("x min", -contact_outer - 0.3*um);
+set("x max", -contact_inner + 0.3*um);
 set("y min", 0);
 set("y max", slab_height);
 set("z", 0);
@@ -53,8 +55,8 @@ set("surface normal","y");
 # n+ contact region (right)
 adddiffusion;
 set("name", "n_plus");
-set("x min", contact_inner);
-set("x max", contact_outer);
+set("x min", contact_inner - 0.3*um);
+set("x max", contact_outer + 0.3*um);
 set("y min", 0);
 set("y max", slab_height);
 set("z", 0);

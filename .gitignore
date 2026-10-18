@@ -47,7 +47,8 @@ General/.obsidian/
 # =============================================================================
 # Deliberately NOT ignored
 # =============================================================================
-# Result figures (*.png) and the INTERCONNECT data card (*.ldf) are tracked on
-# purpose, so that every result in the READMEs can be inspected without a
-# Lumerical licence. Do not add them here.
+# Result figures (*.png) and the INTERCONNECT data cards (*.ldf and
+# PhaseShifter/MODE/phase_shifter_neff_vs_V.txt) are tracked on purpose, so that
+# every result in the READMEs can be inspected without a Lumerical licence. Do
+# not add them here.
 # =============================================================================

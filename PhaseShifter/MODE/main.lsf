@@ -1,13 +1,14 @@
 # PN junction carrier-depletion phase shifter - MODE (electro-optic).
 # Effective index and loss versus bias, and the V_pi*L figure of merit.
 #
-# PREREQUISITE: run ../CHARGE/main.lsf first, so ../CHARGE/charge_sweep.mat exists.
-# Post-processing: neff_vs_bias.py
+# PREREQUISITE: run ../CHARGE/main.lsf first, so ../CHARGE/charge_params.mat (cross-section
+# and bias grid) and ../CHARGE/charge_sweep.mat (carrier maps) exist.
+# Post-processing: step06_export_interconnect (INTERCONNECT card), neff_vs_bias.py
 
 # before running check the working directory: File -> Change working directory
 
 ############# Phase A: import the carrier maps #################
-step01_setup;                  # units, geometry, FDE window, bias grid
+step01_setup;                  # units, imported geometry and bias grid, FDE window
 step02_materials;              # charge dataset -> grid attribute -> perturbed Si
 step03_geometry;               # BOX, slab, ridge, cladding, contacts
 ##########################################
@@ -16,8 +17,9 @@ step03_geometry;               # BOX, slab, ridge, cladding, contacts
 step04_fde_setup;              # FDE region, mesh, modal settings, reference solve
 ##########################################
 
-############# Phase C: run #################
+############# Phase C: run and export #################
 step05_bias_sweep;             # solve the mode per bias point, save neff_vs_bias.mat
+step06_export_interconnect;    # write the INTERCONNECT compact-model data card
 ##########################################
 
 # Closing summary
@@ -32,4 +34,5 @@ step05_bias_sweep;             # solve the mode per bias point, save neff_vs_bia
     " V, " + num2str(V_bias_points) + " points";
 ?"";
 ?"  Output: neff_vs_bias.mat";
+?"          " + ic_file + " (INTERCONNECT)";
 ?"  Next  : neff_vs_bias.py -> neff(V), loss(V), V_pi*L(V)";

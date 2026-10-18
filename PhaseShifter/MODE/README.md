@@ -11,9 +11,9 @@ Modelled in Lumerical **MODE** with the **FDE** solver.
 | --------- | ----- |
 | Waveguide | 500 nm × 220 nm Si rib |
 | Wavelength | 1550 nm, fundamental TE |
-| Bias sweep | 0 to −1.5 V, 21 points (matches the CHARGE sweep) |
+| Bias sweep | 0 to −5 V, 21 points (imported from the CHARGE sweep) |
 | Carrier model | `n` / `p` imported from `charge_sweep.mat`, Soref–Bennett conversion |
-| FDE window | 3.0 µm × 3.0 µm, Metal (matches the CHARGE monitor region) |
+| FDE window | `2*lateral_half` = 4.0 µm × 4.0 µm, Metal (equals the imported carrier map extent) |
 
 ## Getting the carrier map into the optical model
 
@@ -38,8 +38,11 @@ file for each one.
 
 The charge map is placed by coordinates, not by any structural link to the CHARGE file. If the
 waveguide sits even a few tens of nanometres away from where it sat in CHARGE, the carriers
-land in the wrong place. The geometry in [`step01_setup.lsf`](step01_setup.lsf) is therefore
-copied from CHARGE rather than re-derived, and the convention is identical in both:
+land in the wrong place. The geometry is therefore not redefined here: every run of
+[`../CHARGE/step01_setup.lsf`](../CHARGE/step01_setup.lsf) writes `charge_params.mat` next to
+the CHARGE scripts, and [`step01_setup.lsf`](step01_setup.lsf) loads it with `matlabload`. The
+bias grid travels in the same file, because the index used to select a carrier map is an index
+into the CHARGE sweep and has to keep its ordering. The convention is identical in both:
 
 | Axis | Physical direction |
 | ---- | ------------------ |
@@ -48,7 +51,7 @@ copied from CHARGE rather than re-derived, and the convention is identical in bo
 | z | propagation (uniform; the FDE solve is 2D in x–y) |
 
 The second constraint is the FDE window, and here the two solvers are made to agree exactly.
-CHARGE's monitor data covers its simulation region (x ∈ [−1.5, +1.5] µm, and y over a 3 µm
+CHARGE's monitor data covers its simulation region (x ∈ [−2.0, +2.0] µm, and y over a 4 µm
 span centred on the waveguide), while any part of the mode falling outside that box would see
 unperturbed silicon, diluting the computed index change in a way that looks like a physical
 result. `step04_fde_setup.lsf` therefore sets the FDE region to `2*lateral_half` in both
@@ -58,7 +61,7 @@ margin.
 Nothing from the CHARGE cross-section is dropped: `step03_geometry.lsf` reproduces the BOX,
 slab, ridge, cladding and both metal contacts at their CHARGE coordinates. The ridge *and* the
 slab are assigned the perturbed material, so the imported carriers modulate the index wherever
-the map has data. Because the contacts' inner edge sits at ±1.2 µm, inside the ±1.5 µm window,
+the map has data. Because the contacts' inner edge sits at ±1.5 µm, inside the ±2.0 µm window,
 aluminium absorption is part of the computed loss; see the caveat under
 [Results](#results).
 
@@ -93,16 +96,51 @@ from the mean slope over the whole swing. The mean-slope number is the one to qu
 comparing designs; the per-interval curve is what shows how the device would actually be
 biased.
 
+## INTERCONNECT compact model
+
+[`step06_export_interconnect.lsf`](step06_export_interconnect.lsf) turns the sweep into the data
+card the MZI system model consumes. The element is INTERCONNECT's **Optical Modulator Measured
+(OM)** with `measurement type = effective index`, which reads three whitespace-separated columns:
+
+| Column | Quantity |
+| ------ | -------- |
+| 1 | Bias voltage [V], ascending from `V_bias_start` to `V_bias_stop` |
+| 2 | `Re(n_eff) - Re(n_eff at 0 V)` |
+| 3 | `Im(n_eff)`, absolute |
+
+The real part is a change referenced to equilibrium, because the element adds the modulation
+phase to whatever the arm already carries; an absolute index here would bake in a phase offset
+that belongs to the arm lengths. The imaginary part stays absolute, so the insertion loss at
+0 V is part of the model. As noted under Results, that loss still contains the aluminium
+contribution.
+
+The card is written to `phase_shifter_neff_vs_V.txt` in this folder. In the element, set
+`input parameter = table`, `load from file = true`, `measurement filename` to that file,
+`measurement type = effective index`, `frequency = 193.414 THz` (the 1550 nm solve point), and
+the mode to TE. The modulation-port voltage is the anode-to-cathode bias, so keep the source
+within the swept −5 → 0 V range; outside it the element has no data.
+
+The interaction `length` is an element property because the card is per metre. With
+`V_π·L = 2.03 V·cm`, the voltage for a π shift is `V_π·L / length`: at the full swing the index
+change is 1.91×10⁻⁴, so a length of about 4.1 mm puts π at the −5 V end of the sweep. The
+1 mm in [`neff_vs_bias.py`](neff_vs_bias.py) is the insertion-loss example, not a phase-shift
+design point.
+
+The card is single-frequency. The OM element holds one `frequency`, and the dispersion of the
+rest of the arm continues to come from the waveguide data card in [`../../MZI/`](../../MZI/).
+
 ## Files
 
 | File | Purpose |
 | ---- | ------- |
 | `main.lsf` | Driver; calls the steps in order |
-| `step01_setup.lsf` | Units, geometry (copied from CHARGE), FDE window, bias grid, paths |
+| `step01_setup.lsf` | Units, geometry and bias grid loaded from `../CHARGE/charge_params.mat`, FDE window, paths |
 | `step02_materials.lsf` | Imports `charge_sweep.mat` as an np-density grid attribute; creates the Soref–Bennett perturbation material |
 | `step03_geometry.lsf` | BOX, slab, perturbed ridge, cladding |
 | `step04_fde_setup.lsf` | FDE region, mesh, modal settings, and a reference solve at equilibrium |
 | `step05_bias_sweep.lsf` | Sweeps the bias, solving the mode at each point; writes `neff_vs_bias.mat` |
+| `step06_export_interconnect.lsf` | Writes the INTERCONNECT card from `neff_vs_bias.mat` |
+| `phase_shifter_neff_vs_V.txt` | INTERCONNECT data card: Optical Modulator Measured, effective index |
 | `neff_vs_bias.py` | Post-processing: `n_eff(V)`, `Δn_eff(V)`, loss(V), `V_π·L(V)` and four figures |
 | `neff_vs_bias.mat` | Sweep output, consumed by the Python script; solver output, not committed |
 | `neff_vs_bias.png` | Result figure: effective index versus bias |
@@ -112,8 +150,10 @@ biased.
 
 ## Running it
 
-`../CHARGE/charge_sweep.mat` has to exist first: run `../CHARGE/main.lsf`, or at least
-`../CHARGE/step07_dc_sweep.lsf`, before anything here.
+Two files from CHARGE have to exist first. `../CHARGE/charge_params.mat` is written by
+`../CHARGE/step01_setup.lsf`, and `../CHARGE/charge_sweep.mat` by `../CHARGE/step07_dc_sweep.lsf`;
+running `../CHARGE/main.lsf` produces both. Loading the parameters before the sweep would build
+the right cross-section for a carrier map that does not exist yet, so run the CHARGE flow first.
 
 In Lumerical MODE, from this folder:
 
@@ -130,6 +170,10 @@ pip install -r requirements.txt
 python PhaseShifter/MODE/neff_vs_bias.py
 ```
 
+`main.lsf` also writes `phase_shifter_neff_vs_V.txt`. That step is post-processing of
+`neff_vs_bias.mat`, so `step05` has to have run; the element settings that consume the card are
+in [INTERCONNECT compact model](#interconnect-compact-model).
+
 **The np-density API is the part of this workflow most likely to have moved between releases.**
 Both the grid attribute and the perturbation material are created by name, and the property
 strings used here are the ones Lumerical 2020 R2.4 accepts. If a step fails on another release,
@@ -143,7 +187,7 @@ these are the two places to look first:
 
 `step04` prints a reference solve at equilibrium before the sweep starts. That is the sanity
 check: if the field map does not look like the familiar TE mode of a 500 × 220 nm strip and
-`n_eff` does not come out near 2.4, the problem is in the geometry, mesh or perturbed material,
+`n_eff` does not come out near 2.56, the problem is in the geometry, mesh or perturbed material,
 not in the sweep.
 
 `step05` also prints a per-point line and warns if `n_eff` jumps by more than 0.05 between
@@ -162,44 +206,43 @@ the loss computed here is a per-unit-length free-carrier term. The script conver
 other project folders share the same budget.
 
 A second caveat is specific to this geometry: the aluminium contacts sit inside the solve
-window (inner edge ±1.2 µm against a ±1.5 µm window), so `loss_vs_bias.png` mixes free-carrier
+window (inner edge ±1.5 µm against a ±2.0 µm window), so `loss_vs_bias.png` mixes free-carrier
 absorption with whatever the metal contributes. Both terms are wanted in a device-level loss
 figure, but they are not separated here: the way to isolate the free-carrier part is to re-run
 with the contacts excluded from the FDE region.
 
 ### Current results
 
-The sweep now in the repository is the asymmetric profile (`N_A = 2×10¹⁷`,
-`N_D = 1×10¹⁷ cm⁻³`) over 0 → −1.5 V, 21 points, the same grid as the CHARGE sweep.
+The numbers are for the asymmetric profile (`N_A = 1×10¹⁸`, `N_D = 5×10¹⁷ cm⁻³`) over
+0 → −5 V, 21 points, the bias grid the CHARGE sweep exports.
 
 | Metric | Value | Target |
 | ------ | ----- | ------ |
-| `n_eff` at equilibrium (0 V) | 2.562790 | — |
-| `n_eff` at −1.5 V | 2.562835 | — |
-| `Δn_eff` over the full swing | 4.4×10⁻⁵ | — |
-| `dn_eff/dV` (mean over 0 → −1.5 V) | 2.9×10⁻⁵ V⁻¹ | — |
-| `V_π·L` (mean slope) | **2.63 V·cm** | < 3 V·cm, met |
-| `V_π·L` best bias interval | ≈ 1.9 V·cm (near 0 V) | — |
-| Free-carrier loss | 2.3 dB/cm at −1.5 V → 2.9 dB/cm at 0 V | ≪ budget |
+| `n_eff` at equilibrium (0 V) | 2.561322 | — |
+| `n_eff` at −5 V | 2.561513 | — |
+| `Δn_eff` over the full swing | 1.91×10⁻⁴ | — |
+| `dn_eff/dV` (mean over 0 → −5 V) | 3.8×10⁻⁵ V⁻¹ | — |
+| `V_π·L` (mean slope) | **2.03 V·cm** | < 3 V·cm, met |
+| `V_π·L` best bias interval | ≈ 1.2 V·cm (near 0 V) | — |
+| Free-carrier loss | 8.75 dB/cm at 0 V → 5.25 dB/cm at −5 V | 0.88 dB over 1 mm, inside the 5 dB budget |
 
 Two things about the shape of these curves are worth reading off the figures. The index change
 is **not linear in bias**: `dneff_vs_bias.png` is steepest near 0 V and flattens with reverse
 bias, which is the same behaviour the junction itself shows: the depletion width grows as
 `sqrt(V_bi − V)`, so most of the depletion per volt is bought near equilibrium. That is why the
-per-interval `V_π·L` in `vpi_L_vs_bias.png` ranges from ≈ 1.9 to ≈ 3.7 V·cm across the sweep,
-and why the mean-slope number (2.63 V·cm), not any single interval, is the figure to quote.
+per-interval `V_π·L` in `vpi_L_vs_bias.png` ranges from ≈ 1.2 to ≈ 3.1 V·cm across the sweep,
+and why the mean-slope number (2.03 V·cm), not any single interval, is the figure to quote.
 
-The loss runs the other way: highest at 0 V (2.9 dB/cm), where the depletion region is narrowest
-and the most doped silicon overlaps the mode, and falling to 2.3 dB/cm at −1.5 V. Over a 1 mm
-shifter that is 0.3 dB against a 5 dB device budget shared with the MMI and bends, so the
+The loss runs the other way: highest at 0 V (8.75 dB/cm), where the depletion region is narrowest
+and the most doped silicon overlaps the mode, and falling to 5.25 dB/cm at −5 V. Over a 1 mm
+shifter that is 0.88 dB against a 5 dB device budget shared with the MMI and bends, so the
 free-carrier term is not the loss bottleneck. As noted above, this figure also contains the
 aluminium contribution.
 
 ## Status
 
-**Complete.** The sweep has been run on the current profile and the four figures are up to
-date; the phase-shifter model is not expected to change further, so these results can be quoted
-as they stand.
+**Complete.** The flow runs end to end on the CHARGE sweep in `../CHARGE/charge_sweep.mat`
+(0 → −5 V, 21 points) and produces the table, the four figures and the INTERCONNECT card.
 
 Kept here as known limitations rather than open work:
 
@@ -210,9 +253,13 @@ Kept here as known limitations rather than open work:
   name the same properties differently.
 - The loss curve is non-flat and bias-dependent, which is the signature that the perturbation
   material is returning the Soref–Bennett absorption term as intended.
+- The INTERCONNECT card is single-frequency by construction: the OM element holds one
+  `frequency`, so a wavelength-resolved modulator model would need a separate card per
+  wavelength.
 
-Still to be folded into the MZI-level power budget: `V_π·L` and this loss term, alongside the
-MMI and bend contributions.
+The electro-optic response is exported as a compact model. The MZI-level power budget,
+which brings `V_π·L` and this loss term together with the MMI and bend contributions, is
+assembled in INTERCONNECT from this card and the passive-component data cards.
 
 ## See also
 

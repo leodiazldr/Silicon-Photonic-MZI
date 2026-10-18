@@ -19,31 +19,40 @@ cm = 1e-2;
 # geometry (cross-section)
 wg_width      = 0.5  * um;     # optical waveguide width (the mode lives here)
 wg_thickness  = 220  * nm;     # SOI device layer thickness
-box_depth     = 2.0  * um;     # buried oxide below the silicon
-clad_height   = 2.0  * um;     # cladding above the silicon
+box_depth     = 2.5  * um;     # buried oxide below the silicon
+clad_height   = 2.5  * um;     # cladding above the silicon
 slab_height    = 0.09 * um;     # slab that joins the ridge to the metal contacts
 contact_height = 0.09 * um;    # metal thickness
 
-lateral_half = 1.5  * um;      # lateral half-extent of the simulation
+lateral_half = 2.0  * um;      # lateral half-extent of the simulation
 dev_length   = 1.0  * um;      # uniform thickness (z); arbitrary for a 2D solver
 
 # doping (Lumerical works in m^-3: 1e24 m^-3 = 1e18 cm^-3)
-N_A       = 2e23;              # acceptor density (p region)
-N_D       = 1e23;              # donor density    (n region)
-N_contact = 2e25;              # p+ / n+ contact regions
+N_A       = 1e24;              # acceptor density (p region)
+N_D       = 5e23;              # donor density    (n region)
+N_contact = 1e26;              # p+ / n+ contact regions
 
 # junction position; offset = 0 puts it at the mode centre (max overlap, max loss)
 junction_offset = 0.0 * nm;
 
 # p+ / n+ contact region geometry
 contact_outer = 2.0 * um;      # lateral width of each metal contact
-contact_inner = 1.2 * um;      # distance from center where the contact regions begin
+contact_inner = 1.5 * um;      # distance from center where the contact regions begin
 
 # bias convention: reverse bias, anode negative and cathode grounded. The anode
-# sweeps from V_reverse_stop (equilibrium) to V_reverse_start (deep reverse).
+# sweeps from V_reverse_start (deep reverse, first point) to V_reverse_stop
+# (equilibrium, last point).
 V_cathode       =  0.0;        # V, cathode held at ground
-V_reverse_stop  =  0.0;        # V, start of the sweep
-V_reverse_start = -1.5;        # V, end of the sweep
+V_reverse_stop  =  0.0;        # V, equilibrium, last point of the sweep
+V_reverse_start = -5.0;        # V, deep reverse, first point of the sweep
 V_num_points    = 21;          # number of bias points
 
 x_junction = junction_offset;  # CHARGE x of the metallurgical junction
+
+# Handoff to the optical model. ../MODE/ places the imported carrier map by
+# coordinate and labels each map with a bias, so it has to build the same
+# cross-section and read the same sweep. Both are written here on every run, and
+# ../MODE/step01_setup.lsf loads this file instead of redefining the values.
+params_file = "charge_params.mat";
+matlabsave(params_file, wg_width, wg_thickness, box_depth, clad_height, slab_height, contact_height, lateral_half, contact_inner, contact_outer, dev_length, V_reverse_start, V_reverse_stop, V_num_points);
+?"  Cross-section and bias grid exported to " + params_file;
